@@ -1,6 +1,7 @@
 package mw
 
 import (
+	"errors"
 	"fmt"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
@@ -19,7 +20,7 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 			if v, ok := data.(*model.AccountInfo); ok {
 				return jwt.MapClaims{
 					"PhoneNumber": v.PhoneNumber,
-					"id":          v.AccountId,
+					"AccountId":   v.AccountId,
 					"AccountType": v.AccountType,
 				}
 			}
@@ -28,22 +29,28 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var loginVals model.LoginCredentials
 			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
+				return nil, jwt.ErrMissingLoginValues
 			}
+
+			AccountId := loginVals.AccountId
 			PhoneNumber := loginVals.PhoneNumber
 			Password := loginVals.Password
-			AccountType := loginVals.AccountType
 
-			// TODO: need to query username from mysql-db
-			// 需要支持电话和用户名登录
-			if PhoneNumber == "15395083321" && Password == "admin" {
-				return &model.AccountInfo{
-					PhoneNumber: PhoneNumber,
-					AccountId:   "test",
-					AccountType: AccountType,
-				}, nil
+			if Password == "" {
+				return nil, errors.New("密码是必填项")
 			}
-			return nil, jwt.ErrFailedAuthentication
+
+			if AccountId == "" && PhoneNumber == "" {
+				return nil, errors.New("账号或电话号码为必填项")
+			}
+
+			var accountInfo model.AccountInfo
+			if err := model.GetAccountWithCredentials(&accountInfo, loginVals); err != nil {
+				return nil, err
+			}
+
+			return accountInfo, nil
+
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			//if v, ok := data.(string); ok && v == "admin" {

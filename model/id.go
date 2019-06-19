@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -33,6 +34,7 @@ func tryToGetId(len int) (error, string) {
 		var account AccountInfo
 		// ID在数据库不存在就返回,否则继续匹配
 		if err := GetAccount(&account, id); err != nil && gorm.IsRecordNotFoundError(err) {
+			log.Print("generated account id:%s", id)
 			return nil, id
 		}
 	}
@@ -41,9 +43,7 @@ func tryToGetId(len int) (error, string) {
 
 // 教师身份6位(), 家庭身份6位(), 学生编号:8位(20190526),
 func IdGen(accountRole uint) (error, string) {
-	if accountRole == RoleTeacher {
-		return tryToGetId(6)
-	} else if accountRole == RoleFamily {
+	if accountRole == RoleTeacher || accountRole == RoleFamily {
 		return tryToGetId(6)
 	} else if accountRole == RoleStudent {
 		return tryToGetId(8)

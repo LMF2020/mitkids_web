@@ -1,7 +1,8 @@
 package model
 
 import (
-	"log"
+	"errors"
+	"github.com/jinzhu/gorm"
 	"mitkid_web/utils"
 	"time"
 )
@@ -9,7 +10,7 @@ import (
 type AccountInfo struct {
 	// 中教编号:5位, 外教编号6位, 学生编号:8位
 	AccountId     string    `json:"account_id" form:"account_id" gorm:"primary_key"`
-	AccountName   string    `json:"account_name" form:"account_name`
+	AccountName   string    `json:"account_name" form:"account_name"`
 	Password      string    `json:"password" form:"password" validate:"required"`
 	PhoneNumber   string    `json:"phone_number" form:"phone_number" validate:"required"`
 	AccountType   uint      `json:"account_type" form:"account_type"`
@@ -41,8 +42,7 @@ func CreateAccount(b *AccountInfo) (err error) {
 	}
 
 	b.AccountId = id
-
-	log.Print("Generate AccountId:%s", id)
+	b.Password = utils.MD5(b.Password)
 
 	if err = utils.DB.Create(b).Error; err != nil {
 		return err
@@ -60,6 +60,27 @@ func GetAccount(b *AccountInfo, id string) (err error) {
 
 // 根据ID删除账号
 func DeleteBook(b *AccountInfo, id string) (err error) {
-	utils.DB.Where("account_id = ?", id).Delete(b)
+	if err := utils.DB.Where("account_id = ?", id).Delete(b).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// 根据accountName/PhoneNo 或者password 查询账号
+func GetAccountWithCredentials(b *AccountInfo, credential LoginCredentials) (err error) {
+
+	accountId, phoneNumber, password := credential.AccountId, credential.PhoneNumber, credential.Password
+
+	if err := utils.DB.Where("account_id = ?", accountId).Or("phone_number=?", phoneNumber).Find(b).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return errors.New("账号或电话号码不存在")
+		}
+		return err
+	}
+
+	if utils.MD5(password) != b.Password {
+		return errors.New("密码错误")
+	}
+
 	return nil
 }

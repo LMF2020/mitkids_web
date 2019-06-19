@@ -1,9 +1,9 @@
 package model
 
 type LoginCredentials struct {
-	PhoneNumber string `form:"phone_number" json:"phone_number" binding:"required"`
-	Password    string `form:"password" json:"password" binding:"required"`
-	AccountType uint   `form:account_type json:"account_type"`
+	AccountId     string    `json:"account_id" form:"account_id"`
+	Password      string    `json:"password" form:"password"`
+	PhoneNumber   string    `json:"phone_number" form:"phone_number"`
 }
 
 //func (user UserInfo) string () string {

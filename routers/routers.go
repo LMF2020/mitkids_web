@@ -4,8 +4,10 @@ import (
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"mitkid_web/api"
 	"mitkid_web/controllers"
 	"mitkid_web/mw"
+	"net/http"
 )
 
 func SetUpRouters() *gin.Engine {
@@ -17,8 +19,9 @@ func SetUpRouters() *gin.Engine {
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
 		log.Printf("NoRoute claims: %#v\n", claims)
-		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+		api.RespondFail(c, http.StatusNotFound, "Page not found")
 	})
+
 
 	// JWT认证
 	auth := r.Group("/auth")
@@ -32,6 +35,10 @@ func SetUpRouters() *gin.Engine {
 
 	// 注册接口
 	r.POST("/account/create", controllers.CreateAccountHandler)
+
+	// 账户查询接口
+	r.POST("/account/query", controllers.QueryAccountHandler)
+
 
 	return r
 }

@@ -17,7 +17,7 @@ func CreateAccountHandler(c *gin.Context) {
 
 		// 参数校验
 		if err := utils.ValidStruct(account); err != nil {
-			api.RespondJSON(c, http.StatusBadRequest, err.Error())
+			api.RespondFail(c, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -26,13 +26,18 @@ func CreateAccountHandler(c *gin.Context) {
 		// 插入数据库
 		// todo: demo to create account
 		if err := model.CreateAccount(&account); err != nil {
-			api.RespondJSON(c, http.StatusInternalServerError, err.Error())
+			api.RespondFail(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		api.RespondJSON(c, http.StatusOK, account)
+		api.RespondSuccess(c, account)
 	} else {
-		api.RespondJSON(c, http.StatusBadRequest, err.Error())
+		api.RespondFail(c, http.StatusBadRequest, err.Error())
 	}
+
+}
+
+func QueryAccountHandler(c *gin.Context) {
+	// var account model.AccountInfo
 
 }

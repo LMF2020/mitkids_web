@@ -1,25 +1,40 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
+/**
+code: 用户自定义错误码,
+status 请求响应状态是否成功,
+payload:请求响应的内容
+*/
+
 const (
-	SUCCESS = 1
-	FAIL    = 0
+	STATUS_SUCCESS = true
+	STATUS_FAIL    = false
 )
 
 type ResponseData struct {
-	Status int
+	Code   int
+	Status bool
 	Data   interface{}
 }
 
-func RespondJSON(w *gin.Context, status int, payload interface{}) {
-	fmt.Println("status ", status)
+func RespondSuccess(w *gin.Context, payload interface{}) {
 	var res ResponseData
 
-	res.Status = status
+	res.Status = STATUS_SUCCESS
+	res.Data = payload
+
+	w.JSON(200, res)
+}
+
+func RespondFail(w *gin.Context, code int, payload interface{}) {
+	var res ResponseData
+
+	res.Code = code
+	res.Status = STATUS_FAIL
 	res.Data = payload
 
 	w.JSON(200, res)

@@ -1,0 +1,36 @@
+Development Guideline:
+==================
+
+
+Controller:
+-----------------
+成功返回: api.RespondSuccess(xxx)
+失败返回: api.RespondFail(xxx)
+
+
+Model:
+----------------
+Get(xxx) - 查询单条数据
+Find(xxx) - 查询多条数据
+Create(xxx) - 新增一条
+CreateMany(xxx) -新增多条
+Delete(xxxx) - 删除一条
+DeleteMany(xxx) - 删除多条
+Update(xxxx) - 更新一条
+UpdateMany(xxx) - 更新多条
+
+
+API:
+------------
+登录用户必须校验JWT, 同理非登录用户不需要校验JWT
+登录用户基础信息从JWT获取
+
+Error code (建议按业务模块划分)
+------------
+100 + 001 ()
+101 + 001 ()
+102 + 001 ()
+
+Shortcut Key Usage:
+---------------
+CTRL+SHIFT+N - 快速找到文件

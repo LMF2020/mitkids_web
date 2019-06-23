@@ -28,6 +28,8 @@ func SetUpRouters() *gin.Engine {
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
 		auth.GET("/refresh_token", authMiddleware.RefreshHandler)
+		// 查看个人信息
+		auth.GET("/account/profile", controllers.GetAccountProfileHandler)
 	}
 
 	// 登录接口

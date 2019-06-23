@@ -17,7 +17,8 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 		MaxRefresh: time.Hour,
 		// data as claim is returned by Authenticator func
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
-			if v, ok := data.(*model.AccountInfo); ok {
+
+			if v, ok := data.(model.AccountInfo); ok {
 				return jwt.MapClaims{
 					"PhoneNumber": v.PhoneNumber,
 					"AccountId":   v.AccountId,

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
+	"mitkid_web/api"
 	"mitkid_web/model"
 	"time"
 )
@@ -54,18 +55,14 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-			//if v, ok := data.(string); ok && v == "admin" {
-			//	return true
-			//}
+
 			fmt.Printf("authorizator data:%+v", data)
 
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(code, gin.H{
-				"code":    code,
-				"message": message,
-			})
+			// 权限失败返回
+			api.RespondFail(c, code, message)
 		},
 		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",

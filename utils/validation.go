@@ -19,7 +19,7 @@ var (
 	zh       = zhongwen.New()
 )
 
-func ValidStruct(params interface{}) error {
+func ValidateParam(params interface{}) error {
 
 	uni = ut.New(zh, zh)
 
@@ -40,7 +40,7 @@ func ValidStruct(params interface{}) error {
 			outerr = append(outerr, err)
 		}
 
-		log.Fatal(errs.Translate(trans))
+		log.Fatal(outerr)
 		return errors.New(strings.Join(outerr, ","))
 	}
 

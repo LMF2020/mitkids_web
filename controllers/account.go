@@ -5,12 +5,13 @@ import (
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"log"
 	"mitkid_web/api"
 	"mitkid_web/model"
 	"mitkid_web/utils"
 	"net/http"
 )
+
+var log = utils.Log
 
 func CreateAccountHandler(c *gin.Context) {
 
@@ -19,7 +20,7 @@ func CreateAccountHandler(c *gin.Context) {
 	if err := c.ShouldBind(&account); err == nil {
 
 		// 参数校验
-		if err := utils.ValidStruct(account); err != nil {
+		if err := utils.ValidateParam(account); err != nil {
 			api.RespondFail(c, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -30,7 +31,7 @@ func CreateAccountHandler(c *gin.Context) {
 			return
 		}
 
-		log.Printf("created account: %+v", account)
+		log.WithField("account", account).Debug("Account created")
 
 		api.RespondSuccess(c, account)
 	} else {

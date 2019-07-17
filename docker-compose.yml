@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web01:
+    build: .
+    volumes:
+      - /opt/workdoc:/app/mulkids
+      - /opt/logs:/go-docker/logs
+      - /opt/pkg/mod/cache:/go/web/cache
+    ports:
+      - 8888:8080

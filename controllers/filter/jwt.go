@@ -1,4 +1,4 @@
-package mw
+package filter
 
 import (
 	"errors"
@@ -7,10 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"mitkid_web/api"
 	"mitkid_web/model"
+	"mitkid_web/service"
+	"mitkid_web/utils"
 	"time"
 )
 
-func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
+var s *service.Service
+
+func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
+	s = service
 	return &jwt.GinJWTMiddleware{
 		Realm:      "MitKids realm",
 		Key:        []byte("Mit kids secret"),
@@ -46,13 +51,11 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 				return nil, errors.New("账号或电话号码为必填项")
 			}
 
-			var accountInfo model.AccountInfo
-			if err := model.GetAccountWithCredentials(&accountInfo, loginVals); err != nil {
+			accountInfo, err := GetAccountWithCredentials(&loginVals)
+			if err != nil || accountInfo == nil {
 				return nil, err
 			}
-
 			return accountInfo, nil
-
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 
@@ -68,4 +71,25 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 		TokenHeadName: "Bearer",
 		TimeFunc:      time.Now,
 	}
+}
+
+// 根据accountName/PhoneNo 或者password 查询账号
+func GetAccountWithCredentials(credential *model.LoginCredentials) (a *model.AccountInfo, err error) {
+	accountId, phoneNumber, password := credential.AccountId, credential.PhoneNumber, credential.Password
+	if accountId != "" {
+		if a, err = s.GetAccountById(accountId); err != nil {
+			return nil, err
+		}
+	} else if phoneNumber != "" {
+		if a, err = s.GetAccountByPhoneNumber(phoneNumber); err != nil {
+			return nil, err
+		}
+	}
+	if a == nil {
+		return nil, errors.New("用户不存在")
+	}
+	if utils.MD5(password) != a.Password {
+		return nil, errors.New("密码错误")
+	}
+	return
 }

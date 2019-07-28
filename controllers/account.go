@@ -6,12 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"mitkid_web/api"
+	"mitkid_web/library/errorcode"
 	"mitkid_web/model"
 	"mitkid_web/utils"
+	Log "mitkid_web/utils/log"
 	"net/http"
 )
 
-var log = utils.Log
+var log = Log.Logger
 
 func CreateAccountHandler(c *gin.Context) {
 
@@ -22,6 +24,20 @@ func CreateAccountHandler(c *gin.Context) {
 		// 参数校验
 		if err := utils.ValidateParam(account); err != nil {
 			api.RespondFail(c, http.StatusBadRequest, err.Error())
+			return
+		}
+		accountExist, err := s.GetAccountByPhoneNumber(account.PhoneNumber)
+		if err == nil {
+
+		}
+		if accountExist != nil {
+			api.RespondFail(c, errorcode.USER_ALREADY_EXIS, "The user ("+account.PhoneNumber+") already exists")
+			return
+		}
+
+		// 插入数据库
+		if err := model.GetAccount(&account, account.PhoneNumber); err != nil {
+			api.RespondFail(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 

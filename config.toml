@@ -1,0 +1,6 @@
+[db]
+    host="49.234.73.182"
+    username="root"
+    password="ZoOMus123"
+    schema="MulKids"
+    port=3308

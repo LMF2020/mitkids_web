@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.39.0 // indirect
+	github.com/BurntSushi/toml v0.3.1
 	github.com/appleboy/gin-jwt v2.5.0+incompatible
 	github.com/denisenkom/go-mssqldb v0.0.0-20190515213511-eb9f6a1743f3 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
@@ -19,6 +20,7 @@ require (
 	github.com/lib/pq v1.1.1 // indirect
 	github.com/magiconair/properties v1.8.1
 	github.com/mattn/go-isatty v0.0.8 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.4.2
 	github.com/tidwall/gjson v1.2.1 // indirect

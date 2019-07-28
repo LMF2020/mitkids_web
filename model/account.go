@@ -1,8 +1,6 @@
 package model
 
 import (
-	"errors"
-	"github.com/jinzhu/gorm"
 	"mitkid_web/utils"
 	"time"
 )
@@ -63,24 +61,5 @@ func DeleteBook(b *AccountInfo, id string) (err error) {
 	if err := utils.DB.Where("account_id = ?", id).Delete(b).Error; err != nil {
 		return err
 	}
-	return nil
-}
-
-// 根据accountName/PhoneNo 或者password 查询账号
-func GetAccountWithCredentials(b *AccountInfo, credential LoginCredentials) (err error) {
-
-	accountId, phoneNumber, password := credential.AccountId, credential.PhoneNumber, credential.Password
-
-	if err := utils.DB.Where("account_id = ?", accountId).Or("phone_number=?", phoneNumber).Find(b).Error; err != nil {
-		if gorm.IsRecordNotFoundError(err) {
-			return errors.New("账号或电话号码不存在")
-		}
-		return err
-	}
-
-	if utils.MD5(password) != b.Password {
-		return errors.New("密码错误")
-	}
-
 	return nil
 }

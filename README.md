@@ -1,8 +1,20 @@
+文档
+----
+````
+https://www.showdoc.cc/mitkids?page_id=2620630542705691
+````
 
-#### 基于`Golang`实现的教育选课系统
+返回接口
+----
+```
+成功返回: api.Success()
+失败返回: api.Fail()
+```
 
-~ 支持接口列表(不断更新中..)
-1. http://localhost:8888/account/create -- 账号注册
-2. http://localhost:8888/login -- 登录并获取JWT token
-3. http://localhost:8888/auth/refresh_token -- 刷新JWT token
-4. http://localhost:8888/auth/account/profile -- 登录后获取账户信息
+错误码 (建议按业务模块划分)
+----
+```
+1. 401 访问无权限
+2. 400 请求错误
+```
+

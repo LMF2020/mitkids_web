@@ -1,9 +1,7 @@
 package routers
 
 import (
-	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
-	"log"
 	"mitkid_web/api"
 	"mitkid_web/controllers"
 	"mitkid_web/mw"
@@ -17,29 +15,36 @@ func SetUpRouters() *gin.Engine {
 	authMiddleware := mw.NewJwtAuthMiddleware()
 
 	r.NoRoute(authMiddleware.MiddlewareFunc(), func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		log.Printf("NoRoute claims: %#v\n", claims)
-		api.RespondFail(c, http.StatusNotFound, "Page not found")
+		//claims := jwt.ExtractClaims(c)
+		//log.Printf("NoRoute claims: %#v\n", claims)
+		api.Fail(c, http.StatusNotFound, "接口不存在")
 	})
 
+	/**
+	通用组
+	 */
+	commonGroup := r.Group("/api/common")
+	// 发送验证码：注册验证码，登录验证码，忘记密码
+	commonGroup.POST("/account/code/verify", controllers.CodeHandler)
+	// 刷新 Access Token
+	commonGroup.POST("/token/refresh", authMiddleware.RefreshHandler)
+	// -------------------------------
+	/**
+	学生组
+	 */
+	childGroup := r.Group("/api/child")
+	// 学生注册
+	childGroup.POST("/account/register", controllers.RegisterChildAccountHandler)
+	// 学生登录
+	childGroup.POST("/account/login", authMiddleware.LoginHandler)
 
-	// JWT认证
-	auth := r.Group("/auth")
-	auth.Use(authMiddleware.MiddlewareFunc())
+	// 学生端认证接口
+	childAuthGroup := r.Group("/auth/api/child")
+	childAuthGroup.Use(authMiddleware.MiddlewareFunc())
 	{
-		auth.GET("/refresh_token", authMiddleware.RefreshHandler)
-		// 查看个人信息
-		auth.GET("/account/profile", controllers.GetAccountProfileHandler)
+		// 学生基本信息
+		childAuthGroup.POST("/account/profile", controllers.GetChildAccountInfoHandler)
 	}
-
-	// 登录接口
-	r.POST("/login", authMiddleware.LoginHandler)
-
-	// 注册接口
-	r.POST("/account/create", controllers.CreateAccountHandler)
-
-	// 账户查询接口
-	r.POST("/account/query", controllers.QueryAccountHandler)
 
 
 	return r

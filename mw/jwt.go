@@ -2,67 +2,76 @@ package mw
 
 import (
 	"errors"
-	"fmt"
 	jwt "github.com/appleboy/gin-jwt"
+	"github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/api"
+	"mitkid_web/consts"
 	"mitkid_web/model"
 	"time"
 )
 
 func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
-		Realm:      "MitKids realm",
-		Key:        []byte("Mit kids secret"),
+		Realm:      "MitKids589746",
+		Key:        []byte("458793216"),
 		Timeout:    time.Hour,
 		MaxRefresh: time.Hour,
-		// data as claim is returned by Authenticator func
+		// data returned from Authenticator func
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 
 			if v, ok := data.(model.AccountInfo); ok {
-				return jwt.MapClaims{
-					"PhoneNumber": v.PhoneNumber,
-					"AccountId":   v.AccountId,
-					"AccountType": v.AccountType,
-				}
+
+				//Map(v)
+				return structs.Map(v)
 			}
 			return jwt.MapClaims{}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var loginVals model.LoginCredentials
-			if err := c.ShouldBind(&loginVals); err != nil {
-				return nil, jwt.ErrMissingLoginValues
+			var form model.LoginForm
+			if err := c.ShouldBind(&form); err != nil {
+				return nil, errors.New("手机号或登录类型不能为空")
 			}
-
-			AccountId := loginVals.AccountId
-			PhoneNumber := loginVals.PhoneNumber
-			Password := loginVals.Password
-
-			if Password == "" {
-				return nil, errors.New("密码是必填项")
-			}
-
-			if AccountId == "" && PhoneNumber == "" {
-				return nil, errors.New("账号或电话号码为必填项")
-			}
-
 			var accountInfo model.AccountInfo
-			if err := model.GetAccountWithCredentials(&accountInfo, loginVals); err != nil {
-				return nil, err
+
+			loginType := form.LoginType
+			pass := form.Password
+			code := form.Code
+
+			//如果是密码登录
+			if loginType == consts.AccountLoginTypePass {
+				if pass == "" {
+					return nil, errors.New("密码不能为空")
+				}
+				// 密码登录
+				if err := model.LoginWithPass(&accountInfo, form); err!=nil {
+					return nil, err;
+				}
+				// 验证通过，返回
+				return accountInfo, nil
+
+			} else if loginType == consts.AccountLoginTypeCode {
+				if code == "" {
+					return nil, errors.New("验证码不能为空")
+				}
+				// 验证码登录
+				if err := model.LoginWithCode(&accountInfo, form); err!=nil {
+					return nil, err;
+				}
+				// 验证通过，返回
+				return accountInfo, nil
 			}
 
-			return accountInfo, nil
+			return nil, errors.New("登录方式错误")
 
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
-
-			fmt.Printf("authorizator data:%+v", data)
-
+			//
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			// 权限失败返回
-			api.RespondFail(c, code, message)
+			// 权限校验失败
+			api.Fail(c, code, message)
 		},
 		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",

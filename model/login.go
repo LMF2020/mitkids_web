@@ -1,9 +1,10 @@
 package model
 
-type LoginCredentials struct {
-	AccountId     string    `json:"account_id" form:"account_id"`
+type LoginForm struct {
+	PhoneNumber   string    `json:"phone_number" form:"phone_number" binding:"required"`
+	LoginType	  int		`json:"login_type" form:"login_type" binding:"required"`
 	Password      string    `json:"password" form:"password"`
-	PhoneNumber   string    `json:"phone_number" form:"phone_number"`
+	Code      	  string    `json:"code" form:"code"`
 }
 
 //func (user UserInfo) string () string {

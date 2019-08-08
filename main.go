@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/magiconair/properties"
 	"mitkid_web/routers"
 	"mitkid_web/utils"
 	"net/http"
+	"strings"
 )
 
 var err error
@@ -26,14 +28,23 @@ func main() {
 	dbPort := p.GetInt("db.port", 3306)
 	dbHost := p.MustGetString("db.host")
 	dbUrl := fmt.Sprintf("%s:%s@(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", dbUsername, dbPassword, dbHost, dbPort, dbSchema)
+	cacheSrvList := p.MustGetString("db.cache.hosts")
 
 	// 初始化db connection
 	utils.DB, err = gorm.Open("mysql", dbUrl)
 	if err != nil {
-		log.WithField("host", dbHost).WithField("port", dbPort).Panic("mysql db connection error")
+		log.WithField("host", dbHost).WithField("port", dbPort).Panic("mysql server connection error")
 	}
+	log.Info("mysql server connected")
 
-	log.Info("mysql db connected")
+	// 初始化 memCached
+	mcHost := strings.Split(cacheSrvList, ",")
+	utils.MC = memcache.New(mcHost...)
+	if utils.MC == nil {
+		log.WithField("cache", cacheSrvList).Panic("cache server connection error")
+	}
+	log.Info("cache server connected")
+
 	defer utils.DB.Close()
 
 	// 路由绑定
@@ -42,7 +53,7 @@ func main() {
 	log.Info("web server started...")
 
 	if err := http.ListenAndServe(":8080", r); err != nil {
-		log.Panic("fail to start web server")
+		log.Panic("failed to start web server")
 	}
 
 	// HTTPS 支持

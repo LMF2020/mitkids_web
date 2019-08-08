@@ -5,14 +5,10 @@ import (
 	"github.com/jinzhu/gorm"
 	"log"
 	"math/rand"
+	"mitkid_web/consts"
 	"time"
 )
 
-const (
-	RoleTeacher = 1
-	RoleFamily  = 2
-	RoleStudent = 3
-)
 
 var letterRunes = []rune("123456789")
 
@@ -34,7 +30,7 @@ func tryToGetId(len int) (error, string) {
 		var account AccountInfo
 		// ID在数据库不存在就返回,否则继续匹配
 		if err := GetAccount(&account, id); err != nil && gorm.IsRecordNotFoundError(err) {
-			log.Print("generated account id:%s", id)
+			log.Print("生成账号id:", id)
 			return nil, id
 		}
 	}
@@ -43,9 +39,9 @@ func tryToGetId(len int) (error, string) {
 
 // 教师身份6位(), 家庭身份6位(), 学生编号:8位(20190526),
 func IdGen(accountRole uint) (error, string) {
-	if accountRole == RoleTeacher || accountRole == RoleFamily {
+	if accountRole == consts.AccountRoleTeacher || accountRole == consts.AccountRoleCorp {
 		return tryToGetId(6)
-	} else if accountRole == RoleStudent {
+	} else if accountRole == consts.AccountRoleChild {
 		return tryToGetId(8)
 	}
 	return errors.New("角色不正确,无法生成账号"), ""

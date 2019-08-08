@@ -21,7 +21,7 @@ type ResponseData struct {
 	Data   interface{}
 }
 
-func RespondSuccess(w *gin.Context, payload interface{}) {
+func Success(w *gin.Context, payload interface{}) {
 	var res ResponseData
 
 	res.Status = STATUS_SUCCESS
@@ -30,7 +30,7 @@ func RespondSuccess(w *gin.Context, payload interface{}) {
 	w.JSON(200, res)
 }
 
-func RespondFail(w *gin.Context, code int, payload interface{}) {
+func Fail(w *gin.Context, code int, payload interface{}) {
 	var res ResponseData
 
 	res.Code = code

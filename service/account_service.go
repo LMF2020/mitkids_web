@@ -6,6 +6,7 @@ import (
 	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils"
+	"mitkid_web/utils/cache"
 	"mitkid_web/utils/log"
 )
 
@@ -18,7 +19,7 @@ func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err err
 }
 
 // 创建账号
-func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
+	func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
 
 	// 验证手机号是否存在
 	if _tmpAcc, err := s.GetAccountByPhoneNumber(b.PhoneNumber); err != nil {
@@ -37,7 +38,7 @@ func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
 	b.AccountId = id
 	b.Password = utils.MD5(b.Password)
 
-	if err = utils.DB.Create(b).Error; err != nil {
+	if err = s.dao.CreateAccount(b); err != nil {
 		return err
 	}
 	return nil
@@ -79,7 +80,7 @@ func (s *Service) LoginWithCode (b *model.AccountInfo, login model.LoginForm) (e
 
 	// 校验验证码
 	codeKey := fmt.Sprintf(consts.CodeLoginPrefix, phoneNumber) // 登录验证码前缀
-	it, _ := utils.MC.Get(codeKey)
+	it, _ := cache.Client.Get(codeKey)
 	if it == nil || it.Key != codeKey || string(it.Value) != code {
 		return errors.New("验证码错误")
 	}

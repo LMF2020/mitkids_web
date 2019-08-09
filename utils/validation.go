@@ -6,6 +6,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"gopkg.in/go-playground/validator.v9"
 	translator "gopkg.in/go-playground/validator.v9/translations/zh"
+	"mitkid_web/utils/log"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func ValidateParam(params interface{}) error {
 			outerr = append(outerr, err)
 		}
 
-		Log.Error(outerr)
+		log.Logger.Error(outerr)
 		return errors.New(strings.Join(outerr, ","))
 	}
 

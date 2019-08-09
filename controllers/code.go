@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/gin-gonic/gin"
-	"mitkid_web/api"
 	"mitkid_web/consts"
+	"mitkid_web/controllers/api"
 	"mitkid_web/utils"
+	"mitkid_web/utils/cache"
 	"mitkid_web/utils/log"
 	"net/http"
 )
@@ -51,7 +52,7 @@ func CodeHandler (c *gin.Context) {
 		return
 	}
 
-	if err = cacheClient.Set(&memcache.Item{Key: itemKey, Value: []byte(itemValue), Expiration: consts.CodeExpiry}); err != nil {
+	if err = cache.Client.Set(&memcache.Item{Key: itemKey, Value: []byte(itemValue), Expiration: consts.CodeExpiry}); err != nil {
 		log.Logger.WithField("CodeKey",itemKey).WithField("Code", itemValue).Error("验证码保存失败")
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return

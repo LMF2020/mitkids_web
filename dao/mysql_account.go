@@ -1,9 +1,10 @@
 package dao
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	"mitkid_web/model"
-	"mitkid_web/utils"
+	"mitkid_web/utils/log"
 )
 
 //根据phonenumber 查询帐号
@@ -26,10 +27,20 @@ func (d *Dao) GetAccountById(id string) (account *model.AccountInfo, err error) 
 	return
 }
 
+// 创建账号
+func (d *Dao) CreateAccount(b *model.AccountInfo) (err error) {
+	if err = d.db.Create(b).Error; err != nil {
+		log.Logger.WithError(err)
+		return errors.New("创建账号失败")
+	}
+	return nil
+}
+
 // 根据ID删除账号
 func (d *Dao) DeleteAccount(id string) (err error) {
-	if err := utils.DB.Where("account_id = ?", id).Delete(model.AccountInfo{}).Error; err != nil {
-		return err
+	if err := d.db.Where("account_id = ?", id).Delete(model.AccountInfo{}).Error; err != nil {
+		log.Logger.WithError(err)
+		return errors.New("删除账号失败")
 	}
 	return
 }

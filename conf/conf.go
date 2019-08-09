@@ -24,7 +24,7 @@ func Init() (err error) {
 type Config struct {
 	DB  *DB
 	Log *logrus.Logger
-	CacheHosts *CacheHosts
+	Memcached *CacheHost
 }
 
 type DB struct {
@@ -35,6 +35,6 @@ type DB struct {
 	Port     int
 }
 
-type CacheHosts struct {
+type CacheHost struct {
 	Hosts []string
 }

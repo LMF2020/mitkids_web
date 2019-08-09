@@ -1,10 +1,9 @@
 package controllers
 
 import (
-	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/gin-gonic/gin"
-	"mitkid_web/api"
 	"mitkid_web/conf"
+	"mitkid_web/controllers/api"
 	"mitkid_web/controllers/filter"
 	"mitkid_web/service"
 	"net/http"
@@ -12,11 +11,8 @@ import (
 
 var s *service.Service
 
-var cacheClient *memcache.Client
-
 func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	s = service
-	cacheClient = service.NewCacheClient(c)
 	r := gin.Default()
 	// JWT认证中间件
 	authMiddleware := filter.NewJwtAuthMiddleware(service)

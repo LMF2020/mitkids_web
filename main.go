@@ -6,6 +6,7 @@ import (
 	"mitkid_web/conf"
 	"mitkid_web/controllers"
 	"mitkid_web/service"
+	"mitkid_web/utils/cache"
 	log2 "mitkid_web/utils/log"
 	"net/http"
 )
@@ -22,6 +23,9 @@ func main() {
 	if err := conf.Init(); err != nil {
 		log.Panic(err.Error())
 	}
+
+	// 初始化memcachedClient
+	cache.NewCacheClient(conf.Conf)
 
 	// 路由绑定
 	r := controllers.SetUpRouters(conf.Conf, service.New(conf.Conf))

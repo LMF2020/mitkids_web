@@ -5,11 +5,12 @@ import (
 	"fmt"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
-	"mitkid_web/api"
 	"mitkid_web/consts"
-	"mitkid_web/library/errorcode"
+	"mitkid_web/consts/errorcode"
+	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/utils"
+	"mitkid_web/utils/cache"
 	"mitkid_web/utils/log"
 	"net/http"
 )
@@ -45,7 +46,7 @@ func RegisterChildAccountHandler(c *gin.Context) {
 		}
 
 		codeKey := fmt.Sprintf(consts.CodeRegPrefix, account.PhoneNumber) // 注册验证码前缀
-		it, _ := cacheClient.Get(codeKey)
+		it, _ := cache.Client.Get(codeKey)
 		if it == nil || it.Key != codeKey || string(it.Value) != account.Code {
 			api.Fail(c, errorcode.VERIFY_CODE_ERR, "验证码错误")
 			return

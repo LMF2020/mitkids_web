@@ -7,6 +7,7 @@ import (
 	"mitkid_web/api"
 	"mitkid_web/consts"
 	"mitkid_web/utils"
+	"mitkid_web/utils/log"
 	"net/http"
 )
 
@@ -50,8 +51,8 @@ func CodeHandler (c *gin.Context) {
 		return
 	}
 
-	if err = utils.MC.Set(&memcache.Item{Key: itemKey, Value: []byte(itemValue), Expiration: consts.CodeExpiry}); err != nil {
-		utils.Log.WithField("CodeKey",itemKey).WithField("Code", itemValue).Error("验证码保存失败")
+	if err = cacheClient.Set(&memcache.Item{Key: itemKey, Value: []byte(itemValue), Expiration: consts.CodeExpiry}); err != nil {
+		log.Logger.WithField("CodeKey",itemKey).WithField("Code", itemValue).Error("验证码保存失败")
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -1,15 +1,15 @@
-package utils
+package log
 
 import (
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
 )
 
-var Log *logrus.Logger
+var Logger *logrus.Logger
 
 func NewLogger() *logrus.Logger {
-	if Log != nil {
-		return Log
+	if Logger != nil {
+		return Logger
 	}
 
 	// 指定不同级别的log输出路径
@@ -20,12 +20,12 @@ func NewLogger() *logrus.Logger {
 		logrus.PanicLevel: "/go-docker/logs/panic.log",
 	}
 
-	Log = logrus.New()
+	Logger = logrus.New()
 	// 输出文件行号
-	Log.SetReportCaller(true)
-	Log.Hooks.Add(lfshook.NewHook(
+	Logger.SetReportCaller(true)
+	Logger.Hooks.Add(lfshook.NewHook(
 		pathMap,
 		&logrus.JSONFormatter{},
 	))
-	return Log
+	return Logger
 }

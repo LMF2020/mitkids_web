@@ -1,0 +1,7 @@
+package errorcode
+
+const (
+	USER_ALREADY_EXIS = 1000
+	USER_NOT_EXIS = 1001
+	VERIFY_CODE_ERR = 1003
+)

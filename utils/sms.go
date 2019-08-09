@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"mitkid_web/utils/log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -44,7 +45,7 @@ func SendSMS (code, number string) (err error) {
 		r, _ := http.Post(url, "text/xml", bodybuf)
 		response, _ := ioutil.ReadAll(r.Body)
 
-		Log.Println("Send sms:", string(response))
+		log.Logger.Println("Send sms:", string(response))
 	}()
 
 	return nil

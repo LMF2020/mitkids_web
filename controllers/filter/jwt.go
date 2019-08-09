@@ -1,4 +1,4 @@
-package mw
+package filter
 
 import (
 	"errors"
@@ -8,10 +8,14 @@ import (
 	"mitkid_web/api"
 	"mitkid_web/consts"
 	"mitkid_web/model"
+	"mitkid_web/service"
 	"time"
 )
 
-func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
+var s *service.Service
+
+func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
+	s = service
 	return &jwt.GinJWTMiddleware{
 		Realm:      "MitKids589746",
 		Key:        []byte("458793216"),
@@ -44,7 +48,7 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 					return nil, errors.New("密码不能为空")
 				}
 				// 密码登录
-				if err := model.LoginWithPass(&accountInfo, form); err!=nil {
+				if err := s.LoginWithPass(&accountInfo, form); err!=nil {
 					return nil, err;
 				}
 				// 验证通过，返回
@@ -55,7 +59,7 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 					return nil, errors.New("验证码不能为空")
 				}
 				// 验证码登录
-				if err := model.LoginWithCode(&accountInfo, form); err!=nil {
+				if err := s.LoginWithCode(&accountInfo, form); err!=nil {
 					return nil, err;
 				}
 				// 验证通过，返回
@@ -78,3 +82,5 @@ func NewJwtAuthMiddleware() *jwt.GinJWTMiddleware {
 		TimeFunc:      time.Now,
 	}
 }
+
+

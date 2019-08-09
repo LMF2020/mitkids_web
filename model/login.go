@@ -6,7 +6,3 @@ type LoginForm struct {
 	Password      string    `json:"password" form:"password"`
 	Code      	  string    `json:"code" form:"code"`
 }
-
-//func (user UserInfo) string () string {
-//	return user.UserId + "," + user.UserName + "," + user.UserType
-//}

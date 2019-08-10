@@ -9,6 +9,7 @@ import (
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/service"
+	"mitkid_web/utils/log"
 	"time"
 )
 
@@ -17,18 +18,19 @@ var s *service.Service
 func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 	s = service
 	return &jwt.GinJWTMiddleware{
-		Realm:      "MitKids589746",
-		Key:        []byte("458793216"),
+		Realm:      "muitwebRealm2019",
+		Key:        []byte("muitwebkey2019"),
 		Timeout:    time.Hour,
 		MaxRefresh: time.Hour,
 		// data returned from Authenticator func
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 
-			if v, ok := data.(model.AccountInfo); ok {
+			if v, ok := data.(*model.AccountInfo); ok {
 
 				//Map(v)
 				return structs.Map(v)
 			}
+			log.Logger.Error("无法获取token")
 			return jwt.MapClaims{}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
@@ -36,8 +38,8 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 			if err := c.ShouldBind(&form); err != nil {
 				return nil, errors.New("手机号或登录类型不能为空")
 			}
-			var accountInfo model.AccountInfo
-
+			var accountInfo *model.AccountInfo
+			var err error
 			loginType := form.LoginType
 			pass := form.Password
 			code := form.Code
@@ -48,7 +50,7 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 					return nil, errors.New("密码不能为空")
 				}
 				// 密码登录
-				if err := s.LoginWithPass(&accountInfo, form); err!=nil {
+				if accountInfo, err = s.LoginWithPass(form); err!=nil {
 					return nil, err;
 				}
 				// 验证通过，返回
@@ -59,7 +61,7 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 					return nil, errors.New("验证码不能为空")
 				}
 				// 验证码登录
-				if err := s.LoginWithCode(&accountInfo, form); err!=nil {
+				if accountInfo, err = s.LoginWithCode(form); err!=nil {
 					return nil, err;
 				}
 				// 验证通过，返回

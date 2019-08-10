@@ -45,45 +45,45 @@ func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err err
 }
 
 // 手机密码登录
-func (s *Service) LoginWithPass (b *model.AccountInfo, login model.LoginForm) (err error) {
+func (s *Service) LoginWithPass (login model.LoginForm) (account *model.AccountInfo, err error) {
 
 	phoneNumber, password := login.PhoneNumber, login.Password
 
 	// 校验手机号是否存在
-	if _tmpAcc, err := s.GetAccountByPhoneNumber(phoneNumber); err != nil {
+	if account, err = s.GetAccountByPhoneNumber(phoneNumber); err != nil {
 		log.Logger.WithError(err)
-		return errors.New("系统异常")
-	} else if _tmpAcc == nil {
-		return errors.New("手机号未注册")
+		return nil, errors.New("系统异常")
+	} else if account == nil {
+		return nil, errors.New("手机号未注册")
 	}
 
 	// 校验密码
-	if utils.MD5(password) != b.Password {
-		return errors.New("密码错误")
+	if utils.MD5(password) != account.Password {
+		return nil, errors.New("密码错误")
 	}
 
-	return nil
+	return
 }
 
 // 手机验证码登录
-func (s *Service) LoginWithCode (b *model.AccountInfo, login model.LoginForm) (err error) {
+func (s *Service) LoginWithCode (login model.LoginForm) (account *model.AccountInfo, err error) {
 
 	phoneNumber, code := login.PhoneNumber, login.Code
 
 	// 校验手机号是否存在
-	if _tmpAcc, err := s.GetAccountByPhoneNumber(phoneNumber); err != nil {
+	if account, err = s.GetAccountByPhoneNumber(phoneNumber); err != nil {
    		log.Logger.WithError(err)
-		return errors.New("系统异常")
-	} else if _tmpAcc == nil {
-		return errors.New("手机号未注册")
+		return nil, errors.New("系统异常")
+	} else if account == nil {
+		return nil, errors.New("手机号未注册")
 	}
 
 	// 校验验证码
 	codeKey := fmt.Sprintf(consts.CodeLoginPrefix, phoneNumber) // 登录验证码前缀
 	it, _ := cache.Client.Get(codeKey)
 	if it == nil || it.Key != codeKey || string(it.Value) != code {
-		return errors.New("验证码错误")
+		return nil, errors.New("验证码错误")
 	}
 
-	return nil
+	return
 }

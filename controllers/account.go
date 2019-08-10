@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
@@ -31,7 +30,7 @@ func RegisterChildAccountHandler(c *gin.Context) {
 			api.Fail(c, http.StatusBadRequest, err.Error())
 			return
 		}
-		if _tmpAcc, err := s.GetAccountByPhoneNumber(account.PhoneNumber); err != nil{
+		if _tmpAcc, err := s.GetAccountByPhoneNumber(account.PhoneNumber); err != nil {
 			api.Fail(c, http.StatusInternalServerError, "系统内部错误")
 			return
 		} else if _tmpAcc != nil {
@@ -76,7 +75,8 @@ func GetChildAccountInfoHandler(c *gin.Context) {
 		api.Fail(c, http.StatusInternalServerError, "系统内部错误")
 		return
 	} else if _tmpAcc == nil {
-		api.Fail(c, errorcode.USER_NOT_EXIS, errors.New("账号不存在"))
+		api.Fail(c, errorcode.USER_NOT_EXIS, "账号不存在")
+		return
 	}
 
 	api.Success(c, claims)

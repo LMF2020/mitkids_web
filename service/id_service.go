@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
 	"log"
 	"math/rand"
 	"mitkid_web/consts"
@@ -21,13 +20,13 @@ func randStringRunes(n int) string {
 	return string(b)
 }
 
-// 循环50次直到找到未使用的ID为止
+// 循环50次直到找到未使用的id为止
 func (s *Service) tryToGetId(len int) (error, string) {
 	var id string
 	for sum := 1; sum < 50; sum++ {
 		id = randStringRunes(len)
-		// ID在数据库不存在就返回,否则继续匹配
-		if _, err := s.GetAccountById(id); err != nil && gorm.IsRecordNotFoundError(err) {
+		// 直到找到数据库未使用的id为止
+		if _tmpAcc, err := s.GetAccountById(id); err == nil && _tmpAcc == nil {
 			log.Print("生成账号id:", id)
 			return nil, id
 		}

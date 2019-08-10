@@ -54,7 +54,7 @@ func CodeHandler (c *gin.Context) {
 
 	if err = cache.Client.Set(&memcache.Item{Key: itemKey, Value: []byte(itemValue), Expiration: consts.CodeExpiry}); err != nil {
 		log.Logger.WithField("CodeKey",itemKey).WithField("Code", itemValue).Error("验证码保存失败")
-		api.Fail(c, http.StatusInternalServerError, err.Error())
+		api.Fail(c, http.StatusInternalServerError, "连接验证码服务器失败")
 		return
 	}
 

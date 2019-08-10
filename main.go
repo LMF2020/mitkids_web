@@ -32,7 +32,7 @@ func main() {
 
 	log.Info("web server started...")
 
-	if err := http.ListenAndServe(":8888", r); err != nil {
+	if err := http.ListenAndServe(":8080", r); err != nil {
 		log.Panic("fail to start web server")
 	}
 

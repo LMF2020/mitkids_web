@@ -4,8 +4,8 @@ import "time"
 
 // 教室
 type Room struct {
-	RoomId    string    `json:"room_id" form:"room_id" gorm:"primary_key"` // 6位教室编号
-	RoomName  string    `json:"name" form:"name"`
+	RoomId    string    `json:"room_id" form:"room_id" gorm:"primary_key;auto_increment"` // 教室id自增
+	RoomName  string    `json:"name" form:"name" gorm:"column:name"`
 	Type      uint      `json:"type" form:"type" validate:"required"`                       // 1机构提供 2合作家庭提供
 	AccountId string    `json:"account_id" form:"account_id"`                               // 属于合作家庭需要绑定合作家庭编号
 	Capacity  int       `json:"capacity" form:"capacity" validate:"required,gte=2,lte=500"` // 教室容纳学生数量

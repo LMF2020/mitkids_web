@@ -5,6 +5,7 @@ import (
 	"mitkid_web/model"
 )
 
+// 根据条件查询上课地点
 func (d *Dao) GetRoomList(query model.Room) (rooms []model.Room, err error) {
 
 	rooms = []model.Room{}

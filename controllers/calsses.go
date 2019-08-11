@@ -68,11 +68,11 @@ func ClassesQueryByRoomIdHandler(c *gin.Context) {
 		}
 
 		if len(LV2) > 0 {
-			retJson["LV2"] = LV1
+			retJson["LV2"] = LV2
 		}
 
 		if len(LV3) > 0 {
-			retJson["LV3"] = LV1
+			retJson["LV3"] = LV3
 		}
 
 		api.Success(c, retJson)

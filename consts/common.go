@@ -11,3 +11,7 @@ const CodeTypeLogin = 2  // 验证码登录
 const CodeTypeForgetPass = 3  // 验证码找回密码
 
 const MaxBoundValueOfSearchRooms = 6 // km
+
+const BookLevel1 = 1
+const BookLevel2 = 2
+const BookLevel3 = 3

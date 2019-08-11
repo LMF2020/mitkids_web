@@ -24,6 +24,7 @@ require (
 	github.com/mattn/go-isatty v0.0.8 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/tidwall/gjson v1.2.1 // indirect
 	github.com/tidwall/match v1.0.1 // indirect

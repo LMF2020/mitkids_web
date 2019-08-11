@@ -19,7 +19,7 @@ func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err err
 }
 
 // 创建账号
-	func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
+func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
 
 	// 验证手机号是否存在
 	if _tmpAcc, err := s.GetAccountByPhoneNumber(b.PhoneNumber); err != nil {
@@ -45,7 +45,7 @@ func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err err
 }
 
 // 手机密码登录
-func (s *Service) LoginWithPass (login model.LoginForm) (account *model.AccountInfo, err error) {
+func (s *Service) LoginWithPass(login model.LoginForm) (account *model.AccountInfo, err error) {
 
 	phoneNumber, password := login.PhoneNumber, login.Password
 
@@ -66,13 +66,13 @@ func (s *Service) LoginWithPass (login model.LoginForm) (account *model.AccountI
 }
 
 // 手机验证码登录
-func (s *Service) LoginWithCode (login model.LoginForm) (account *model.AccountInfo, err error) {
+func (s *Service) LoginWithCode(login model.LoginForm) (account *model.AccountInfo, err error) {
 
 	phoneNumber, code := login.PhoneNumber, login.Code
 
 	// 校验手机号是否存在
 	if account, err = s.GetAccountByPhoneNumber(phoneNumber); err != nil {
-   		log.Logger.WithError(err)
+		log.Logger.WithError(err)
 		return nil, errors.New("系统异常")
 	} else if account == nil {
 		return nil, errors.New("手机号未注册")
@@ -86,4 +86,13 @@ func (s *Service) LoginWithCode (login model.LoginForm) (account *model.AccountI
 	}
 
 	return
+}
+
+func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts []*model.AccountInfo, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListChildAccountByPage(offset, pageSize, query)
+}
+
+func (s *Service) CountChildAccount(query string) (count int, err error) {
+	return s.dao.CountChildAccount(query)
 }

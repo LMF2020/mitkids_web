@@ -25,7 +25,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 
 	/**
 	通用组
-	 */
+	*/
 	commonGroup := r.Group("/api/common")
 	// 发送验证码：注册验证码，登录验证码，忘记密码
 	commonGroup.POST("/account/code/verify", CodeHandler)
@@ -38,20 +38,25 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// -------------------------------
 	/**
 	学生组
-	 */
+	*/
 	childGroup := r.Group("/api/child")
 	// 学生注册
 	childGroup.POST("/account/register", RegisterChildAccountHandler)
 	// 学生登录
-	childGroup.POST("/account/login", authMiddleware.LoginHandler)
+	//childGroup.POST("/account/login", authMiddleware.LoginHandler)
+	//所有的login 共用
+	r.POST("/api/account/login", authMiddleware.LoginHandler)
 
+	authGroup := r.Group("/auth/api")
 	// 学生端认证接口
-	childAuthGroup := r.Group("/auth/api/child")
+	childAuthGroup := authGroup.Group("/child")
 	childAuthGroup.Use(authMiddleware.MiddlewareFunc())
 	{
 		// 学生基本信息
 		childAuthGroup.POST("/account/profile", GetChildAccountInfoHandler)
 	}
+	adminGroup := authGroup.Group("/admin")
+	adminGroup.POST("/account/list", ListAccountByPage)
 
 	return r
 }

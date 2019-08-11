@@ -8,7 +8,7 @@ import (
 func (d *Dao) GetRoomList(query model.Room) (rooms []model.Room, err error) {
 
 	rooms = []model.Room{}
-	if err = d.db.Where(query).Find(&rooms).Error; err == gorm.ErrRecordNotFound {
+	if err = d.DB.Where(query).Find(&rooms).Error; err == gorm.ErrRecordNotFound {
 		err = nil
 		rooms = nil
 	}

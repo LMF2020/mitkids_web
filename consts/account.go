@@ -1,17 +1,18 @@
 package consts
 
-const AccountRoleTeacher = 1
-const AccountRoleCorp  = 2
-const AccountRoleChild = 3
+const (
+	AccountRoleTeacher = 1
+	AccountRoleCorp    = 2
+	AccountRoleChild   = 3
+	AccountRoleAdmin   = 4
 
-const AccountStatusNormal uint= 2
-const AccountStatusFail uint= 1
-const AccountStatusWait = 0
+	AccountStatusNormal uint = 2
+	AccountStatusFail   uint = 1
+	AccountStatusWait        = 0
 
-const  AccountTypePaid  = 2
-const  AccountTypeFree  = 1
+	AccountTypePaid = 2
+	AccountTypeFree = 1
 
-const AccountLoginTypePass  = 1
-const AccountLoginTypeCode  = 2
-
-
+	AccountLoginTypePass = 1
+	AccountLoginTypeCode = 2
+)

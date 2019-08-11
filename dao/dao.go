@@ -9,14 +9,15 @@ import (
 
 type Dao struct {
 	c  *conf.Config
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func New(c *conf.Config) (d *Dao) {
 	d = &Dao{
 		c:  c,
-		db: newMysql(c.DB),
+		DB: newMysql(c.DB),
 	}
+	d.DB.LogMode(true)
 	return
 }
 

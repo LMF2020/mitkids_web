@@ -1,8 +1,10 @@
 package model
 
 import (
+	"mitkid_web/consts"
 	"time"
 )
+
 // 账号
 type AccountInfo struct {
 	// 中教编号:6位, 外教编号6位, 学生编号:8位
@@ -22,12 +24,16 @@ type AccountInfo struct {
 	Address       string    `json:"address" form:"address"`
 	CreatedAt     time.Time `json:"create_at" form:"create_at"`
 	UpdatedAt     time.Time `json:"update_at" form:"update_at"`
-	Code 		  string	`json:"code" form:"code" gorm:"-"`  // 验证码, 数据库忽略该字段
+	Code          string    `json:"code" form:"code" gorm:"-"` // 验证码, 数据库忽略该字段
 }
 
 // 定义表名
 func (accountInfo *AccountInfo) TableName() string {
-	return "mk_account"
+	return consts.TABLE_ACCOUNT
 }
 
-
+type PageInfo struct {
+	PageNumber int `json:"page_number" form:"page_number" validate:"required"`
+	PageSize   int `json:"page_size" form:"page_size" validate:"required"`
+	Results    interface{}
+}

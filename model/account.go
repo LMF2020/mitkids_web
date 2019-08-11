@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 )
-
+// 账号
 type AccountInfo struct {
 	// 中教编号:6位, 外教编号6位, 学生编号:8位
 	AccountId     string    `json:"account_id" form:"account_id" gorm:"primary_key"`

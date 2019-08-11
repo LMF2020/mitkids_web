@@ -9,3 +9,5 @@ const CodeForgetPassPrefix = "_fgp_%s" // 找回密码, 验证码key前缀
 const CodeTypeReg = 1  // 验证码注册
 const CodeTypeLogin = 2  // 验证码登录
 const CodeTypeForgetPass = 3  // 验证码找回密码
+
+const MaxBoundValueOfSearchRooms = 5 // km

@@ -31,6 +31,10 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	commonGroup.POST("/account/code/verify", CodeHandler)
 	// 刷新 Access Token
 	commonGroup.POST("/token/refresh", authMiddleware.RefreshHandler)
+	// 根据当前经纬度查询6公里之内的所有课堂地址列表
+	commonGroup.POST("/rooms/bounds/query", RoomsBoundsQueryHandler)
+	// 根据课堂地址查询所有课堂
+	commonGroup.POST("/classes/query/{roomId}", ClassesQueryByRoomIdHandler)
 	// -------------------------------
 	/**
 	学生组

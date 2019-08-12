@@ -54,8 +54,11 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 根据课堂地址查询所有课堂
 		childAuthGroup.GET("/classes/query/:roomId", ClassesQueryByRoomIdHandler)
 	}
+	//管理员接口
 	adminGroup := authGroup.Group("/admin")
-	adminGroup.POST("/account/list", ListAccountByPage)
+	//list child
+	adminGroup.POST("/child/list", ListChildByPage)
+	adminGroup.POST("/class/create", CreateClass)
 
 	return r
 }

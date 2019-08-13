@@ -25,6 +25,6 @@ func (s *Service) CreateClass(c *model.Class) (err error) {
 	return nil
 }
 
-func (s *Service) GetClassById(id string) (account *model.Class, err error) {
+func (s *Service) GetClassById(id string) (c *model.Class, err error) {
 	return s.dao.GetClassById(id)
 }

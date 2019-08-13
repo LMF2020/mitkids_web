@@ -35,7 +35,7 @@ func (d *Dao) ListAvailableClassesByRoomId(roomId string) (classes []model.Class
 //新建 班级
 func (d *Dao) CreateClass(c *model.Class) (err error) {
 	if err = d.DB.Create(&c).Error; err != nil {
-		log.Logger.WithError(err)
+		log.Logger.Error(err)
 		return errors.New("创建班级失败")
 	}
 	return nil

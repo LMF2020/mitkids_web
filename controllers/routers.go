@@ -52,7 +52,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 查询范围内的教室
 		childAuthGroup.POST("/rooms/bounds", RoomsBoundsQueryHandler)
 		// 查询教室关联的班级信息
-		childAuthGroup.GET("/class/:roomId", ClassesQueryByRoomIdHandler)
+		childAuthGroup.GET("/class/byroom/:roomId", ClassesQueryByRoomIdHandler)
 		// 查询学生所在班级信息
 		childAuthGroup.GET("/class/info", ChildStudyInfoQueryByAccountIdHandler)
 	}

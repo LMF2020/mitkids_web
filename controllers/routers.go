@@ -26,9 +26,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	/**
 	通用组
 	*/
-	commonGroup := r.Group("/api/common")
+	commonGroup := r.Group("/common")
 	// 发送验证码：注册验证码，登录验证码，忘记密码
-	commonGroup.POST("/account/code/verify", CodeHandler)
+	commonGroup.POST("/mobile/code", CodeHandler)
 	// 刷新 Access Token
 	commonGroup.POST("/token/refresh", filter.RefreshHandler)
 
@@ -36,11 +36,11 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	/**
 	学生组
 	*/
-	childGroup := r.Group("/api/child")
+	childGroup := r.Group("/child")
 	// 学生注册
-	childGroup.POST("/account/register", RegisterChildAccountHandler)
+	childGroup.POST("/register", RegisterChildAccountHandler)
 	// 学生登录
-	childGroup.POST("/account/login", filter.LoginHandler)
+	childGroup.POST("/login", filter.LoginHandler)
 
 	authGroup := r.Group("/api")
 	// 学生端认证接口
@@ -48,13 +48,13 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	childAuthGroup.Use(filter.MiddlewareFunc())
 	{
 		// 学生基本信息
-		childAuthGroup.POST("/child/profile", ChildAccountInfoHandler)
+		childAuthGroup.POST("/profile", ChildAccountInfoHandler)
 		// 根据当前经纬度查询6公里之内的所有课堂地址列表
-		childAuthGroup.POST("/rooms/bounds/query", RoomsBoundsQueryHandler)
+		childAuthGroup.POST("/rooms/bounds", RoomsBoundsQueryHandler)
 		// 根据课堂地址查询所有课堂
-		childAuthGroup.GET("/classes/query/:roomId", ClassesQueryByRoomIdHandler)
+		childAuthGroup.GET("/class/:roomId", ClassesQueryByRoomIdHandler)
 		// 根据学生账号Id查询学习进度
-		childAuthGroup.GET("/child/studyinfo/query", ChildStudyInfoQueryByAccountIdHandler)
+		childAuthGroup.GET("/class/info", ChildStudyInfoQueryByAccountIdHandler)
 	}
 	//管理员接口
 	adminGroup := authGroup.Group("/admin")

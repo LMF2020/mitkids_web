@@ -121,7 +121,7 @@ func ListChildByPage(c *gin.Context) {
 				pn = pageCount
 			}
 
-			if accounts, err2 := s.ListChildAccountByPage(pn, ps, query); err2 == nil {
+			if accounts, err := s.ListChildAccountByPage(pn, ps, query); err == nil {
 				pageInfo.Results = accounts
 				api.Success(c, pageInfo)
 				return

@@ -5,6 +5,7 @@ import (
 	"mitkid_web/consts"
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
+	"mitkid_web/utils"
 	"net/http"
 )
 
@@ -84,13 +85,34 @@ func CreateClass(c *gin.Context) {
 	var formClass model.Class
 	var err error
 	if err = c.ShouldBind(&formClass); err == nil {
-		formClass.ChildNumber = len(formClass.Childs)
-		if err = s.CreateClass(&formClass); err == nil {
-			if formClass.ChildNumber != 0 {
-				if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err == nil {
-					api.Success(c, "创建班级成功")
+		if err = utils.ValidateParam(formClass); err == nil {
+			if _, ok := consts.BOOK_LEVEL_SET[formClass.BookLevel]; !ok {
+				api.Fail(c, http.StatusBadRequest, "无效的课程")
+				return
+			}
+			if formClass.BookFromUnit > formClass.BookToUnit {
+				api.Fail(c, http.StatusBadRequest, "课程开始单元不能大于结束单元")
+				return
+			}
+			if formClass.BookFromUnit < consts.BOOK_MIN_UNIT || formClass.BookFromUnit > consts.BOOK_MAX_UNIT {
+				api.Fail(c, http.StatusBadRequest, "课程开始单元无效")
+				return
+			}
+			if formClass.BookToUnit < consts.BOOK_MIN_UNIT || formClass.BookToUnit > consts.BOOK_MAX_UNIT {
+				api.Fail(c, http.StatusBadRequest, "课程结束单元无效")
+				return
+			}
+			formClass.ChildNumber = uint(len(formClass.Childs))
+			if err = s.CreateClass(&formClass); err == nil {
+				if formClass.ChildNumber != 0 {
+					if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err == nil {
+						api.Success(c, "创建班级成功")
+					}
 				}
+
 			}
 		}
 	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
 }

@@ -45,7 +45,7 @@ func (s *Service) IdGen(accountRole uint) (error, string) {
 }
 
 func (s *Service) GenClassId() (id string, err error) {
-	return s.tryToGetClassId(8)
+	return s.tryToGetClassId(6)
 }
 
 // 循环50次直到找到未使用的id为止

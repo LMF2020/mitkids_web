@@ -18,4 +18,9 @@ const (
 	BookLevel3 = 3
 
 	DEFAULT_PAGE_SIZE = 10
+
+	BOOK_MIN_UNIT = 1
+	BOOK_MAX_UNIT = 8
 )
+
+var BOOK_LEVEL_SET = map[uint]uint{BookLevel1: 0, BookLevel2: 0, BookLevel3: 0}

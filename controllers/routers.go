@@ -55,6 +55,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childAuthGroup.GET("/class/byroom/:roomId", ClassesQueryByRoomIdHandler)
 		// 查询学生所在班级信息
 		childAuthGroup.GET("/class/info", ChildStudyInfoQueryByAccountIdHandler)
+		// 查询我的课表
+		childAuthGroup.GET("/recent/occurrence", ChildRecentOccurrenceQueryByAccountIdHandler)
+
 	}
 	//管理员接口
 	adminGroup := authGroup.Group("/admin")

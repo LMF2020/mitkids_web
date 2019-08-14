@@ -57,18 +57,19 @@ func RegisterChildAccountHandler(c *gin.Context) {
 			return
 		}
 
-		log.Logger.WithField("account", account).Debug("Account created")
+		log.Logger.WithField("account", account).Info("API to register child account successfully")
 
 		api.Success(c, "账号创建成功")
 	} else {
+		log.Logger.WithField("account", account).Error("API to register child account failed")
 		api.Fail(c, http.StatusBadRequest, err.Error())
 	}
 
 }
 
-func GetChildAccountInfoHandler(c *gin.Context) {
+// 学生登录信息查新
+func ChildAccountInfoHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
-	log.Logger.Printf("GetChildAccountInfoHandler claims: %#v\n", claims)
 	accountId := claims["AccountId"].(string)
 	if _tmpAcc, err := s.GetAccountById(accountId); err != nil {
 		log.Logger.WithError(err)
@@ -78,10 +79,22 @@ func GetChildAccountInfoHandler(c *gin.Context) {
 		api.Fail(c, errorcode.USER_NOT_EXIS, "账号不存在")
 		return
 	}
-
 	api.Success(c, claims)
 }
 
+// 学生学习进度查询
+func ChildStudyInfoQueryByAccountIdHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	studentId := claims["AccountId"].(string)
+	if result, err := s.GetJoinedClassStudyInfo(studentId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+	} else {
+		log.Logger.WithField("student_id", studentId).Info("API to query child study info successfully")
+		api.Success(c, result)
+	}
+}
+
+// 分页查询
 func ListAccountByPage(c *gin.Context) {
 	var pageInfo model.PageInfo
 	var err error

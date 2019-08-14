@@ -48,11 +48,13 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	childAuthGroup.Use(filter.MiddlewareFunc())
 	{
 		// 学生基本信息
-		childAuthGroup.POST("/account/profile", GetChildAccountInfoHandler)
+		childAuthGroup.POST("/account/profile", ChildAccountInfoHandler)
 		// 根据当前经纬度查询6公里之内的所有课堂地址列表
 		childAuthGroup.POST("/rooms/bounds/query", RoomsBoundsQueryHandler)
 		// 根据课堂地址查询所有课堂
 		childAuthGroup.GET("/classes/query/:roomId", ClassesQueryByRoomIdHandler)
+		// 根据学生账号Id查询学习进度
+		childAuthGroup.GET("/account/studyinfo/query", ChildStudyInfoQueryByAccountIdHandler)
 	}
 	adminGroup := authGroup.Group("/admin")
 	adminGroup.POST("/account/list", ListAccountByPage)

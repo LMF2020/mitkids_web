@@ -37,3 +37,12 @@ type PageInfo struct {
 	PageSize   int `json:"page_size" form:"page_size" validate:"required"`
 	Results    interface{}
 }
+
+// 学生学习进度
+type ChildStudySchedule struct {
+	classLevel int // 阶段 LV1
+	startTime time.Time
+	endTime		time.Time
+	total int
+	finished int
+}

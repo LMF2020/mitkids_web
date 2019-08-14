@@ -45,6 +45,7 @@ func (d *Dao) DeleteAccount(id string) (err error) {
 	}
 	return
 }
+
 func (d *Dao) CountChildAccount(query string) (count int, err error) {
 	db := d.DB.Table(consts.TABLE_ACCOUNT).Where("account_role = ?", consts.AccountRoleChild)
 	if query != "" {
@@ -56,6 +57,7 @@ func (d *Dao) CountChildAccount(query string) (count int, err error) {
 	}
 	return
 }
+
 func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (accounts []*model.AccountInfo, err error) {
 	db := d.DB.Where("account_role = ?", consts.AccountRoleChild)
 	if query != "" {

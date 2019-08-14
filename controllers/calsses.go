@@ -79,3 +79,18 @@ func ClassesQueryByRoomIdHandler(c *gin.Context) {
 	}
 
 }
+
+func CreateClass(c *gin.Context) {
+	var formClass model.Class
+	var err error
+	if err = c.ShouldBind(&formClass); err == nil {
+		formClass.ChildNumber = len(formClass.Childs)
+		if err = s.CreateClass(&formClass); err == nil {
+			if formClass.ChildNumber != 0 {
+				if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err == nil {
+					api.Success(c, "创建班级成功")
+				}
+			}
+		}
+	}
+}

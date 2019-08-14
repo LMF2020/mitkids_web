@@ -73,15 +73,20 @@ func (d *Dao) CountJoinedClassOccurrence (classId string, status int) (count int
 }
 
 
+//新建 班级
+func (d *Dao) CreateClass(c *model.Class) (err error) {
+	if err = d.DB.Create(&c).Error; err != nil {
+		log.Logger.Error(err)
+		return errors.New("创建班级失败")
+	}
+	return nil
+}
 
-
-
-
-
-
-
-
-
-
-
-
+func (d *Dao) GetClassById(id string) (c *model.Class, err error) {
+	c = &model.Class{}
+	if err := d.DB.Where("class_id = ?", id).First(c).Error; err == gorm.ErrRecordNotFound {
+		err = nil
+		c = nil
+	}
+	return
+}

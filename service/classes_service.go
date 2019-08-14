@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	"mitkid_web/consts"
 	"mitkid_web/model"
@@ -40,4 +41,24 @@ func (s *Service) GetJoinedClassStudyInfo(studentId string) (result map[string]i
 		return
 
 	}
+}
+
+// 创建班级
+func (s *Service) CreateClass(c *model.Class) (err error) {
+	if c == nil {
+		return errors.New("不能为空")
+	}
+	if c.ClassId == "" {
+		if c.ClassId, err = s.GenClassId(); err != nil {
+			return
+		}
+	}
+	if err = s.dao.CreateClass(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Service) GetClassById(id string) (c *model.Class, err error) {
+	return s.dao.GetClassById(id)
 }

@@ -95,7 +95,7 @@ func ChildStudyInfoQueryByAccountIdHandler(c *gin.Context) {
 }
 
 // 分页查询
-func ListAccountByPage(c *gin.Context) {
+func ListChildByPage(c *gin.Context) {
 	var pageInfo model.PageInfo
 	var err error
 	if err = c.ShouldBind(&pageInfo); err == nil {
@@ -104,7 +104,6 @@ func ListAccountByPage(c *gin.Context) {
 			if pn < 0 {
 				pn = 1
 			}
-
 			if ps <= 0 {
 				ps = consts.DEFAULT_PAGE_SIZE
 			}

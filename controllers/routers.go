@@ -42,22 +42,25 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// 学生登录
 	childGroup.POST("/account/login", filter.LoginHandler)
 
-	authGroup := r.Group("/auth/api")
+	authGroup := r.Group("/api")
 	// 学生端认证接口
 	childAuthGroup := authGroup.Group("/child")
 	childAuthGroup.Use(filter.MiddlewareFunc())
 	{
 		// 学生基本信息
-		childAuthGroup.POST("/account/profile", ChildAccountInfoHandler)
+		childAuthGroup.POST("/child/profile", ChildAccountInfoHandler)
 		// 根据当前经纬度查询6公里之内的所有课堂地址列表
 		childAuthGroup.POST("/rooms/bounds/query", RoomsBoundsQueryHandler)
 		// 根据课堂地址查询所有课堂
 		childAuthGroup.GET("/classes/query/:roomId", ClassesQueryByRoomIdHandler)
 		// 根据学生账号Id查询学习进度
-		childAuthGroup.GET("/account/studyinfo/query", ChildStudyInfoQueryByAccountIdHandler)
+		childAuthGroup.GET("/child/studyinfo/query", ChildStudyInfoQueryByAccountIdHandler)
 	}
+	//管理员接口
 	adminGroup := authGroup.Group("/admin")
-	adminGroup.POST("/account/list", ListAccountByPage)
+	//list child
+	adminGroup.POST("/child/list", ListChildByPage)
+	adminGroup.POST("/class/create", CreateClass)
 
 	return r
 }

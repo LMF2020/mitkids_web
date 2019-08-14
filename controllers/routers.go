@@ -43,17 +43,17 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	childGroup.POST("/login", filter.LoginHandler)
 
 	authGroup := r.Group("/api")
-	// 学生端认证接口
+	// 学生认证
 	childAuthGroup := authGroup.Group("/child")
 	childAuthGroup.Use(filter.MiddlewareFunc())
 	{
-		// 学生基本信息
+		// 查询学生信息
 		childAuthGroup.POST("/profile", ChildAccountInfoHandler)
-		// 根据当前经纬度查询6公里之内的所有课堂地址列表
+		// 查询范围内的教室
 		childAuthGroup.POST("/rooms/bounds", RoomsBoundsQueryHandler)
-		// 根据课堂地址查询所有课堂
+		// 查询教室关联的班级信息
 		childAuthGroup.GET("/class/:roomId", ClassesQueryByRoomIdHandler)
-		// 根据学生账号Id查询学习进度
+		// 查询学生所在班级信息
 		childAuthGroup.GET("/class/info", ChildStudyInfoQueryByAccountIdHandler)
 	}
 	//管理员接口

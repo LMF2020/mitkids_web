@@ -94,19 +94,6 @@ func ChildStudyInfoQueryByAccountIdHandler(c *gin.Context) {
 	}
 }
 
-// 我的近期课表
-func ChildRecentOccurrenceQueryByAccountIdHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	studentId := claims["AccountId"].(string)
-	if result, err := s.ListClassOccurrenceInfo(studentId); err != nil {
-		api.Fail(c, http.StatusInternalServerError, err.Error())
-	} else {
-		log.Logger.WithField("student_id", studentId).Info("API to query child recent occurrence successfully")
-		api.Success(c, result)
-	}
-
-}
-
 // 分页查询
 func ListChildByPage(c *gin.Context) {
 	var pageInfo model.PageInfo

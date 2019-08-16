@@ -27,3 +27,28 @@ func (s *Service) ListClassOccurrenceInfo(studentId string) (classOccurList []mo
 
 	}
 }
+
+// 查询结束的课程数量
+func (s *Service) CountOccurrenceHistory(studentId string) (count int, classId string, err error) {
+	var joinedClass model.Class
+	if joinedClass, err = s.dao.GetJoinedClass(studentId); gorm.IsRecordNotFoundError(err) {
+		// 学生没有加入任何班级
+		count = 0
+		err = nil
+		classId = ""
+		return
+	} else if err != nil {
+		// 查询报错
+		return 0, "", err
+	} else {
+		classId = joinedClass.ClassId
+		count, err = s.dao.CountOccurrence(joinedClass.ClassId, consts.ClassOccurStatusFinished)
+		return
+	}
+}
+
+// 分页查询结束课程
+func (s *Service) ListOccurrenceHistoryByPage(pageNumber, pageSize int, classId string) (classOccurList []model.OccurClassPoJo, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListOccurrenceHisByPage(offset, pageSize, classId)
+}

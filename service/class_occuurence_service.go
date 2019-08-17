@@ -52,3 +52,23 @@ func (s *Service) ListOccurrenceHistoryByPage(pageNumber, pageSize int, classId 
 	offset := (pageNumber - 1) * pageSize
 	return s.dao.ListOccurrenceHisByPage(offset, pageSize, classId)
 }
+
+// 查询学生课表日历
+func (s *Service) ListOccurrenceCalendar(studentId string) (classOccurList []model.OccurClassPoJo, err error) {
+	var joinedClass model.Class
+	if joinedClass, err = s.dao.GetJoinedClass(studentId); gorm.IsRecordNotFoundError(err) {
+		// 学生没有加入任何班级
+		err = nil
+		return
+	} else if err != nil {
+		// 查询报错
+		return nil, err
+	} else {
+		classOccurList, err = s.dao.ListOccurrenceCalendar(joinedClass.ClassId)
+		if err != nil {
+			log.Logger.WithField("student_id", studentId).Error("get calendar failed")
+			classOccurList = nil
+		}
+		return
+	}
+}

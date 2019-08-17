@@ -36,4 +36,6 @@ type OccurClassPoJo struct {
 	BookName        string    `json:"book_name" form:"book_name"`                 // 课本的名称
 	RoomName        string    `json:"room_name" form:"room_name"`                 // 上课教室
 	ScheduleTime    time.Time `json:"schedule_time" form:"schedule_time"`         // 计划上课时间
+	BookLink        string    `json:"book_link" form:"book_link"`                 // 课本预习链接
+	Status          uint      `json:"status" form:"status" `                      // 完成状态; 1未上课 2已上课
 }

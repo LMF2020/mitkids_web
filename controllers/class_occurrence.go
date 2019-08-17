@@ -32,13 +32,13 @@ func ChildPastOccurrenceQueryHandler(c *gin.Context) {
 	pageSize := c.Param("n") // 查询历史多少节课
 	size, err := strconv.Atoi(pageSize)
 	if err != nil {
-		api.Fail(c, http.StatusBadRequest, "参数错误:num")
+		api.Fail(c, http.StatusBadRequest, "参数错误:n")
 		return
 	}
 
 	_, classId, err := s.CountOccurrenceHistory(studentId)
 	if err != nil {
-		api.Fail(c, http.StatusBadRequest, err.Error())
+		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -53,11 +53,9 @@ func ChildPastOccurrenceQueryHandler(c *gin.Context) {
 		api.Success(c, result)
 		return
 	} else {
-		api.Fail(c, http.StatusBadRequest, err2.Error())
+		api.Fail(c, http.StatusInternalServerError, err2.Error())
 	}
 
-	api.Fail(c, http.StatusBadRequest, err.Error())
-	return
 }
 
 // 我最近完成的课 - 分页
@@ -77,7 +75,7 @@ func ChildPageOccurrenceHisQueryHandler(c *gin.Context) {
 			}
 			totalRecords, classId, err := s.CountOccurrenceHistory(studentId)
 			if err != nil {
-				api.Fail(c, http.StatusBadRequest, err.Error())
+				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return
 			}
 			if classId == "" {
@@ -98,7 +96,7 @@ func ChildPageOccurrenceHisQueryHandler(c *gin.Context) {
 				api.Success(c, pageInfo)
 				return
 			} else {
-				api.Fail(c, http.StatusBadRequest, err2.Error())
+				api.Fail(c, http.StatusInternalServerError, err2.Error())
 			}
 
 		}
@@ -107,4 +105,15 @@ func ChildPageOccurrenceHisQueryHandler(c *gin.Context) {
 	return
 }
 
+// 查询学生课表日历
+func ChildOccurrenceCalendarQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	studentId := claims["AccountId"].(string)
 
+	if clsList, err := s.ListOccurrenceCalendar(studentId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		api.Success(c, clsList)
+	}
+}

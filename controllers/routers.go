@@ -47,8 +47,10 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	childAuthGroup := authGroup.Group("/child")
 	childAuthGroup.Use(filter.MiddlewareFunc())
 	{
-		// 查询学生信息
+		// 查询学生资料
 		childAuthGroup.POST("/profile", ChildAccountInfoHandler)
+		// 更新学生资料
+		childAuthGroup.POST("/profile/update", ChildAccountInfoUpdateHandler)
 		// 查询坐标范围内的教室
 		childAuthGroup.POST("/rooms/nearby", RoomsBoundsQueryHandler)
 		// 查询教室关联的班级信息

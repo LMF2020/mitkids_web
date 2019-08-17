@@ -6,4 +6,7 @@ const (
 	TABLE_CLASS_OCCURRENCE = "mk_class_occurrence"
 	TABLE_LESSONS = "mk_lessons"
 	TABLE_JOIN_CLASS = "mk_join_class"
+	TABLE_CHILD_PROFILE = "mk_child"
+	TABLE_TEACHER_PROFILE = "mk_teacher"
+
 )

@@ -70,3 +70,9 @@ func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (ac
 	}
 	return
 }
+
+// 更新账户表
+func (d *Dao) UpdateChildAccount(account model.AccountInfo) (err error) {
+	err = d.DB.Model(&model.AccountInfo{}).Updates(account).Error
+	return
+}

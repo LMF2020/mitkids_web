@@ -67,19 +67,46 @@ func RegisterChildAccountHandler(c *gin.Context) {
 
 }
 
-// 学生登录信息查新
+// 查询学生profile信息
 func ChildAccountInfoHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)
-	if _tmpAcc, err := s.GetAccountById(accountId); err != nil {
+	if account, err := s.GetAccountById(accountId); err != nil {
 		log.Logger.WithError(err)
-		api.Fail(c, http.StatusInternalServerError, "系统内部错误")
+		api.Fail(c, http.StatusInternalServerError, "学生账号查询失败")
 		return
-	} else if _tmpAcc == nil {
-		api.Fail(c, errorcode.USER_NOT_EXIS, "账号不存在")
+	} else if account == nil {
+		api.Fail(c, errorcode.USER_NOT_EXIS, "学生账号不存在")
+		return
+	} else {
+		profile, _ := s.GetChildProfileById(account)
+		api.Success(c, profile)
+	}
+
+}
+
+// 更新学生profile信息
+func ChildAccountInfoUpdateHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	var profile model.ChildProfilePoJo   // 学生信息更新
+	var err error
+	if err = c.ShouldBind(&profile); err == nil {
+		if accountId != profile.AccountId {
+			api.Fail(c, http.StatusBadRequest, "登录账号不一致")
+			return
+		}
+		if err = s.UpdateChildProfile(profile); err != nil{
+			api.Fail(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		api.Success(c, "更新成功")
 		return
 	}
-	api.Success(c, claims)
+
+	log.Logger.Println(err)
+	api.Fail(c, http.StatusBadRequest, "请求参数绑定失败")
+
 }
 
 // 学生学习进度查询

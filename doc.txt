@@ -21,3 +21,8 @@ Error code (建议按业务模块划分)
 Shortcut Key Usage:
 ---------------
 CTRL+SHIFT+N - 快速找到文件
+
+
+三级地区联动插件:
+jquery: https://github.com/fengyuanchen/distpicker
+flutter: https://github.com/hanxu317317/city_pickers

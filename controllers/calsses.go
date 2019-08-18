@@ -105,11 +105,15 @@ func CreateClass(c *gin.Context) {
 			formClass.ChildNumber = uint(len(formClass.Childs))
 			if err = s.CreateClass(&formClass); err == nil {
 				if formClass.ChildNumber != 0 {
-					if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err == nil {
-						api.Success(c, "创建班级成功")
+					if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err != nil {
+						api.Fail(c, http.StatusBadRequest, "学生添加失败")
+						return
 					}
 				}
-
+				if err = s.AddOccurrences(&formClass); err == nil {
+					api.Success(c, "创建班级成功")
+					return
+				}
 			}
 		}
 	}

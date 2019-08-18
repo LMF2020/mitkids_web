@@ -16,11 +16,12 @@ type AccountInfo struct {
 	AccountRole   uint      `json:"account_role" form:"account_role" validate:"required"`
 	AccountStatus uint      `json:"account_status" form:"account_status" validate:"required"`
 	Email         string    `json:"email" form:"email" validate:"omitempty,email"`
+	Birth         string    `json:"birth" form:"birth"`
 	Age           int64     `json:"age" form:"age" validate:"required,gte=2,lte=100"`
 	Gender        uint      `json:"gender" form:"gender" validate:"required"`
-	Country       string    `json:"country" form:"country"`
-	State         string    `json:"state" form:"state"`
-	City          string    `json:"city" form:"city"`
+	Province      int       `json:"province" form:"province"` // 省份代码
+	City          int       `json:"city" form:"city"`         // 城市代码
+	District      int       `json:"district" form:"district"` // 区县代码
 	Address       string    `json:"address" form:"address"`
 	CreatedAt     time.Time `json:"create_at" form:"create_at"`
 	UpdatedAt     time.Time `json:"update_at" form:"update_at"`
@@ -41,8 +42,8 @@ type PageInfo struct {
 // 学生学习进度
 type ChildStudySchedule struct {
 	classLevel int // 阶段 LV1
-	startTime time.Time
-	endTime		time.Time
-	total int
-	finished int
+	startTime  time.Time
+	endTime    time.Time
+	total      int
+	finished   int
 }

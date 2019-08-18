@@ -11,6 +11,7 @@ func (s *Service) ListAvailableClassesByRoomId(roomId string) (classes []model.C
 	return s.dao.ListAvailableClassesByRoomId(roomId)
 }
 
+// 获取加入的班级信息
 func (s *Service) GetJoinedClassStudyInfo(studentId string) (result map[string]interface{}, err error) {
 	var joinedClass model.Class
 	// 1.查询班级信息

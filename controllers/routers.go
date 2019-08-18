@@ -47,14 +47,29 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	childAuthGroup := authGroup.Group("/child")
 	childAuthGroup.Use(filter.MiddlewareFunc())
 	{
-		// 查询学生信息
+		// 查询学生资料
 		childAuthGroup.POST("/profile", ChildAccountInfoHandler)
-		// 查询范围内的教室
-		childAuthGroup.POST("/rooms/bounds", RoomsBoundsQueryHandler)
+		// 更新学生资料
+		childAuthGroup.POST("/profile/update", ChildAccountInfoUpdateHandler)
+		// 查询坐标范围内的教室
+		childAuthGroup.POST("/rooms/nearby", RoomsBoundsQueryHandler)
 		// 查询教室关联的班级信息
 		childAuthGroup.GET("/class/byroom/:roomId", ClassesQueryByRoomIdHandler)
 		// 查询学生所在班级信息
 		childAuthGroup.GET("/class/info", ChildStudyInfoQueryByAccountIdHandler)
+		// 查询近期安排的课表
+		childAuthGroup.GET("/recent/occurrence", ChildRecentOccurrenceQueryByAccountIdHandler)
+		// 查询最近完成的(N)节课
+		childAuthGroup.GET("/occurrence/history/list/:n", ChildPastOccurrenceQueryHandler)
+		// 分页-查询历史课表
+		childAuthGroup.POST("/occurrence/history/page", ChildPageOccurrenceHisQueryHandler)
+		// 查询学生上课日历
+		childAuthGroup.GET("/occurrence/calendar", ChildOccurrenceCalendarQueryHandler)
+		// 申请加入班级
+		childAuthGroup.POST("/apply/join", ChildApplyJoiningClassHandler)
+		// 撤销申请
+		childAuthGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
+
 	}
 	//管理员接口
 	adminGroup := authGroup.Group("/admin")

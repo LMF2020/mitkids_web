@@ -65,6 +65,10 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childAuthGroup.POST("/occurrence/history/page", ChildPageOccurrenceHisQueryHandler)
 		// 查询学生上课日历
 		childAuthGroup.GET("/occurrence/calendar", ChildOccurrenceCalendarQueryHandler)
+		// 申请加入班级
+		childAuthGroup.POST("/apply/join", ChildApplyJoiningClassHandler)
+		// 撤销申请
+		childAuthGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
 
 	}
 	//管理员接口

@@ -33,6 +33,7 @@ func (class *Class) TableName() string {
 type JoinClass struct {
 	ClassId         string    `json:"class_id" form:"class_id" gorm:"primary_key"`  // 6位班级编号
 	AccountId     	string    `json:"account_id" form:"account_id" gorm:"primary_key"`
+	Status        	uint      `json:"status" form:"status" `                            // 申请加入班级状态(1:申请中,2:申请加入成功,3:申请加入失败)
 }
 
 // 定义表名

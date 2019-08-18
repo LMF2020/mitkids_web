@@ -159,3 +159,53 @@ func ListChildByPage(c *gin.Context) {
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }
+
+// 申请加入班级
+func ChildApplyJoiningClassHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	ownerId := claims["AccountId"].(string)
+	studentId := c.PostForm("student_id")
+	classId := c.PostForm("class_id")
+
+	if studentId == "" || classId == "" {
+		api.Fail(c, http.StatusBadRequest, "参数不合法")
+		return
+	}
+
+	if ownerId != studentId {
+		api.Fail(c, http.StatusBadRequest, "账号不一致")
+		return
+	}
+
+	if err := s.ApplyJoiningClass(studentId, classId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	api.Success(c, "申请成功")
+}
+
+// 撤销加入班级
+func ChildCancelJoiningClassHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	ownerId := claims["AccountId"].(string)
+	studentId := c.PostForm("student_id")
+	classId := c.PostForm("class_id")
+
+	if studentId == "" || classId == "" {
+		api.Fail(c, http.StatusBadRequest, "参数不合法")
+		return
+	}
+
+	if ownerId != studentId {
+		api.Fail(c, http.StatusBadRequest, "账号不一致")
+		return
+	}
+
+	if err := s.CancelJoiningClass(studentId, classId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	api.Success(c, "撤销成功")
+}

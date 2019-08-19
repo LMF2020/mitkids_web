@@ -34,9 +34,10 @@ func (accountInfo *AccountInfo) TableName() string {
 }
 
 type PageInfo struct {
-	PageNumber int         `json:"page_number" form:"page_number" validate:"required"`
-	PageSize   int         `json:"page_size" form:"page_size" validate:"required"`
-	Results    interface{} `json:"results"`
+	PageNumber  int         `json:"page_number" form:"page_number" validate:"required"`
+	PageSize    int         `json:"page_size" form:"page_size" validate:"required"`
+	ResultCount int         `json:"result_count"`
+	Results     interface{} `json:"results"`
 }
 
 // 学生学习进度

@@ -136,6 +136,11 @@ func ListChildByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountChildAccount(query)
+			pageInfo.ResultCount = totalRecords
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
 			if err != nil {
 				api.Fail(c, http.StatusBadRequest, err.Error())
 				return

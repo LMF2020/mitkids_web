@@ -1,12 +1,15 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/utils"
+	"mitkid_web/utils/log"
 	"net/http"
+	"strconv"
 )
 
 // 返回报文：
@@ -86,22 +89,45 @@ func CreateClass(c *gin.Context) {
 	var err error
 	if err = c.ShouldBind(&formClass); err == nil {
 		if err = utils.ValidateParam(formClass); err == nil {
-			if _, ok := consts.BOOK_LEVEL_SET[formClass.BookLevel]; !ok {
+			if formClass.EndTime.Before(formClass.StartTime) {
+				api.Fail(c, http.StatusBadRequest, "课程结束时间不能小于开始时间")
+				return
+			}
+			level, fu, tu := formClass.BookLevel, formClass.BookFromUnit, formClass.BookToUnit
+			if _, ok := consts.BOOK_LEVEL_SET[level]; !ok {
 				api.Fail(c, http.StatusBadRequest, "无效的课程")
 				return
 			}
-			if formClass.BookFromUnit > formClass.BookToUnit {
+			if fu > tu {
 				api.Fail(c, http.StatusBadRequest, "课程开始单元不能大于结束单元")
 				return
 			}
-			if formClass.BookFromUnit < consts.BOOK_MIN_UNIT || formClass.BookFromUnit > consts.BOOK_MAX_UNIT {
+			if fu < consts.BOOK_MIN_UNIT || fu > consts.BOOK_MAX_UNIT {
 				api.Fail(c, http.StatusBadRequest, "课程开始单元无效")
 				return
 			}
-			if formClass.BookToUnit < consts.BOOK_MIN_UNIT || formClass.BookToUnit > consts.BOOK_MAX_UNIT {
+			if tu < consts.BOOK_MIN_UNIT || tu > consts.BOOK_MAX_UNIT {
 				api.Fail(c, http.StatusBadRequest, "课程结束单元无效")
 				return
 			}
+			bookCodeLen := (tu - fu + 1) * consts.BOOK_UNIT_CLASS_COUNT
+			if int(bookCodeLen) != len(formClass.Occurrences) {
+				api.Fail(c, http.StatusBadRequest, "课程日期数量不对")
+				return
+			}
+			bookFmt := "lv" + strconv.Itoa(int(level)) + "_%d_%d"
+			bookCodes := make([]string, bookCodeLen)
+			bookCodeNo := 1
+			for i, _ := range bookCodes {
+				bookCodes[i] = fmt.Sprintf(bookFmt, fu, bookCodeNo)
+				bookCodeNo++
+				if bookCodeNo > consts.BOOK_UNIT_CLASS_COUNT {
+					bookCodeNo = 1
+					fu++
+				}
+			}
+			lName := consts.BOOK_LEVEL_SET[formClass.BookLevel]
+			formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
 			formClass.ChildNumber = uint(len(formClass.Childs))
 			if err = s.CreateClass(&formClass); err == nil {
 				if formClass.ChildNumber != 0 {
@@ -110,13 +136,14 @@ func CreateClass(c *gin.Context) {
 						return
 					}
 				}
-				if err = s.AddOccurrences(&formClass); err == nil {
+				if err = s.AddOccurrences(&formClass, &bookCodes); err == nil {
 					api.Success(c, "创建班级成功")
 					return
 				}
 			}
 		}
 	}
+	log.Logger.Error(err.Error())
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }

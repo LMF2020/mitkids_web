@@ -49,6 +49,7 @@ func (d *Dao) DeleteAccount(id string) (err error) {
 func (d *Dao) CountChildAccount(query string) (count int, err error) {
 	db := d.DB.Table(consts.TABLE_ACCOUNT).Where("account_role = ?", consts.AccountRoleChild)
 	if query != "" {
+		query = "%" + query + "%"
 		db = db.Where("account_name like ? or phone_number like ?", query, query)
 	}
 	if err = db.Count(&count).Error; err != nil {

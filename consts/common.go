@@ -19,8 +19,10 @@ const (
 
 	DEFAULT_PAGE_SIZE = 10
 
-	BOOK_MIN_UNIT = 1
-	BOOK_MAX_UNIT = 8
+	BOOK_MIN_UNIT         = 1
+	BOOK_MAX_UNIT         = 3
+	BOOK_UNIT_CLASS_COUNT = 8
+	BOOK_PLAN_FMT         = "%s%d_%d单元"
 )
 
-var BOOK_LEVEL_SET = map[uint]uint{BookLevel1: 0, BookLevel2: 0, BookLevel3: 0}
+var BOOK_LEVEL_SET = map[uint]string{BookLevel1: "初级", BookLevel2: "中级", BookLevel3: "高级"}

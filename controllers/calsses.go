@@ -204,3 +204,14 @@ func ListClassByPageAndQuery(c *gin.Context) {
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }
+
+func GetClassAllInfoById(c *gin.Context) {
+	classId := c.PostForm("class_id")
+	class, err := s.GetClassById(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	api.Success(c, class)
+	return
+}

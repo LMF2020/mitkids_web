@@ -147,3 +147,60 @@ func CreateClass(c *gin.Context) {
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }
+
+func ListClassByPageAndQuery(c *gin.Context) {
+	var pageInfo model.PageInfo
+	var err error
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+			if pn < 0 {
+				pn = 1
+			}
+			if ps <= 0 {
+				ps = consts.DEFAULT_PAGE_SIZE
+			}
+			query := c.PostForm("query")
+			var classStatus uint = 0
+			classStatusStr := c.PostForm("status")
+			if classStatusStr != "" {
+				statusInt, err := strconv.Atoi(classStatusStr)
+				if err != nil {
+					api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
+					return
+				}
+				classStatus = uint(statusInt)
+			}
+			if classStatus != consts.ClassStart || classStatus != consts.ClassInProgress || classStatus != consts.ClassEnd {
+				api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
+				return
+			}
+			totalRecords, err := s.CountClassByPageAndQuery(query, classStatus)
+			pageInfo.ResultCount = totalRecords
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			pageCount := totalRecords / ps
+			if totalRecords%ps > 0 {
+				pageCount++
+			}
+			if pn > pageCount {
+				pn = pageCount
+			}
+
+			if accounts, err := s.ListClassByPageAndQuery(pn, ps, query, classStatus); err == nil {
+				pageInfo.Results = accounts
+				api.Success(c, pageInfo)
+				return
+			}
+
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+}

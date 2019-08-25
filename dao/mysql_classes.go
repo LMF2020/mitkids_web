@@ -32,7 +32,6 @@ func (d *Dao) ListAvailableClassesByRoomId(roomId string) (classes []model.Class
 	return
 }
 
-
 //新建 班级
 func (d *Dao) CreateClass(c *model.Class) (err error) {
 	if err = d.DB.Create(&c).Error; err != nil {
@@ -76,7 +75,7 @@ func (d *Dao) GetJoinedClass(studentId string) (joinedClass model.Class, err err
 }
 
 // 根据班级ID 统计班级课时完成情况
-func (d *Dao) CountJoinedClassOccurrence (classId string, status int) (count int, err error){
+func (d *Dao) CountJoinedClassOccurrence(classId string, status int) (count int, err error) {
 	if status == -1 {
 		if err = d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Count(&count).Error; err != nil {
 			log.Logger.WithField("class_id", classId).WithField("status", status).Error(err.Error())
@@ -87,6 +86,37 @@ func (d *Dao) CountJoinedClassOccurrence (classId string, status int) (count int
 			log.Logger.WithField("class_id", classId).WithField("status", status).Error(err.Error())
 		}
 	}
+	return
+}
 
+func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, classStatus uint) (classes []*model.Class, err error) {
+	db := d.DB
+	if classStatus != 0 {
+		db = db.Where("status = ?", classStatus)
+	}
+	if query != "" {
+		query = "%" + query + "%"
+		db = db.Where("class_id like ? or class_name like ?", query, query)
+	}
+	if err = db.Find(&classes).Offset(offset).Limit(pageSize).Error; err != nil {
+		log.Logger.Error("db error(%v)", err)
+		return
+	}
+	return
+}
+
+func (d *Dao) CountClassByPageAndQuery(query string, classStatus uint) (count int, err error) {
+	db := d.DB.Table(consts.TABLE_ACCOUNT)
+	if classStatus != 0 {
+		db = db.Where("status = ?", classStatus)
+	}
+	if query != "" {
+		query = "%" + query + "%"
+		db = db.Where("class_id like ? or class_name like ?", query, query)
+	}
+	if err = db.Count(&count).Error; err != nil {
+		log.Logger.Error("db error(%v)", err)
+		return
+	}
 	return
 }

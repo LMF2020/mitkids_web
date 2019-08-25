@@ -1,11 +1,15 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
+	"mitkid_web/utils"
+	"mitkid_web/utils/log"
 	"net/http"
+	"strconv"
 )
 
 // 返回报文：
@@ -84,13 +88,119 @@ func CreateClass(c *gin.Context) {
 	var formClass model.Class
 	var err error
 	if err = c.ShouldBind(&formClass); err == nil {
-		formClass.ChildNumber = len(formClass.Childs)
-		if err = s.CreateClass(&formClass); err == nil {
-			if formClass.ChildNumber != 0 {
-				if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err == nil {
+		if err = utils.ValidateParam(formClass); err == nil {
+			if formClass.EndTime.Before(formClass.StartTime) {
+				api.Fail(c, http.StatusBadRequest, "课程结束时间不能小于开始时间")
+				return
+			}
+			level, fu, tu := formClass.BookLevel, formClass.BookFromUnit, formClass.BookToUnit
+			if _, ok := consts.BOOK_LEVEL_SET[level]; !ok {
+				api.Fail(c, http.StatusBadRequest, "无效的课程")
+				return
+			}
+			if fu > tu {
+				api.Fail(c, http.StatusBadRequest, "课程开始单元不能大于结束单元")
+				return
+			}
+			if fu < consts.BOOK_MIN_UNIT || fu > consts.BOOK_MAX_UNIT {
+				api.Fail(c, http.StatusBadRequest, "课程开始单元无效")
+				return
+			}
+			if tu < consts.BOOK_MIN_UNIT || tu > consts.BOOK_MAX_UNIT {
+				api.Fail(c, http.StatusBadRequest, "课程结束单元无效")
+				return
+			}
+			bookCodeLen := (tu - fu + 1) * consts.BOOK_UNIT_CLASS_COUNT
+			if int(bookCodeLen) != len(formClass.Occurrences) {
+				api.Fail(c, http.StatusBadRequest, "课程日期数量不对")
+				return
+			}
+			bookFmt := "lv" + strconv.Itoa(int(level)) + "_%d_%d"
+			bookCodes := make([]string, bookCodeLen)
+			bookCodeNo := 1
+			for i, _ := range bookCodes {
+				bookCodes[i] = fmt.Sprintf(bookFmt, fu, bookCodeNo)
+				bookCodeNo++
+				if bookCodeNo > consts.BOOK_UNIT_CLASS_COUNT {
+					bookCodeNo = 1
+					fu++
+				}
+			}
+			lName := consts.BOOK_LEVEL_SET[formClass.BookLevel]
+			formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
+			formClass.ChildNumber = uint(len(formClass.Childs))
+			if err = s.CreateClass(&formClass); err == nil {
+				if formClass.ChildNumber != 0 {
+					if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err != nil {
+						api.Fail(c, http.StatusBadRequest, "学生添加失败")
+						return
+					}
+				}
+				if err = s.AddOccurrences(&formClass, &bookCodes); err == nil {
 					api.Success(c, "创建班级成功")
+					return
 				}
 			}
 		}
 	}
+	log.Logger.Error(err.Error())
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+}
+
+func ListClassByPageAndQuery(c *gin.Context) {
+	var pageInfo model.PageInfo
+	var err error
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+			if pn < 0 {
+				pn = 1
+			}
+			if ps <= 0 {
+				ps = consts.DEFAULT_PAGE_SIZE
+			}
+			query := c.PostForm("query")
+			var classStatus uint = 0
+			classStatusStr := c.PostForm("status")
+			if classStatusStr != "" {
+				statusInt, err := strconv.Atoi(classStatusStr)
+				if err != nil {
+					api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
+					return
+				}
+				classStatus = uint(statusInt)
+			}
+			if classStatus != consts.ClassStart || classStatus != consts.ClassInProgress || classStatus != consts.ClassEnd {
+				api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
+				return
+			}
+			totalRecords, err := s.CountClassByPageAndQuery(query, classStatus)
+			pageInfo.ResultCount = totalRecords
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			pageCount := totalRecords / ps
+			if totalRecords%ps > 0 {
+				pageCount++
+			}
+			if pn > pageCount {
+				pn = pageCount
+			}
+
+			if accounts, err := s.ListClassByPageAndQuery(pn, ps, query, classStatus); err == nil {
+				pageInfo.Results = accounts
+				api.Success(c, pageInfo)
+				return
+			}
+
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
 }

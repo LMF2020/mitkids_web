@@ -76,6 +76,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	//list child
 	adminGroup.POST("/child/list", ListChildByPage)
 	adminGroup.POST("/class/create", CreateClass)
+	adminGroup.POST("/class/list", ListClassByPageAndQuery)
 
 	return r
 }

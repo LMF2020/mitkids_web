@@ -26,9 +26,9 @@ func genAddChildsToClassSql(classId string, childIds []string) (sql string) {
 	for key, childId := range childIds {
 		if lastKey == key {
 			//最后一条数据 以分号结尾
-			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW());", consts.JoinClassSuccess, classId, childId)
+			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW());", classId, childId, consts.JoinClassSuccess)
 		} else {
-			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW()),", consts.JoinClassSuccess, classId, childId)
+			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW()),", classId, childId, consts.JoinClassSuccess)
 		}
 	}
 	return

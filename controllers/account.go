@@ -89,14 +89,14 @@ func ChildAccountInfoHandler(c *gin.Context) {
 func ChildAccountInfoUpdateHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)
-	var profile model.ChildProfilePoJo   // 学生信息更新
+	var profile model.ChildProfilePoJo // 学生信息更新
 	var err error
 	if err = c.ShouldBind(&profile); err == nil {
 		if accountId != profile.AccountId {
 			api.Fail(c, http.StatusBadRequest, "登录账号不一致")
 			return
 		}
-		if err = s.UpdateChildProfile(profile); err != nil{
+		if err = s.UpdateChildProfile(profile); err != nil {
 			api.Fail(c, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -136,6 +136,11 @@ func ListChildByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountChildAccount(query)
+			pageInfo.ResultCount = totalRecords
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
 			if err != nil {
 				api.Fail(c, http.StatusBadRequest, err.Error())
 				return
@@ -148,7 +153,7 @@ func ListChildByPage(c *gin.Context) {
 				pn = pageCount
 			}
 
-			if accounts, err2 := s.ListChildAccountByPage(pn, ps, query); err2 == nil {
+			if accounts, err := s.ListChildAccountByPage(pn, ps, query); err == nil {
 				pageInfo.Results = accounts
 				api.Success(c, pageInfo)
 				return

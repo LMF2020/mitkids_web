@@ -72,3 +72,21 @@ func (s *Service) ListOccurrenceCalendar(studentId string) (classOccurList []mod
 		return
 	}
 }
+
+func (s *Service) AddOccurrences(class *model.Class, bookCodes *[]string) (err error) {
+
+	len := len(class.Occurrences)
+	var os = make([]model.ClassOccurrence, len)
+	for key, item := range class.Occurrences {
+		os[key] = model.ClassOccurrence{
+			ClassId:          class.ClassId,
+			OccurrenceTime:   item,
+			ForeTeacherId:    class.ForeTeacherId,
+			TeacherId:        class.TeacherId,
+			BookCode:         (*bookCodes)[key],
+			OccurrenceStatus: consts.ClassOccurStatusNotStart,
+			RoomId:           class.RoomId,
+		}
+	}
+	return s.dao.AddOccurrences(class.ClassId, &os)
+}

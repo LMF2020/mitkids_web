@@ -63,3 +63,11 @@ func (s *Service) CreateClass(c *model.Class) (err error) {
 func (s *Service) GetClassById(id string) (c *model.Class, err error) {
 	return s.dao.GetClassById(id)
 }
+func (s *Service) ListClassByPageAndQuery(pageNumber int, pageSize int, query string, classStatus uint) (classes []*model.Class, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListClassByPageAndQuery(offset, pageSize, query, classStatus)
+}
+
+func (s *Service) CountClassByPageAndQuery(query string, classStatus uint) (count int, err error) {
+	return s.dao.CountChildAccount(query)
+}

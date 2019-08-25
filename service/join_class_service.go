@@ -31,7 +31,10 @@ func (s *Service) AddChildsToClass(id string, childIds []string) (err error) {
 -- 2. 另外 class 实际人数 + 1
 管理员拒绝申请
 -- 1. join_class设置状态为3：申请失败 --- 3天后job会删掉状态为3的所有记录
-*/
+管理员撤销申请
+-- 1.管理员有权限撤销学生的申请，并且有权限撤销加入的学生
+-- 2. 撤销申请：直接删除该学生 join_class 记录
+ */
 
 // 申请加入班级
 func (s *Service) ApplyJoiningClass(childId, classId string) error {

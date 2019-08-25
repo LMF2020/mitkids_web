@@ -212,6 +212,83 @@ func GetClassAllInfoById(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
+	class.Occurrences = s.GetClassOccurrencesByClassId(classId)
+	class.Childs, err = s.ListClassChildByClassId(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
 	api.Success(c, class)
+	return
+}
+
+func UpdateClass(c *gin.Context) {
+	classId := c.PostForm("class_id")
+
+	var err error
+	class, err := s.GetClassById(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if err = c.ShouldBind(&class); err == nil {
+		if err = utils.ValidateParam(class); err == nil {
+			s.UpdateClass(class)
+			api.Success(c, "更新成功")
+			return
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+}
+
+func UpdateClassTeacher(c *gin.Context) {
+	classId := c.PostForm("class_id")
+	var err error
+	class, err := s.GetClassById(classId)
+	if err == nil {
+		isChange := false
+		teacherId, ok := c.GetPostForm("teacher_id")
+		if ok {
+			teacher, err := s.GetAccountById(teacherId)
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			if teacher == nil || teacher.AccountRole != consts.AccountRoleTeacher {
+				api.Fail(c, http.StatusBadRequest, "无效的teacher_id")
+				return
+			}
+			if class.TeacherId != teacherId {
+				isChange = true
+				class.TeacherId = teacherId
+			}
+		}
+
+		foreTeacherId, ok := c.GetPostForm("fore_teacher_id")
+		if ok {
+			teacher, err := s.GetAccountById(foreTeacherId)
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			if teacher == nil || teacher.AccountRole != consts.AccountRoleTeacher {
+				api.Fail(c, http.StatusBadRequest, "无效的teacher_id")
+				return
+			}
+
+			if class.ForeTeacherId != foreTeacherId {
+				isChange = true
+				class.ForeTeacherId = foreTeacherId
+			}
+		}
+		if isChange {
+			s.UpdateClass(class)
+			api.Success(c, "更新成功")
+		}
+		s.UpdateClass(class)
+		api.Success(c, "无更新")
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }

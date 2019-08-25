@@ -71,3 +71,6 @@ func (s *Service) ListClassByPageAndQuery(pageNumber int, pageSize int, query st
 func (s *Service) CountClassByPageAndQuery(query string, classStatus uint) (count int, err error) {
 	return s.dao.CountChildAccount(query)
 }
+func (s *Service) UpdateClass(class *model.Class) {
+	s.dao.UpdateClass(class)
+}

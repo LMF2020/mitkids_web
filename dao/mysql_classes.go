@@ -120,3 +120,6 @@ func (d *Dao) CountClassByPageAndQuery(query string, classStatus uint) (count in
 	}
 	return
 }
+func (d *Dao) UpdateClass(class *model.Class) {
+	d.DB.Update(class)
+}

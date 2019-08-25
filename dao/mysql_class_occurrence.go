@@ -6,6 +6,7 @@ import (
 	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
+	"time"
 )
 
 // 查询学生最近要上的(N)节课
@@ -142,5 +143,23 @@ func genAddOccurrenceSql(classId string, cOs *[]model.ClassOccurrence) (sql stri
 		sql += fmt.Sprintf(insertValuesFmt, cO.OccurrenceTime, cO.BookCode)
 	}
 	sql = sql[0:len(sql)-1] + ";"
+	return
+}
+
+const GetClassOccurrencesByClassId_sql = "select occurrence_time from mk_class_occurrence where class_id=?"
+
+func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences []time.Time) {
+	//rows, err :=d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?",classId).Select("occurrence_time").Rows()
+	//defer rows.Close()
+	//for rows.Next() {
+	//	var o time.Time
+	//	if err = rows.Scan(&o); err != nil {
+	//		log.Logger.Error("row.Scan() error(%v)", err)
+	//		return
+	//	}
+	//	occurrences = append(occurrences, o)
+	//}
+	//d.DB.Raw(GetClassOccurrencesByClassId_sql,classId).Scan(occurrences)
+	d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?", classId).Pluck("occurrence_time", &occurrences)
 	return
 }

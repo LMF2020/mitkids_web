@@ -48,14 +48,14 @@ func (d *Dao) AddChildsToClass(classId string, childIds []string) (err error) {
 func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []string, err error) {
 
 	var rows *sql.Rows
-	if rows, err = d.DB.Table(consts.TABLE_JOIN_CLASS).Where("class_id = ?", cid).Rows(); err != nil {
+	if rows, err = d.DB.Table(consts.TABLE_JOIN_CLASS).Where("class_id = ?", cid).Select("student_id").Rows(); err != nil {
 		log.Logger.Error("查询班级学生列表失败：classId {%s} err:%s", cid, err)
 		return
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var childId string
-		if err = rows.Scan(childId); err != nil {
+		if err = rows.Scan(&childId); err != nil {
 			log.Logger.Error("row.Scan() error(%v)", err)
 			return
 		}

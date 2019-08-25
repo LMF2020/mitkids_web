@@ -34,7 +34,7 @@ func (s *Service) AddChildsToClass(id string, childIds []string) (err error) {
 管理员撤销申请
 -- 1.管理员有权限撤销学生的申请，并且有权限撤销加入的学生
 -- 2. 撤销申请：直接删除该学生 join_class 记录
- */
+*/
 
 // 申请加入班级
 func (s *Service) ApplyJoiningClass(childId, classId string) error {
@@ -101,4 +101,9 @@ func (s *Service) CancelJoiningClass(childId, classId string) error {
 		}
 	}
 	return nil
+}
+
+// 根据ClassID获取学生列表
+func (s *Service) ListClassChildByClassId(cid string) (ChildIds []string, err error) {
+	return s.dao.ListClassChildByClassId(cid)
 }

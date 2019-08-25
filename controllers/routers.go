@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"mitkid_web/conf"
 	"mitkid_web/controllers/api"
 	"mitkid_web/controllers/filter"
 	"mitkid_web/service"
+	"mitkid_web/utils/log"
 	"net/http"
 )
 
@@ -23,6 +25,11 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		api.Fail(c, http.StatusNotFound, "接口不存在")
 	})
 
+	r.Use(gin.Logger(), func(c *gin.Context) {
+		data, _ := ioutil.ReadAll(c.Request.Body)
+		log.Logger.Debug("输入参数:" + string(data))
+		c.Next()
+	})
 	/**
 	通用组
 	*/
@@ -78,6 +85,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/class/create", CreateClass)
 	adminGroup.POST("/class/list", ListClassByPageAndQuery)
 	adminGroup.POST("/class/get", GetClassAllInfoById)
+	adminGroup.POST("/class/update", UpdateClass)
+	adminGroup.POST("/class/teacher/update", UpdateClassTeacher)
 
 	return r
 }

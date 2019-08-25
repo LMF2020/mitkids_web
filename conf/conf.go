@@ -3,7 +3,6 @@ package conf
 import (
 	"flag"
 	"github.com/BurntSushi/toml"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -22,8 +21,8 @@ func Init() (err error) {
 }
 
 type Config struct {
-	DB  *DB
-	Log *logrus.Logger
+	DB        *DB
+	Log       *Log
 	Memcached *CacheHost
 }
 
@@ -37,4 +36,7 @@ type DB struct {
 
 type CacheHost struct {
 	Hosts []string
+}
+type Log struct {
+	Level string
 }

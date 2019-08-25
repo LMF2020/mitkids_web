@@ -88,7 +88,7 @@ func (s *Service) LoginWithCode(login model.LoginForm) (account *model.AccountIn
 	return
 }
 
-func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts []*model.AccountInfo, err error) {
+func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
 	offset := (pageNumber - 1) * pageSize
 	return s.dao.ListChildAccountByPage(offset, pageSize, query)
 }

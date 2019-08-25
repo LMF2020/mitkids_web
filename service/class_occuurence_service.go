@@ -5,6 +5,7 @@ import (
 	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
+	"time"
 )
 
 func (s *Service) ListClassOccurrenceInfo(studentId string) (classOccurList []model.OccurClassPoJo, err error) {
@@ -89,4 +90,8 @@ func (s *Service) AddOccurrences(class *model.Class, bookCodes *[]string) (err e
 		}
 	}
 	return s.dao.AddOccurrences(class.ClassId, &os)
+}
+
+func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences []time.Time) {
+	return s.dao.GetClassOccurrencesByClassId(classId)
 }

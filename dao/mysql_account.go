@@ -59,7 +59,7 @@ func (d *Dao) CountChildAccount(query string) (count int, err error) {
 	return
 }
 
-func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (accounts []*model.AccountInfo, err error) {
+func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
 	db := d.DB.Where("account_role = ?", consts.AccountRoleChild)
 	if query != "" {
 		query = "%" + query + "%"

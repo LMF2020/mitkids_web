@@ -107,3 +107,7 @@ func (s *Service) CancelJoiningClass(childId, classId string) error {
 func (s *Service) ListClassChildByClassId(cid string) (ChildIds []string, err error) {
 	return s.dao.ListClassChildByClassId(cid)
 }
+
+func (s *Service) UpdateJoinClassStatus(studentId, classId string, status int) error {
+	return s.dao.UpdateJoinClassStatus(studentId, classId, status)
+}

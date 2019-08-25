@@ -34,8 +34,9 @@ func (class *Class) TableName() string {
 
 // 学生报名班级的关联表: 管理学生加入课堂状态
 type JoinClass struct {
-	ClassId   string `json:"class_id" form:"class_id" gorm:"primary_key"` // 6位班级编号
-	AccountId string `json:"account_id" form:"account_id" gorm:"primary_key"`
+	ClassId   string `json:"class_id" form:"class_id" gorm:"primary_key" validate:"required"` // 6位班级编号
+	AccountId string `json:"account_id" form:"account_id" gorm:"primary_key" validate:"required"`
+	Status    int    `json:"status" form:"status"`
 }
 
 // 定义表名

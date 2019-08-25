@@ -79,3 +79,9 @@ func (d *Dao) DeleteJoiningClass(studentId, classId string) (err error) {
 	err = d.DB.Where("student_id = ? AND class_id = ?", studentId, classId).Delete(&model.JoinClass{}).Error
 	return
 }
+
+const updateSatusSql = "update mk_join_class set `status` = ?,updated_at = now() where student_id = ? AND class_id = ? "
+
+func (d *Dao) UpdateJoinClassStatus(studentId, classId string, status int) error {
+	return d.DB.Exec(updateSatusSql, status, classId, studentId).Error
+}

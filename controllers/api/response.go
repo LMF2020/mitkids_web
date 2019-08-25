@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,4 +39,7 @@ func Fail(w *gin.Context, code int, payload interface{}) {
 	res.Data = payload
 
 	w.JSON(200, res)
+}
+func Failf(w *gin.Context, code int, format string, a ...interface{}) {
+	Fail(w, code, fmt.Sprintf(format, a))
 }

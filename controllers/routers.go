@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"mitkid_web/conf"
@@ -28,6 +29,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	r.Use(gin.Logger(), func(c *gin.Context) {
 		data, _ := ioutil.ReadAll(c.Request.Body)
 		log.Logger.Debug("输入参数:" + string(data))
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
 		c.Next()
 	})
 	/**
@@ -87,6 +89,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/class/get", GetClassAllInfoById)
 	adminGroup.POST("/class/update", UpdateClass)
 	adminGroup.POST("/class/teacher/update", UpdateClassTeacher)
+	adminGroup.POST("/class/child/status/update", UpdateClassChildStatus)
 
 	return r
 }

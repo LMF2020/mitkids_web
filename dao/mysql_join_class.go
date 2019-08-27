@@ -66,9 +66,8 @@ func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []string, err error)
 }
 
 // 根据学生ID查询申请班级
-func (d *Dao) ListJoiningClass(studentId string, status int) (joinList []model.JoinClass, err error) {
-	if err = d.DB.Where("student_id = ? AND status = ? ", studentId, status).Find(&joinList).Error; gorm.IsRecordNotFoundError(err) {
-		joinList = nil
+func (d *Dao) GetJoiningClass(classId, studentId string, status int) (joinList *model.JoinClass, err error) {
+	if err = d.DB.Where("student_id = ? AND status = ? AND class_id = ? ", studentId, status, classId).Find(&joinList).Error; gorm.IsRecordNotFoundError(err) {
 		err = nil
 	}
 	return

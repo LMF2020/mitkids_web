@@ -92,6 +92,6 @@ func (s *Service) AddOccurrences(class *model.Class, bookCodes *[]string) (err e
 	return s.dao.AddOccurrences(class.ClassId, &os)
 }
 
-func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences []time.Time) {
+func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.Time) {
 	return s.dao.GetClassOccurrencesByClassId(classId)
 }

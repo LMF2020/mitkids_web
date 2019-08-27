@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"mitkid_web/consts"
-	"mitkid_web/model"
 	"mitkid_web/utils/log"
 )
 
@@ -51,16 +50,12 @@ func (s *Service) ApplyJoiningClass(childId, classId string) error {
 	if c.Status == consts.ClassEnd {
 		return errors.New("班级已关闭")
 	}
-	if c.ChildNumber >= c.Capacity {
-		return errors.New("班级学生人数已满")
-	}
 
-	var joinCls []model.JoinClass
-	joinCls, _ = s.dao.ListJoiningClass(childId, consts.JoinClassInProgress)
+	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
 	if joinCls != nil && err == nil { // 存在记录
 		return errors.New("已有加入班级的申请")
 	}
-	joinCls, _ = s.dao.ListJoiningClass(childId, consts.JoinClassSuccess)
+	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
 	if joinCls != nil && err == nil {
 		return errors.New("已加入班级，不能重复申请")
 	}
@@ -77,8 +72,25 @@ func (s *Service) ApplyJoiningClass(childId, classId string) error {
 }
 
 // 撤销申请加入班级
-func (s *Service) CancelJoiningClass(childId, classId string) error {
-	var joinCls []model.JoinClass
+func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
+	if err = s.CheckClassAndChild(childId, classId); err != nil {
+		return
+	}
+	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
+	if joinCls != nil && err == nil {
+		return errors.New("审批成功，不能撤销")
+	}
+
+	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
+	if joinCls != nil && err == nil {
+		if err = s.dao.DeleteJoiningClass(childId, joinCls.ClassId); err != nil {
+			return errors.New("撤销失败")
+		}
+	}
+	return nil
+}
+
+func (s *Service) CheckClassAndChild(childId, classId string) (err error) {
 	c, err := s.dao.GetClassById(classId)
 	if err != nil {
 		return err
@@ -86,21 +98,14 @@ func (s *Service) CancelJoiningClass(childId, classId string) error {
 	if c == nil {
 		return errors.New("班级不存在")
 	}
-	joinCls, _ = s.dao.ListJoiningClass(childId, consts.JoinClassSuccess)
-	if joinCls != nil && err == nil {
-		return errors.New("审批成功，不能撤销")
+	child, err := s.GetChildById(childId)
+	if err != nil {
+		return err
 	}
-
-	joinCls, _ = s.dao.ListJoiningClass(childId, consts.JoinClassInProgress)
-	if joinCls != nil && err == nil {
-		if len(joinCls) > 0 {
-			cls := joinCls[0]
-			if err = s.dao.DeleteJoiningClass(childId, cls.ClassId); err != nil {
-				return errors.New("撤销失败")
-			}
-		}
+	if child == nil {
+		return errors.New("学生不存在")
 	}
-	return nil
+	return
 }
 
 // 根据ClassID获取学生列表
@@ -110,4 +115,9 @@ func (s *Service) ListClassChildByClassId(cid string) (ChildIds []string, err er
 
 func (s *Service) UpdateJoinClassStatus(studentId, classId string, status int) error {
 	return s.dao.UpdateJoinClassStatus(studentId, classId, status)
+}
+
+//admin 同意
+func (s *Service) ApproveJoiningClass(childId, classId string) (err error) {
+	return
 }

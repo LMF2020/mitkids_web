@@ -19,6 +19,7 @@ func UpdateClassChildStatus(c *gin.Context) {
 				api.Failf(c, http.StatusBadRequest, "无效状态status:%d", status)
 				return
 			}
+
 			if err := s.UpdateJoinClassStatus(j.ClassId, j.AccountId, status); err == nil {
 				api.Success(c, "更新成功")
 				return

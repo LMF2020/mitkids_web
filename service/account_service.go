@@ -18,6 +18,15 @@ func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err err
 	return s.dao.GetAccountById(id)
 }
 
+func (s *Service) GetChildById(id string) (account *model.AccountInfo, err error) {
+	if account, err = s.dao.GetAccountById(id); err != nil {
+		if account.AccountRole != consts.AccountRoleChild {
+			return nil, errors.New("学生不存在")
+		}
+	}
+	return
+}
+
 // 创建账号
 func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
 

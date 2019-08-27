@@ -71,3 +71,8 @@ func (s *Service) UpdateChildProfile(profile model.ChildProfilePoJo) (err error)
 	return
 
 }
+
+// create account child profile
+func (s *Service) CreateChildProfile (id string) error {
+	return s.dao.AddChildProfile(id)
+}

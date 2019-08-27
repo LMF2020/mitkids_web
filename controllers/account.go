@@ -51,10 +51,16 @@ func RegisterChildAccountHandler(c *gin.Context) {
 			return
 		}
 
-		// 插入数据库:
+		// 创建学生账号信息
 		if err := s.CreateAccount(&account); err != nil {
 			api.Fail(c, http.StatusInternalServerError, err.Error())
 			return
+		}
+
+		// 创建学生profile信息
+		if err = s.CreateChildProfile(account.AccountId); err != nil {
+			// print log
+			log.Logger.Println("创建学生Profile信息失败")
 		}
 
 		log.Logger.WithField("account", account).Info("API to register child account successfully")

@@ -73,6 +73,15 @@ func (d *Dao) GetJoiningClass(classId, studentId string, status int) (joinList *
 	return
 }
 
+// 根据学生ID查询申请班级
+func (d *Dao) GetJoinClassById(classId, studentId string) (join *model.JoinClass, err error) {
+	join = &model.JoinClass{}
+	if err = d.DB.Where("student_id = ? AND class_id = ? ", studentId, classId).Find(&join).Error; gorm.IsRecordNotFoundError(err) {
+		err = nil
+	}
+	return
+}
+
 // 删除记录
 func (d *Dao) DeleteJoiningClass(studentId, classId string) (err error) {
 	err = d.DB.Where("student_id = ? AND class_id = ?", studentId, classId).Delete(&model.JoinClass{}).Error

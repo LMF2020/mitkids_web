@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"mitkid_web/consts"
+	"mitkid_web/model"
 	"mitkid_web/utils/log"
 )
 
@@ -75,8 +76,19 @@ func (s *Service) ApplyJoiningClass(childId, classId string) error {
 
 // 撤销申请加入班级
 func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
-	if err = s.CheckClassAndChild(childId, classId); err != nil {
-		return
+	c, err := s.dao.GetClassById(classId)
+	if err != nil {
+		return err
+	}
+	if c == nil {
+		return errors.New("班级不存在")
+	}
+	child, err := s.GetChildById(childId)
+	if err != nil {
+		return err
+	}
+	if child == nil {
+		return errors.New("学生不存在")
 	}
 	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
 	if joinCls != nil && err == nil {
@@ -92,24 +104,6 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 	return nil
 }
 
-func (s *Service) CheckClassAndChild(childId, classId string) (err error) {
-	c, err := s.dao.GetClassById(classId)
-	if err != nil {
-		return err
-	}
-	if c == nil {
-		return errors.New("班级不存在")
-	}
-	child, err := s.GetChildById(childId)
-	if err != nil {
-		return err
-	}
-	if child == nil {
-		return errors.New("学生不存在")
-	}
-	return
-}
-
 // 根据ClassID获取学生列表
 func (s *Service) ListClassChildByClassId(cid string) (ChildIds []string, err error) {
 	return s.dao.ListClassChildByClassId(cid)
@@ -118,8 +112,108 @@ func (s *Service) ListClassChildByClassId(cid string) (ChildIds []string, err er
 func (s *Service) UpdateJoinClassStatus(studentId, classId string, status int) error {
 	return s.dao.UpdateJoinClassStatus(studentId, classId, status)
 }
+func (s *Service) checkJoiningClass(childId, classId string) (c *model.Class, child *model.AccountInfo, join *model.JoinClass, err error) {
+	c, err = s.GetClassById(classId)
+	if err != nil {
+		return
+	}
+	if c == nil {
+		err = errors.New("班级不存在")
+		return
+	}
+	if c.Status == consts.ClassInProgress {
+		err = errors.New("班级已开课")
+		return
+	}
+	if c.Status == consts.ClassEnd {
+		err = errors.New("班级已关闭")
+		return
+	}
+
+	child, err = s.GetChildById(childId)
+	if err != nil {
+		return
+	}
+	if child == nil {
+		err = errors.New("学生不存在")
+		return
+	}
+	join, err = s.GetJoinClassById(classId, childId)
+	if err != nil {
+		return
+	}
+	if join == nil {
+		err = errors.New("学生申请加入班级不存在")
+		return
+	}
+	return
+}
 
 //admin 同意
-func (s *Service) ApproveJoiningClass(childId, classId string) (err error) {
+func (s *Service) ApproveJoiningClass(classId, childId string) (err error) {
+	c, _, join, err := s.checkJoiningClass(childId, classId)
+	if err != nil {
+		return
+	}
+	if join.Status == consts.JoinClassSuccess {
+		return
+	}
+	if c.ChildNumber == c.Capacity || c.ChildNumber > c.Capacity {
+		return errors.New("班级学生数量已满")
+	}
+
+	err = s.UpdateJoinClassStatus(classId, childId, consts.JoinClassSuccess)
+	if err != nil {
+		return
+	}
+	err = s.UpdateClassChildNum(classId, 1)
+	if err != nil {
+		return
+	}
 	return
+}
+
+// 根据学生ID查询申请班级
+func (s *Service) GetJoinClassById(classId, studentId string) (join *model.JoinClass, err error) {
+	return s.dao.GetJoinClassById(classId, studentId)
+}
+
+func (s *Service) UpdateClassChildNum(classId string, update int) (err error) {
+	return s.dao.UpdateClassChildNum(classId, update)
+}
+
+//admin 拒绝
+func (s *Service) RefuseJoiningClass(classId, childId string) (err error) {
+	_, _, join, err := s.checkJoiningClass(childId, classId)
+	if err != nil {
+		return
+	}
+	if join.Status == consts.JoinClassFail {
+		return
+	}
+	err = s.UpdateJoinClassStatus(classId, childId, consts.JoinClassFail)
+	if err != nil {
+		return
+	}
+	if join.Status == consts.JoinClassSuccess {
+		err = s.UpdateClassChildNum(classId, -1)
+	}
+	return
+}
+
+//admin 修改状态为申请中
+func (s *Service) ChangeToApplyJoiningClass(classId, childId string) (err error) {
+	_, _, join, err := s.checkJoiningClass(childId, classId)
+	if err != nil {
+		return
+	}
+	err = s.UpdateJoinClassStatus(classId, childId, consts.JoinClassInProgress)
+	if err != nil {
+		return
+	}
+	if join.Status == consts.JoinClassSuccess {
+		err = s.UpdateClassChildNum(classId, -1)
+	}
+	return
+
 }

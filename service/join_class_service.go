@@ -50,7 +50,9 @@ func (s *Service) ApplyJoiningClass(childId, classId string) error {
 	if c.Status == consts.ClassEnd {
 		return errors.New("班级已关闭")
 	}
-
+	if c.ChildNumber >= c.Capacity {
+		return errors.New("班级学生人数已满")
+	}
 	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
 	if joinCls != nil && err == nil { // 存在记录
 		return errors.New("已有加入班级的申请")

@@ -6,10 +6,12 @@ import (
 	"github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
+	"mitkid_web/consts/errorcode"
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/service"
 	"mitkid_web/utils/log"
+	"net/http"
 	"time"
 )
 
@@ -76,6 +78,25 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 			return true
 		},
 		Unauthorized: func(c *gin.Context, code int, message string) {
+
+			// 详细定义 code
+			if code == http.StatusUnauthorized {
+				switch message {
+				case jwt.ErrEmptyAuthHeader.Error():
+					code = errorcode.ErrEmptyAuthHeader
+				case jwt.ErrEmptyCookieToken.Error():
+					code = errorcode.ErrEmptyCookieToken
+				case jwt.ErrExpiredToken.Error():
+					code = errorcode.ErrExpiredToken
+				case jwt.ErrInvalidAuthHeader.Error():
+					code = errorcode.ErrInvalidAuthHeader
+				case jwt.ErrInvalidSigningAlgorithm.Error():
+					code = errorcode.ErrInvalidSigningAlgorithm
+				default:
+					code = errorcode.ErrOtherCase
+				}
+			}
+
 			// 权限校验失败
 			api.Fail(c, code, message)
 		},

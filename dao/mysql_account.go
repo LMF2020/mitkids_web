@@ -59,15 +59,19 @@ func (d *Dao) CountChildAccount(query string) (count int, err error) {
 	return
 }
 
+const ListChildAccountByPageWithQuerySql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) AND (account_name like ? or phone_number like ?) limit ?,?"
+const ListChildAccountByPageSql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) limit ?,?"
+
 func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
-	db := d.DB.Where("account_role = ?", consts.AccountRoleChild)
-	if query != "" {
+	accounts = new([]model.AccountInfo)
+	if query == "" {
+		err = d.DB.Raw(ListChildAccountByPageSql, consts.AccountRoleChild, offset, pageSize).Scan(accounts).Error
+	} else {
 		query = "%" + query + "%"
-		db = db.Where("account_name like ? or phone_number like ?", query, query)
+		err = d.DB.Raw(ListChildAccountByPageWithQuerySql, consts.AccountRoleChild, query, query, offset, pageSize).Scan(accounts).Error
 	}
-	if err = db.Find(&accounts).Offset(offset).Limit(pageSize).Error; err != nil {
+	if err != nil {
 		log.Logger.Error("db error(%v)", err)
-		return
 	}
 	return
 }

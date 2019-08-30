@@ -1,14 +1,11 @@
 package controllers
 
 import (
-	"bytes"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
 	"mitkid_web/conf"
 	"mitkid_web/controllers/api"
 	"mitkid_web/controllers/filter"
 	"mitkid_web/service"
-	"mitkid_web/utils/log"
 	"net/http"
 )
 
@@ -18,20 +15,16 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	s = service
 	r := gin.Default()
 	// JWT认证中间件
-	filter := filter.NewJwtAuthMiddleware(service)
+	jwtFilter := filter.NewJwtAuthMiddleware(service)
 
-	r.NoRoute(filter.MiddlewareFunc(), func(c *gin.Context) {
+	r.NoRoute(jwtFilter.MiddlewareFunc(), func(c *gin.Context) {
 		//claims := jwt.ExtractClaims(c)
 		//log.Printf("NoRoute claims: %#v\n", claims)
 		api.Fail(c, http.StatusNotFound, "接口不存在")
 	})
 
-	r.Use(gin.Logger(), func(c *gin.Context) {
-		data, _ := ioutil.ReadAll(c.Request.Body)
-		log.Logger.Debug("输入参数:" + string(data))
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(data))
-		c.Next()
-	})
+	// set routers
+	r.Use(gin.Logger(), filter.RequestLogger(), filter.SetCorsHeader())
 	/**
 	通用组
 	*/
@@ -39,7 +32,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// 发送验证码：注册验证码，登录验证码，忘记密码
 	commonGroup.POST("/mobile/code", CodeHandler)
 	// 刷新 Access Token
-	commonGroup.POST("/token/refresh", filter.RefreshHandler)
+	commonGroup.POST("/token/refresh", jwtFilter.RefreshHandler)
 
 	// -------------------------------
 	/**
@@ -49,12 +42,12 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// 学生注册
 	childGroup.POST("/register", RegisterChildAccountHandler)
 	// 学生登录
-	childGroup.POST("/login", filter.LoginHandler)
+	childGroup.POST("/login", jwtFilter.LoginHandler)
 
 	authGroup := r.Group("/api")
 	// 学生认证
 	childAuthGroup := authGroup.Group("/child")
-	childAuthGroup.Use(filter.MiddlewareFunc())
+	childAuthGroup.Use(jwtFilter.MiddlewareFunc())
 	{
 		// 查询学生资料
 		childAuthGroup.POST("/profile", ChildAccountInfoHandler)

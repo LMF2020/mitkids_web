@@ -7,6 +7,7 @@ import (
 	"mitkid_web/controllers/api"
 	"net/http"
 	"os/exec"
+	"time"
 )
 
 const upgradePwd = "kid1234"
@@ -15,7 +16,10 @@ func upgrade(c *gin.Context) {
 	if c.Query("pwd") == upgradePwd {
 		ExecCommand("git pull")
 		api.Success(c, "upgrade成功 至"+ExecCommand("git rev-parse HEAD")) // 没有数据
-		go ExecCommand("ps -ef|grep go-build|grep -v grep|cut -c 9-15|xargs kill -9")
+		go func() {
+			time.Sleep(1)
+			ExecCommand("ps -ef|grep go-build|grep -v grep|cut -c 9-15|xargs kill -9")
+		}()
 	} else {
 		api.Fail(c, http.StatusBadRequest, "密码错误")
 	}

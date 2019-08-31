@@ -6,6 +6,6 @@
     port=3308
 
 [memcached]
-    hosts=["127.0.0.1:11211"]
+    hosts=["workdoc_memcached_1:11211"]
 [log]
     level="debug"

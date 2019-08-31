@@ -20,8 +20,8 @@ var s *service.Service
 func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 	s = service
 	return &jwt.GinJWTMiddleware{
-		Realm:      "muitwebRealm2019",
-		Key:        []byte("muitwebkey2019"),
+		Realm:      consts.JWT_VENDOR,
+		Key:        []byte(consts.JWT_SECRETS),
 		Timeout:    time.Hour,
 		MaxRefresh: time.Hour,
 		// data returned from Authenticator func

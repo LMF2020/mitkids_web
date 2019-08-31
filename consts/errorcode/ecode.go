@@ -19,6 +19,8 @@ const (
 	ErrEmptyCookieToken = 401004
 	// token签名算法错误
 	ErrInvalidSigningAlgorithm = 401005
+	// 用户已经登出，需要重新登录获取token
+	ErrUserLoggedOut = 401006
 	// 其他原因的错误
 	ErrOtherCase = 401000
 	// class ：1201-1300

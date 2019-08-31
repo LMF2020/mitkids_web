@@ -1,5 +1,7 @@
 package consts
 
+import "fmt"
+
 const (
 	CodeExpiry           = 180       // 验证码有效期3分钟
 	CodeRegPrefix        = "_reg_%s" // 注册用户, 验证码key前缀
@@ -23,6 +25,16 @@ const (
 	BOOK_MAX_UNIT         = 3
 	BOOK_UNIT_CLASS_COUNT = 8
 	BOOK_PLAN_FMT         = "%s%d_%d单元"
+
+	URL_CHILD_LOGOUT   = "/api/child/logout"
+	URL_ADMIN_LOGOUT   = "/api/admin/logout"
+	URL_TEACHER_LOGOUT = "/api/teacher/logout"
+
+	JWT_SECRETS = "MITSECRET2019"
+	JWT_VENDOR  = "MITVENDOR2019"
 )
 
-var BOOK_LEVEL_SET = map[uint]string{BookLevel1: "初级", BookLevel2: "中级", BookLevel3: "高级"}
+var (
+	BOOK_LEVEL_SET      = map[uint]string{BookLevel1: "初级", BookLevel2: "中级", BookLevel3: "高级"}
+	URL_LOGOUT_API_LIST = fmt.Sprintf("%s_%s_%s", URL_CHILD_LOGOUT, URL_ADMIN_LOGOUT, URL_TEACHER_LOGOUT)
+)

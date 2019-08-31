@@ -47,8 +47,10 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	authGroup := r.Group("/api")
 	// 学生认证
 	childAuthGroup := authGroup.Group("/child")
-	childAuthGroup.Use(jwtFilter.MiddlewareFunc())
+	// used for verify token and check if token is logged out
+	childAuthGroup.Use(jwtFilter.MiddlewareFunc(), filter.LogoutHandler())
 	{
+		childAuthGroup.POST("/logout", nil)
 		// 查询学生资料
 		childAuthGroup.POST("/profile", ChildAccountInfoHandler)
 		// 更新学生资料

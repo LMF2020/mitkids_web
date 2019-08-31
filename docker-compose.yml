@@ -2,14 +2,15 @@ version: '3'
 services:
   web01:
     build: .
+    restart: always
     volumes:
       - /opt/workdoc:/app/mulkids
       - /opt/logs:/go-docker/logs
       - /opt/pkg/cache:/go/pkg/mod/cache
     ports:
       - 80:8080
-
   memcached:
+      restart: always
       image: 'bitnami/memcached:1'
       ports:
         - '11211:11211'

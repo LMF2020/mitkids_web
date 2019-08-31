@@ -160,7 +160,7 @@ func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.
 	//	occurrences = append(occurrences, o)
 	//}
 	occurrences = new([]time.Time)
-	d.DB.Raw(GetClassOccurrencesByClassId_sql, classId).Scan(occurrences)
-	//d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?", classId).Pluck("occurrence_time", &occurrences)
+	//d.DB.Raw(GetClassOccurrencesByClassId_sql, classId).Scan(occurrences)
+	d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?", classId).Pluck("occurrence_time", occurrences)
 	return
 }

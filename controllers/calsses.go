@@ -286,7 +286,7 @@ func UpdateClassTeacher(c *gin.Context) {
 			s.UpdateClass(class)
 			api.Success(c, "更新成功")
 		}
-		api.Success(c, "无更新")
+		//api.Success(c, "无更新")
 		return
 	}
 	api.Fail(c, http.StatusBadRequest, err.Error())

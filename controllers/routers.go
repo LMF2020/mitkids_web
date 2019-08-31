@@ -23,6 +23,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		api.Fail(c, http.StatusNotFound, "接口不存在")
 	})
 
+	if c.Log.Level == "debug" {
+		r.GET("/upgrade", upgrade)
+	}
 	// set routers
 	r.Use(gin.Logger(), filter.RequestLogger(), filter.SetCorsHeader())
 	/**

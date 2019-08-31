@@ -13,7 +13,8 @@ const upgradePwd = "kid1234"
 
 func upgrade(c *gin.Context) {
 	if c.Query("pwd") == upgradePwd {
-		ExecCommand("git pull;ps -ef|grep go-build|grep -v grep|cut -c 9-15|xargs kill -9 ")
+		ExecCommand("git pull;ps -ef|grep go-build|grep -v grep|cut -c 9-15|xargs kill -9")
+		api.Success(c, ExecCommand("git rev-parse HEAD")) // 没有数据
 	} else {
 		api.Fail(c, http.StatusBadRequest, "密码错误")
 	}

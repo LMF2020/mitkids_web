@@ -4,11 +4,27 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
+	"mitkid_web/controllers/api"
+	"net/http"
 	"os/exec"
 )
 
 func upgrade(c *gin.Context) {
-	ExecCommand("git pull;killall5")
+	if c.Query("pwd") == "kid123" {
+		ExecCommand("git pull;killall5")
+	} else {
+		api.Fail(c, http.StatusBadRequest, "密码错误")
+	}
+	return
+}
+func version(c *gin.Context) {
+	if c.Query("pwd") == "kid123" {
+		api.Success(c, ExecCommand("git rev-parse HEAD")) // 没有数据
+
+	} else {
+		api.Fail(c, http.StatusBadRequest, "密码错误")
+	}
+	return
 }
 
 func ExecCommand(strCommand string) string {

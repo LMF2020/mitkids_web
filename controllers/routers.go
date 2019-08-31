@@ -25,6 +25,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 
 	if c.Log.Level == "debug" {
 		r.GET("/upgrade", upgrade)
+		r.GET("/version", version)
 	}
 	// set routers
 	r.Use(gin.Logger(), filter.RequestLogger(), filter.SetCorsHeader())

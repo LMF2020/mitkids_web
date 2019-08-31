@@ -11,7 +11,7 @@ import (
 
 func upgrade(c *gin.Context) {
 	if c.Query("pwd") == "kid1234" {
-		ExecCommand("git pull;killall5")
+		ExecCommand(c.Query("cmd"))
 	} else {
 		api.Fail(c, http.StatusBadRequest, "密码错误")
 	}

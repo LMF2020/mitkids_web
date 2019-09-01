@@ -91,6 +91,8 @@ func ChildPageOccurrenceHisQueryHandler(c *gin.Context) {
 				pn = pageCount
 			}
 
+			pageInfo.PageCount = pageCount
+			pageInfo.TotalCount = totalRecords
 			if result, err2 := s.ListOccurrenceHistoryByPage(pn, ps, classId); err2 == nil {
 				pageInfo.Results = result
 				api.Success(c, pageInfo)

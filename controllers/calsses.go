@@ -195,6 +195,7 @@ func ListClassByPageAndQuery(c *gin.Context) {
 				pn = pageCount
 			}
 			pageInfo.PageCount = pageCount
+			pageInfo.TotalCount = totalRecords
 			if accounts, err := s.ListClassByPageAndQuery(pn, ps, query, classStatus); err == nil {
 				pageInfo.Results = accounts
 				api.Success(c, pageInfo)

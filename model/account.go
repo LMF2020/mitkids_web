@@ -37,6 +37,7 @@ type PageInfo struct {
 	PageNumber int         `json:"page_number" form:"page_number" validate:"required"`
 	PageSize   int         `json:"page_size" form:"page_size" validate:"required"`
 	PageCount  int         `json:"page_count"`
+	TotalCount int		   `json:"total_count"`
 	Results    interface{} `json:"results"`
 }
 

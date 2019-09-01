@@ -10,7 +10,7 @@ import (
 )
 
 // 查询学生最近要上的(N)节课
-func (d *Dao) ListClassOccurrence(classId, scheduledTimeOrder string, occurStatus, limit int) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) ListLatest5ClassOccurrence(classId, scheduledTimeOrder string, occurStatus, limit int) (classOccurList []model.OccurClassPoJo, err error) {
 
 	sql := `SELECT 
 			  coo.class_id,

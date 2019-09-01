@@ -107,6 +107,7 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 				"expire": t.Format(time.RFC3339),
 				"Status": true,
 			})
+			return
 		},
 		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",

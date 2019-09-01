@@ -18,7 +18,7 @@ func (s *Service) ListClassOccurrenceInfo(studentId string) (classOccurList []mo
 	} else {
 		// 学生已经加入了班级
 		// 2.查询近5节课的课程表
-		classOccurList, err = s.dao.ListClassOccurrence(joinedClass.ClassId, "ASC", consts.ClassOccurStatusNotStart, 5)
+		classOccurList, err = s.dao.ListLatest5ClassOccurrence(joinedClass.ClassId, "ASC", consts.ClassOccurStatusNotStart, 5)
 		if err != nil {
 			log.Logger.WithField("student_id", studentId).Error("list class occurrence failed")
 			classOccurList = nil

@@ -142,7 +142,7 @@ func ListChildByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountChildAccount(query)
-			pageInfo.ResultCount = totalRecords
+			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
 				return
@@ -158,7 +158,7 @@ func ListChildByPage(c *gin.Context) {
 			if pn > pageCount {
 				pn = pageCount
 			}
-
+			pageInfo.PageCount = pageCount
 			if accounts, err := s.ListChildAccountByPage(pn, ps, query); err == nil {
 				pageInfo.Results = accounts
 				api.Success(c, pageInfo)

@@ -99,7 +99,7 @@ func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, cl
 		query = "%" + query + "%"
 		db = db.Where("class_id like ? or class_name like ?", query, query)
 	}
-	if err = db.Find(&classes).Offset(offset).Limit(pageSize).Error; err != nil {
+	if err = db.Offset(offset).Limit(pageSize).Find(&classes).Error; err != nil {
 		log.Logger.Error("db error(%v)", err)
 		return
 	}
@@ -107,7 +107,7 @@ func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, cl
 }
 
 func (d *Dao) CountClassByPageAndQuery(query string, classStatus int) (count int, err error) {
-	db := d.DB.Table(consts.TABLE_ACCOUNT)
+	db := d.DB.Table(consts.TABLE_CLASS)
 	if classStatus != 0 {
 		db = db.Where("status = ?", classStatus)
 	}

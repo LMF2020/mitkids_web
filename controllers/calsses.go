@@ -129,6 +129,7 @@ func CreateClass(c *gin.Context) {
 			lName := consts.BOOK_LEVEL_SET[formClass.BookLevel]
 			formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
 			formClass.ChildNumber = uint(len(formClass.Childs))
+			formClass.Status = consts.ClassNoStart
 			if err = s.CreateClass(&formClass); err == nil {
 				if formClass.ChildNumber != 0 {
 					if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err != nil {
@@ -171,13 +172,13 @@ func ListClassByPageAndQuery(c *gin.Context) {
 						return
 					}
 				}
-				if !(classStatus == consts.ClassStart || classStatus == consts.ClassInProgress || classStatus == consts.ClassEnd) {
+				if !(classStatus == consts.ClassNoStart || classStatus == consts.ClassInProgress || classStatus == consts.ClassEnd) {
 					api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
 					return
 				}
 			}
 			totalRecords, err := s.CountClassByPageAndQuery(query, classStatus)
-			pageInfo.ResultCount = totalRecords
+			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
 				return
@@ -193,7 +194,7 @@ func ListClassByPageAndQuery(c *gin.Context) {
 			if pn > pageCount {
 				pn = pageCount
 			}
-
+			pageInfo.PageCount = pageCount
 			if accounts, err := s.ListClassByPageAndQuery(pn, ps, query, classStatus); err == nil {
 				pageInfo.Results = accounts
 				api.Success(c, pageInfo)

@@ -161,19 +161,20 @@ func ListClassByPageAndQuery(c *gin.Context) {
 				ps = consts.DEFAULT_PAGE_SIZE
 			}
 			query := c.PostForm("query")
-			var classStatus uint = 0
-			classStatusStr := c.PostForm("status")
-			if classStatusStr != "" {
-				statusInt, err := strconv.Atoi(classStatusStr)
-				if err != nil {
+			var classStatus int = 0
+			classStatusStr, ok := c.GetPostForm("status")
+			if ok {
+				if classStatusStr != "" {
+					classStatus, err = strconv.Atoi(classStatusStr)
+					if err != nil {
+						api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
+						return
+					}
+				}
+				if !(classStatus == consts.ClassStart || classStatus == consts.ClassInProgress || classStatus == consts.ClassEnd) {
 					api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
 					return
 				}
-				classStatus = uint(statusInt)
-			}
-			if classStatus != consts.ClassStart || classStatus != consts.ClassInProgress || classStatus != consts.ClassEnd {
-				api.Fail(c, http.StatusBadRequest, "status 必须为合理值")
-				return
 			}
 			totalRecords, err := s.CountClassByPageAndQuery(query, classStatus)
 			pageInfo.ResultCount = totalRecords
@@ -233,9 +234,10 @@ func UpdateClass(c *gin.Context) {
 	}
 	if err = c.ShouldBind(&class); err == nil {
 		if err = utils.ValidateParam(class); err == nil {
-			s.UpdateClass(class)
-			api.Success(c, "更新成功")
-			return
+			if err = s.UpdateClass(class); err == nil {
+				api.Success(c, "更新成功")
+				return
+			}
 		}
 	}
 	api.Fail(c, http.StatusBadRequest, err.Error())

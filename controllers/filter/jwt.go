@@ -52,8 +52,8 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 					return nil, errors.New("密码不能为空")
 				}
 				// 密码登录
-				if accountInfo, err = s.LoginWithPass(form); err!=nil {
-					return nil, err;
+				if accountInfo, err = s.LoginWithPass(form); err != nil {
+					return nil, err
 				}
 				// 验证通过，返回
 				return accountInfo, nil
@@ -63,8 +63,8 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 					return nil, errors.New("验证码不能为空")
 				}
 				// 验证码登录
-				if accountInfo, err = s.LoginWithCode(form); err!=nil {
-					return nil, err;
+				if accountInfo, err = s.LoginWithCode(form); err != nil {
+					return nil, err
 				}
 				// 验证通过，返回
 				return accountInfo, nil
@@ -100,10 +100,16 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 			// 权限校验失败
 			api.Fail(c, code, message)
 		},
+		LoginResponse: func(c *gin.Context, code int, token string, t time.Time) {
+			c.JSON(http.StatusOK, gin.H{
+				"code":   http.StatusOK,
+				"token":  token,
+				"expire": t.Format(time.RFC3339),
+				"Status": true,
+			})
+		},
 		TokenLookup:   "header: Authorization, query: token, cookie: jwt",
 		TokenHeadName: "Bearer",
 		TimeFunc:      time.Now,
 	}
 }
-
-

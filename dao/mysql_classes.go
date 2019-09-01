@@ -6,6 +6,7 @@ import (
 	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
+	"time"
 )
 
 // 根据条件查询班级
@@ -89,7 +90,7 @@ func (d *Dao) CountJoinedClassOccurrence(classId string, status int) (count int,
 	return
 }
 
-func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, classStatus uint) (classes []*model.Class, err error) {
+func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, classStatus int) (classes []*model.Class, err error) {
 	db := d.DB
 	if classStatus != 0 {
 		db = db.Where("status = ?", classStatus)
@@ -105,7 +106,7 @@ func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, cl
 	return
 }
 
-func (d *Dao) CountClassByPageAndQuery(query string, classStatus uint) (count int, err error) {
+func (d *Dao) CountClassByPageAndQuery(query string, classStatus int) (count int, err error) {
 	db := d.DB.Table(consts.TABLE_ACCOUNT)
 	if classStatus != 0 {
 		db = db.Where("status = ?", classStatus)
@@ -120,8 +121,9 @@ func (d *Dao) CountClassByPageAndQuery(query string, classStatus uint) (count in
 	}
 	return
 }
-func (d *Dao) UpdateClass(class *model.Class) {
-	d.DB.Update(class)
+func (d *Dao) UpdateClass(class *model.Class) (err error) {
+	class.UpdatedAt = time.Now()
+	return d.DB.Model(class).Updates(class).Error
 }
 
 const updateChildNumSql = "update mk_class set child_number = child_number+? where class_id =?"

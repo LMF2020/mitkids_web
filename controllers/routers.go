@@ -30,7 +30,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// set routers
 	r.Use(gin.Logger(), filter.RequestLogger(), filter.SetCorsHeader())
 	/**
-	通用组
+	通用组Yyhy
 	*/
 	commonGroup := r.Group("/common")
 	// 发送验证码：注册验证码，登录验证码，忘记密码

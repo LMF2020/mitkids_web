@@ -46,8 +46,8 @@ func (d *Dao) DeleteAccount(id string) (err error) {
 	return
 }
 
-func (d *Dao) CountChildAccount(query string) (count int, err error) {
-	db := d.DB.Table(consts.TABLE_ACCOUNT).Where("account_role = ?", consts.AccountRoleChild)
+func (d *Dao) CountAccountByRole(query string, role int) (count int, err error) {
+	db := d.DB.Table(consts.TABLE_ACCOUNT).Where("account_role = ?", role)
 	if query != "" {
 		query = "%" + query + "%"
 		db = db.Where("account_name like ? or phone_number like ?", query, query)
@@ -59,16 +59,16 @@ func (d *Dao) CountChildAccount(query string) (count int, err error) {
 	return
 }
 
-const ListChildAccountByPageWithQuerySql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) AND (account_name like ? or phone_number like ?) limit ?,?"
-const ListChildAccountByPageSql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) limit ?,?"
+const ListAccountByPageWithQuerySql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) AND (account_name like ? or phone_number like ?) limit ?,?"
+const ListAccountByPageSql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) limit ?,?"
 
-func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
+func (d *Dao) PageListAccountByRole(role, offset, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
 	accounts = new([]model.AccountInfo)
 	if query == "" {
-		err = d.DB.Raw(ListChildAccountByPageSql, consts.AccountRoleChild, offset, pageSize).Scan(accounts).Error
+		err = d.DB.Raw(ListAccountByPageSql, role, offset, pageSize).Scan(accounts).Error
 	} else {
 		query = "%" + query + "%"
-		err = d.DB.Raw(ListChildAccountByPageWithQuerySql, consts.AccountRoleChild, query, query, offset, pageSize).Scan(accounts).Error
+		err = d.DB.Raw(ListAccountByPageWithQuerySql, role, query, query, offset, pageSize).Scan(accounts).Error
 	}
 	if err != nil {
 		log.Logger.Error("db error(%v)", err)
@@ -76,8 +76,8 @@ func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (ac
 	return
 }
 
-// 更新账户表
-func (d *Dao) UpdateChildAccount(account model.AccountInfo) (err error) {
+// 更新账户
+func (d *Dao) UpdateAccount(account model.AccountInfo) (err error) {
 	err = d.DB.Model(&model.AccountInfo{}).Updates(account).Error
 	return
 }

@@ -1,20 +1,7 @@
 package model
 
-import "mitkid_web/consts"
-
-// 学生个人资料
-type AccountChild struct {
-	AccountId string `json:"account_id" form:"account_id" gorm:"primary_key"` // 编号
-	School    string `json:"school" form:"school"`                            // 学校
-}
-
-// 定义表名
-func (child *AccountChild) TableName() string {
-	return consts.TABLE_CHILD_PROFILE
-}
-
-// POJO 学生对象的封装
-type ChildProfilePoJo struct {
+// POJO 账号对象的封装
+type ProfilePoJo struct {
 	AccountId   string `json:"account_id" form:"account_id"` // 编号
 	School      string `json:"school" form:"school"`         // 学校
 	AccountName string `json:"account_name" form:"account_name"`

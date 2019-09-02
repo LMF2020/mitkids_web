@@ -57,12 +57,6 @@ func RegisterChildAccountHandler(c *gin.Context) {
 			return
 		}
 
-		// 创建学生profile信息
-		if err = s.CreateChildProfile(account.AccountId); err != nil {
-			// print log
-			log.Logger.Println("创建学生Profile信息失败")
-		}
-
 		log.Logger.WithField("account", account).Info("API to register child account successfully")
 
 		api.Success(c, "账号创建成功")
@@ -85,7 +79,7 @@ func ChildAccountInfoHandler(c *gin.Context) {
 		api.Fail(c, errorcode.USER_NOT_EXIS, "学生账号不存在")
 		return
 	} else {
-		profile, _ := s.GetChildProfileById(account)
+		profile, _ := s.GetProfileByRole(account, consts.AccountRoleChild)
 		api.Success(c, profile)
 	}
 
@@ -95,14 +89,14 @@ func ChildAccountInfoHandler(c *gin.Context) {
 func ChildAccountInfoUpdateHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)
-	var profile model.ChildProfilePoJo // 学生信息更新
+	var profile model.ProfilePoJo // 学生信息更新
 	var err error
 	if err = c.ShouldBind(&profile); err == nil {
 		if accountId != profile.AccountId {
 			api.Fail(c, http.StatusBadRequest, "登录账号不一致")
 			return
 		}
-		if err = s.UpdateChildProfile(profile); err != nil {
+		if err = s.UpdateProfileByRole(profile, consts.AccountRoleChild); err != nil {
 			api.Fail(c, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -141,7 +135,7 @@ func ListChildByPage(c *gin.Context) {
 				ps = consts.DEFAULT_PAGE_SIZE
 			}
 			query := c.PostForm("query")
-			totalRecords, err := s.CountChildAccount(query)
+			totalRecords, err := s.CountAccountByRole(query, consts.AccountRoleChild)
 			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
@@ -160,7 +154,7 @@ func ListChildByPage(c *gin.Context) {
 			}
 			pageInfo.PageCount = pageCount
 			pageInfo.TotalCount = totalRecords
-			if accounts, err := s.ListChildAccountByPage(pn, ps, query); err == nil {
+			if accounts, err := s.PageListAccountByRole(consts.AccountRoleChild, pn, ps, query); err == nil {
 				pageInfo.Results = accounts
 				api.Success(c, pageInfo)
 				return

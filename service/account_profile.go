@@ -1,13 +1,13 @@
 package service
 
 import (
+	"mitkid_web/consts"
 	"mitkid_web/model"
-	"mitkid_web/utils/log"
 )
 
-// 查询学生profile信息
-func (s *Service) GetChildProfileById(account *model.AccountInfo) (profile *model.ChildProfilePoJo, err error) {
-	profile = &model.ChildProfilePoJo{}
+// 根据role 查询账号profile信息
+func (s *Service) GetProfileByRole(account *model.AccountInfo, role int) (profile *model.ProfilePoJo, err error) {
+	profile = &model.ProfilePoJo{}
 
 	profile.AccountId = account.AccountId
 	profile.PhoneNumber = account.PhoneNumber
@@ -21,20 +21,18 @@ func (s *Service) GetChildProfileById(account *model.AccountInfo) (profile *mode
 	profile.District = account.District
 	profile.Email = account.Email
 
-	if child, err := s.dao.GetChildProfileById(account.AccountId); err != nil {
-		log.Logger.WithField("child account", account.AccountName).Error("学生profile信息不存在")
-	} else if child != nil {
-		// 学校信息
-		profile.School = child.School
+	if role == consts.AccountRoleChild {
+		profile.School = account.School
 	}
+
 	return
 }
 
 /**
-更新学生profile信息,
+更新账户profile信息,
 但是, 手机号码,密码不能更新，需要另外的接口单独更新
 */
-func (s *Service) UpdateChildProfile(profile model.ChildProfilePoJo) (err error) {
+func (s *Service) UpdateProfileByRole(profile model.ProfilePoJo, role int) (err error) {
 
 	accountInfo := model.AccountInfo{
 		AccountId:   profile.AccountId,
@@ -49,30 +47,20 @@ func (s *Service) UpdateChildProfile(profile model.ChildProfilePoJo) (err error)
 		Email:       profile.Email,
 	}
 
-	accountProfile := model.AccountChild{
-		AccountId: profile.AccountId,
-		School:    profile.School,
+	if role == consts.AccountRoleChild {
+		accountInfo.School = profile.School
 	}
 
 	// 提交事务
-	tx := s.dao.DB.Begin()
+	//tx := s.dao.DB.Begin()
 
-	if err = s.dao.UpdateChildAccount(accountInfo); err != nil {
-		tx.Rollback()
-		return
-	}
-	if err = s.dao.UpdateChildProfile(accountProfile); err != nil {
-		tx.Rollback()
-		return
+	if err = s.dao.UpdateAccount(accountInfo); err != nil {
+		//tx.Rollback()
+		return err
 	}
 
-	tx.Commit()
+	//tx.Commit()
 
 	return
 
-}
-
-// create account child profile
-func (s *Service) CreateChildProfile (id string) error {
-	return s.dao.AddChildProfile(id)
 }

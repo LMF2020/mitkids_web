@@ -18,15 +18,6 @@ func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err err
 	return s.dao.GetAccountById(id)
 }
 
-func (s *Service) GetChildById(id string) (account *model.AccountInfo, err error) {
-	if account, err = s.dao.GetAccountById(id); err != nil {
-		if account.AccountRole != consts.AccountRoleChild {
-			return nil, errors.New("学生不存在")
-		}
-	}
-	return
-}
-
 // 创建账号
 func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
 
@@ -97,11 +88,11 @@ func (s *Service) LoginWithCode(login model.LoginForm) (account *model.AccountIn
 	return
 }
 
-func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
+func (s *Service) PageListAccountByRole(role, pageNumber, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
 	offset := (pageNumber - 1) * pageSize
-	return s.dao.ListChildAccountByPage(offset, pageSize, query)
+	return s.dao.PageListAccountByRole(role, offset, pageSize, query)
 }
 
-func (s *Service) CountChildAccount(query string) (count int, err error) {
-	return s.dao.CountChildAccount(query)
+func (s *Service) CountAccountByRole(query string, role int) (count int, err error) {
+	return s.dao.CountAccountByRole(query, role)
 }

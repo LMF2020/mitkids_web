@@ -1,6 +1,7 @@
 package model
 
 import (
+	"container/list"
 	"mitkid_web/consts"
 	"time"
 )
@@ -10,7 +11,7 @@ type AccountInfo struct {
 	// 中教编号:6位, 外教编号6位, 学生编号:8位
 	AccountId     string    `json:"account_id" form:"account_id" gorm:"primary_key"`
 	AccountName   string    `json:"account_name" form:"account_name"`
-	Password      string    `json:"password" form:"password" validate:"required"`
+	Password      string    `form:"password" validate:"required"`
 	PhoneNumber   string    `json:"phone_number" form:"phone_number" validate:"required"`
 	AccountType   uint      `json:"account_type" form:"account_type"`
 	AccountRole   uint      `json:"account_role" form:"account_role" validate:"required"`
@@ -37,7 +38,7 @@ type PageInfo struct {
 	PageNumber int         `json:"page_number" form:"page_number" validate:"required"`
 	PageSize   int         `json:"page_size" form:"page_size" validate:"required"`
 	PageCount  int         `json:"page_count"`
-	TotalCount int		   `json:"total_count"`
+	TotalCount int         `json:"total_count"`
 	Results    interface{} `json:"results"`
 }
 
@@ -48,4 +49,18 @@ type ChildStudySchedule struct {
 	endTime    time.Time
 	total      int
 	finished   int
+}
+
+// 账号
+type Child struct {
+	AccountId   string    `json:"account_id"`
+	AccountName string    `json:"account_name" `
+	PhoneNumber string    `json:"phone_number"`
+	Age         int64     `json:"age" `
+	Gender      uint      `json:"gender"`
+	Address     string    `json:"address"`
+	CreatedAt   time.Time `json:"create_at" `
+	PayTime     time.Time `json:"pay_time" `
+	School      string    `json:"school"`
+	Classes     list.List `json:"classes"`
 }

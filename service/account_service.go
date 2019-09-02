@@ -1,6 +1,7 @@
 package service
 
 import (
+	"container/list"
 	"errors"
 	"fmt"
 	"mitkid_web/consts"
@@ -97,11 +98,44 @@ func (s *Service) LoginWithCode(login model.LoginForm) (account *model.AccountIn
 	return
 }
 
-func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
+func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts *[]model.Child, err error) {
 	offset := (pageNumber - 1) * pageSize
 	return s.dao.ListChildAccountByPage(offset, pageSize, query)
 }
 
 func (s *Service) CountChildAccount(query string) (count int, err error) {
 	return s.dao.CountChildAccount(query)
+}
+
+func (s *Service) CountChildNotInClassWithQuery(query string) (count int, err error) {
+	return s.dao.CountChildNotInClassWithQuery(query)
+}
+
+func (s *Service) ListChildNotInClassByPage(pageNumber int, pageSize int, query string) (childs *[]model.Child, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListChildNotInClassByPage(offset, pageSize, query)
+}
+
+func (s *Service) CountChildInClassWithQuery(query string) (count int, err error) {
+	return s.dao.CountChildInClassWithQuery(query)
+}
+
+func (s *Service) ListChildInClassByPage(pageNumber int, pageSize int, query string) (childs *[]model.Child, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListChildInClassByPage(offset, pageSize, query)
+}
+
+func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string]list.List, err error) {
+	classesMap = make(map[string]list.List)
+	classes, err := s.dao.GetClassesByChildIds(ids)
+	for _, class := range *classes {
+		if listc, ok := classesMap[class.StudentId]; ok {
+			listc.PushBack(class)
+		} else {
+			listc = *list.New()
+			listc.PushBack(class)
+			classesMap[class.StudentId] = listc
+		}
+	}
+	return
 }

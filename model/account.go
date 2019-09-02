@@ -27,6 +27,12 @@ type AccountInfo struct {
 	CreatedAt     time.Time `json:"create_at" form:"create_at"`
 	UpdatedAt     time.Time `json:"update_at" form:"update_at"`
 	Code          string    `json:"code" form:"code" gorm:"-"` // 验证码, 数据库忽略该字段
+
+	// 扩展信息
+	School      string `json:"school" form:"school"`             // 学校
+	TeacherType int    `json:"teacher_type" form:"teacher_type"` // 教师类型：角色 1:系统教师 2:合作教师
+	TeacherRole int    `json:"teacher_role" form:"teacher_role"` // 教师角色：分类 1:中教 2:外教
+	IsPartener  int    `json:"is_partner" form:"is_partner"`     // 是否是合作家庭
 }
 
 // 定义表名

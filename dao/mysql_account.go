@@ -105,6 +105,35 @@ func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (cs
 	}
 	return
 }
+func (d *Dao) CountAccountByRole(query string, role int) (count int, err error) {
+	db := d.DB.Table(consts.TABLE_ACCOUNT).Where("account_role = ?", role)
+	if query != "" {
+		query = "%" + query + "%"
+		db = db.Where("account_name like ? or phone_number like ?", query, query)
+	}
+	if err = db.Count(&count).Error; err != nil {
+		log.Logger.Error("db error(%v)", err)
+		return
+	}
+	return
+}
+
+const ListAccountByPageWithQuerySql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) AND (account_name like ? or phone_number like ?) limit ?,?"
+const ListAccountByPageSql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) limit ?,?"
+
+func (d *Dao) PageListAccountByRole(role, offset, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
+	accounts = new([]model.AccountInfo)
+	if query == "" {
+		err = d.DB.Raw(ListAccountByPageSql, role, offset, pageSize).Scan(accounts).Error
+	} else {
+		query = "%" + query + "%"
+		err = d.DB.Raw(ListAccountByPageWithQuerySql, role, query, query, offset, pageSize).Scan(accounts).Error
+	}
+	if err != nil {
+		log.Logger.Error("db error(%v)", err)
+	}
+	return
+}
 
 // 更新账户表
 func (d *Dao) UpdateChildAccount(account model.AccountInfo) (err error) {

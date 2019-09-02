@@ -83,13 +83,15 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 	if c == nil {
 		return errors.New("班级不存在")
 	}
-	child, err := s.GetChildById(childId)
-	if err != nil {
-		return err
+
+	if child, err := s.GetAccountById(childId); err != nil {
+		return errors.New("系统查询失败")
+	} else if child == nil && err == nil {
+		return errors.New("学生账号不存在")
+	} else if child != nil && child.AccountRole != consts.AccountRoleChild {
+		return errors.New("学生账号不存在")
 	}
-	if child == nil {
-		return errors.New("学生不存在")
-	}
+
 	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
 	if joinCls != nil && err == nil {
 		return errors.New("审批成功，不能撤销")
@@ -130,14 +132,14 @@ func (s *Service) checkJoiningClass(childId, classId string) (c *model.Class, ch
 		return
 	}
 
-	child, err = s.GetChildById(childId)
-	if err != nil {
-		return
+	if child, err := s.GetAccountById(childId); err != nil {
+		err = errors.New("系统查询失败")
+	} else if child == nil && err == nil {
+		err = errors.New("学生账号不存在")
+	} else if child != nil && child.AccountRole != consts.AccountRoleChild {
+		err = errors.New("学生账号不存在")
 	}
-	if child == nil {
-		err = errors.New("学生不存在")
-		return
-	}
+
 	join, err = s.GetJoinClassById(classId, childId)
 	if err != nil {
 		return

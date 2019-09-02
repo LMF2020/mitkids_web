@@ -139,3 +139,12 @@ func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string]lis
 	}
 	return
 }
+
+func (s *Service) PageListAccountByRole(role, pageNumber, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.PageListAccountByRole(role, offset, pageSize, query)
+}
+
+func (s *Service) CountAccountByRole(query string, role int) (count int, err error) {
+	return s.dao.CountAccountByRole(query, role)
+}

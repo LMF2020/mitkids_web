@@ -17,6 +17,7 @@ type Room struct {
 	UpdatedAt time.Time `json:"update_at" form:"update_at"`
 	GeoAddr   string    `json:"geo_addr" form:"geo_addr" validate:"required"` // 地图认证的经纬度的地点名称
 	Address   string    `json:"address" form:"address"`                       // 教师的具体地点(地图标记地址的补充)
+	Phone      string    `json:"phone" form:"phone"`
 }
 
 // 定义表名

@@ -83,6 +83,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup := authGroup.Group("/admin")
 	//list child
 	adminGroup.POST("/child/list", ListChildByPage)
+	adminGroup.POST("/noinclass/child/list", ListChildNoInClassByPage)
+	adminGroup.POST("/inclass/child/list", ListChildInClassByPage)
 	adminGroup.POST("/class/create", CreateClass)
 	adminGroup.POST("/class/list", ListClassByPageAndQuery)
 	adminGroup.POST("/class/get", GetClassAllInfoById)

@@ -135,9 +135,9 @@ func (s *Service) checkJoiningClass(childId, classId string) (c *model.Class, ch
 	if child, err := s.GetAccountById(childId); err != nil {
 		err = errors.New("系统查询失败")
 	} else if child == nil && err == nil {
-		err =  errors.New("学生账号不存在")
+		err = errors.New("学生账号不存在")
 	} else if child != nil && child.AccountRole != consts.AccountRoleChild {
-		err =  errors.New("学生账号不存在")
+		err = errors.New("学生账号不存在")
 	}
 
 	join, err = s.GetJoinClassById(classId, childId)

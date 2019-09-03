@@ -54,7 +54,7 @@ func (s *Service) UpdateProfileByRole(profile model.ProfilePoJo, role int) (err 
 	// 提交事务
 	//tx := s.dao.DB.Begin()
 
-	if err = s.dao.UpdateAccount(accountInfo); err != nil {
+	if err = s.dao.UpdateChildAccount(accountInfo); err != nil {
 		//tx.Rollback()
 		return err
 	}

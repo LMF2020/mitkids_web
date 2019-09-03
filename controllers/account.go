@@ -166,6 +166,113 @@ func ListChildByPage(c *gin.Context) {
 	return
 }
 
+// 分页查询
+func ListChildNoInClassByPage(c *gin.Context) {
+	var pageInfo model.PageInfo
+	var err error
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+			if pn < 0 {
+				pn = 1
+			}
+			if ps <= 0 {
+				ps = consts.DEFAULT_PAGE_SIZE
+			}
+			query := c.PostForm("query")
+			totalRecords, err := s.CountChildNotInClassWithQuery(query)
+			//pageInfo.ResultCount = totalRecords
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			pageCount := totalRecords / ps
+			if totalRecords%ps > 0 {
+				pageCount++
+			}
+			if pn > pageCount {
+				pn = pageCount
+			}
+			pageInfo.PageCount = pageCount
+			pageInfo.TotalCount = totalRecords
+			if accounts, err := s.ListChildNotInClassByPage(pn, ps, query); err == nil {
+				pageInfo.Results = accounts
+				api.Success(c, pageInfo)
+				return
+			}
+
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+}
+
+// 分页查询 已安排班级学生
+func ListChildInClassByPage(c *gin.Context) {
+	var pageInfo model.PageInfo
+	var err error
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+			if pn < 0 {
+				pn = 1
+			}
+			if ps <= 0 {
+				ps = consts.DEFAULT_PAGE_SIZE
+			}
+			query := c.PostForm("query")
+			totalRecords, err := s.CountChildInClassWithQuery(query)
+			//pageInfo.ResultCount = totalRecords
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			pageCount := totalRecords / ps
+			if totalRecords%ps > 0 {
+				pageCount++
+			}
+			if pn > pageCount {
+				pn = pageCount
+			}
+			pageInfo.PageCount = pageCount
+			pageInfo.TotalCount = totalRecords
+			if accounts, err := s.ListChildInClassByPage(pn, ps, query); err == nil {
+				if len(*accounts) == 0 {
+					pageInfo.Results = accounts
+					api.Success(c, pageInfo)
+					return
+				}
+
+				ids := make([]string, len(*accounts))
+				for i, child := range *accounts {
+					ids[i] = child.AccountId
+				}
+
+				if classesMap, err := s.GetClassesByChildIds(&ids); err == nil {
+					for _, child := range *accounts {
+						child.Classes = classesMap[child.AccountId]
+					}
+					pageInfo.Results = accounts
+					api.Success(c, pageInfo)
+					return
+				}
+
+			}
+
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+}
+
 // 申请加入班级
 func ChildApplyJoiningClassHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)

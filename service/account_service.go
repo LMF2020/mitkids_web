@@ -1,6 +1,7 @@
 package service
 
 import (
+	"container/list"
 	"errors"
 	"fmt"
 	"mitkid_web/consts"
@@ -16,6 +17,15 @@ func (s *Service) GetAccountByPhoneNumber(number string) (account *model.Account
 
 func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err error) {
 	return s.dao.GetAccountById(id)
+}
+
+func (s *Service) GetChildById(id string) (account *model.AccountInfo, err error) {
+	if account, err = s.dao.GetAccountById(id); err != nil {
+		if account.AccountRole != consts.AccountRoleChild {
+			return nil, errors.New("学生不存在")
+		}
+	}
+	return
 }
 
 // 创建账号
@@ -85,6 +95,48 @@ func (s *Service) LoginWithCode(login model.LoginForm) (account *model.AccountIn
 		return nil, errors.New("验证码错误")
 	}
 
+	return
+}
+
+func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts *[]model.Child, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListChildAccountByPage(offset, pageSize, query)
+}
+
+func (s *Service) CountChildAccount(query string) (count int, err error) {
+	return s.dao.CountChildAccount(query)
+}
+
+func (s *Service) CountChildNotInClassWithQuery(query string) (count int, err error) {
+	return s.dao.CountChildNotInClassWithQuery(query)
+}
+
+func (s *Service) ListChildNotInClassByPage(pageNumber int, pageSize int, query string) (childs *[]model.Child, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListChildNotInClassByPage(offset, pageSize, query)
+}
+
+func (s *Service) CountChildInClassWithQuery(query string) (count int, err error) {
+	return s.dao.CountChildInClassWithQuery(query)
+}
+
+func (s *Service) ListChildInClassByPage(pageNumber int, pageSize int, query string) (childs *[]model.Child, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListChildInClassByPage(offset, pageSize, query)
+}
+
+func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string]list.List, err error) {
+	classesMap = make(map[string]list.List)
+	classes, err := s.dao.GetClassesByChildIds(ids)
+	for _, class := range *classes {
+		if listc, ok := classesMap[class.StudentId]; ok {
+			listc.PushBack(class)
+		} else {
+			listc = *list.New()
+			listc.PushBack(class)
+			classesMap[class.StudentId] = listc
+		}
+	}
 	return
 }
 

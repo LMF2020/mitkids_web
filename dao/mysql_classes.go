@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"mitkid_web/consts"
 	"mitkid_web/model"
@@ -130,4 +131,28 @@ const updateChildNumSql = "update mk_class set child_number = child_number+? whe
 
 func (d *Dao) UpdateClassChildNum(classId string, update int) (err error) {
 	return d.DB.Exec(updateChildNumSql, update, classId).Error
+}
+
+const GetClassesByChildIdsSql = `SELECT
+									c.* ,
+									j.student_id
+								FROM
+									mk_class c,
+									mk_join_class j 
+								WHERE
+									c.class_id = j.class_id 
+									AND c.STATUS != 3 
+									AND j.student_id IN (
+									%s)`
+
+func (d *Dao) GetClassesByChildIds(ids *[]string) (classes *[]model.ChildClass, err error) {
+	idStr := ""
+	for _, id := range *ids {
+		idStr += "'" + id + "',"
+	}
+	idStr = idStr[0 : len(idStr)-1]
+	sql := fmt.Sprintf(GetClassesByChildIdsSql, idStr)
+	classes = new([]model.ChildClass)
+	err = d.DB.Raw(sql).Scan(classes).Error
+	return
 }

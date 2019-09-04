@@ -41,5 +41,6 @@ func Fail(w *gin.Context, code int, payload interface{}) {
 	w.JSON(200, res)
 }
 func Failf(w *gin.Context, code int, format string, a ...interface{}) {
-	Fail(w, code, fmt.Sprintf(format, a))
+	s := fmt.Sprintf(format, a...)
+	Fail(w, code, s)
 }

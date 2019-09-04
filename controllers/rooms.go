@@ -6,6 +6,7 @@ import (
 	"mitkid_web/consts/errorcode"
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
+	"mitkid_web/utils"
 	"mitkid_web/utils/geo"
 	"net/http"
 	"strconv"
@@ -67,4 +68,89 @@ func MatchRoom(queue chan model.Room, room model.Room, lan, lng float64) {
 	if distance < consts.MaxBoundValueOfSearchRooms {
 		queue <- room
 	}
+}
+
+func CreateRoom(c *gin.Context) {
+	var from model.Room
+	var err error
+	if err = c.ShouldBind(&from); err == nil {
+		if err = utils.ValidateParam(from); err == nil {
+			if err = s.CreateRoom(&from); err == nil {
+				api.Success(c, "新建教室成功")
+				return
+			}
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+}
+
+//获取教室
+func GetRoomById(c *gin.Context) {
+	idStr := c.PostForm("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		api.Failf(c, http.StatusBadRequest, "参数错误 id:%s", idStr)
+		return
+	}
+	if room, err := s.GetRoomById(id); err == nil {
+		if room == nil {
+			api.Failf(c, http.StatusBadRequest, "不存在这个教室id:%s", idStr)
+			return
+		}
+
+		api.Success(c, room)
+		return
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+}
+
+//获取教室
+func DeleteRoomById(c *gin.Context) {
+	idStr := c.PostForm("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		api.Failf(c, http.StatusBadRequest, "参数错误 id:%s", idStr)
+		return
+	}
+	if room, err := s.GetRoomById(id); err == nil {
+		if room == nil {
+			api.Failf(c, http.StatusBadRequest, "不存在这个教室id:%s", idStr)
+			return
+		}
+		if err = s.DeleteRoomById(id); err == nil {
+			api.Success(c, "删除教室成功")
+			return
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+}
+
+//获取教室
+func UpdateRoomById(c *gin.Context) {
+	idStr := c.PostForm("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		api.Failf(c, http.StatusBadRequest, "参数错误 id:%s", idStr)
+		return
+	}
+	if room, err := s.GetRoomById(id); err == nil {
+		if room == nil {
+			api.Failf(c, http.StatusBadRequest, "不存在这个教室id:%s", idStr)
+			return
+		}
+		if err = c.ShouldBind(room); err == nil {
+			if err = utils.ValidateParam(room); err == nil {
+				if err = s.UpdateRoom(room); err == nil {
+					api.Success(c, "更新教室成功")
+					return
+				}
+			}
+		}
+		api.Success(c, room)
+		return
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
 }

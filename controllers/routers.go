@@ -79,6 +79,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childAuthGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
 
 	}
+	authGroup.POST("/file/:type/upload", Fileupload)
+	r.Static("/static", "./static")
+
 	//管理员接口
 	adminGroup := authGroup.Group("/admin")
 	//list child
@@ -91,6 +94,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/class/update", UpdateClass)
 	adminGroup.POST("/class/teacher/update", UpdateClassTeacher)
 	adminGroup.POST("/class/child/status/update", UpdateClassChildStatus)
-
+	adminGroup.POST("/room/create", CreateRoom)
+	adminGroup.POST("/room/get", GetRoomById)
+	adminGroup.POST("/room/delete", DeleteRoomById)
+	adminGroup.POST("/room/update", UpdateRoomById)
 	return r
 }

@@ -30,3 +30,12 @@ func (s *Service) DeleteRoomById(id int) (err error) {
 func (s *Service) UpdateRoom(b *model.Room) (err error) {
 	return s.dao.UpdateRoom(b)
 }
+
+func (s *Service) ListRoomWithQueryByPage(pageNumber int, pageSize int, r *model.RoomPageInfo, query string) (rooms *[]model.Room, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.ListRoomWithQueryByPage(offset, pageSize, r, query)
+}
+
+func (s *Service) CountRoomWithQuery(r *model.RoomPageInfo, query string) (count int, err error) {
+	return s.dao.CountRoomWithQuery(r, query)
+}

@@ -98,5 +98,6 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/room/get", GetRoomById)
 	adminGroup.POST("/room/delete", DeleteRoomById)
 	adminGroup.POST("/room/update", UpdateRoomById)
+	adminGroup.POST("/room/list", ListRoomWithQueryByPage)
 	return r
 }

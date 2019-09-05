@@ -27,3 +27,18 @@ type Room struct {
 func (room *Room) TableName() string {
 	return consts.TABLE_MK_ROOM
 }
+
+type RoomPageInfo struct {
+	PageNumber int         `json:"page_number" form:"page_number" validate:"required" gorm:"-"`
+	PageSize   int         `json:"page_size" form:"page_size" validate:"required" gorm:"-"`
+	PageCount  int         `json:"page_count" gorm:"-"`
+	TotalCount int         `json:"total_count" gorm:"-"`
+	Results    interface{} `json:"results" gorm:"-"`
+	Type       int         `form:"type" json:"-"`
+	Status     int         `form:"status" json:"-"`
+}
+
+// 定义表名
+func (r *RoomPageInfo) TableName() string {
+	return consts.TABLE_MK_ROOM
+}

@@ -154,3 +154,48 @@ func UpdateRoomById(c *gin.Context) {
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }
+
+func ListRoomWithQueryByPage(c *gin.Context) {
+	var pageInfo model.RoomPageInfo
+	var err error
+	//pageInfo.Type=consts.RoomTyep_1
+	//pageInfo.Status=consts.RoomAvailable
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+			if pn < 0 {
+				pn = 1
+			}
+			if ps <= 0 {
+				ps = consts.DEFAULT_PAGE_SIZE
+			}
+			query := c.PostForm("query")
+			totalRecords, err := s.CountRoomWithQuery(&pageInfo, query)
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+			pageCount := totalRecords / ps
+			if totalRecords%ps > 0 {
+				pageCount++
+			}
+			if pn > pageCount {
+				pn = pageCount
+			}
+			pageInfo.PageCount = pageCount
+			pageInfo.TotalCount = totalRecords
+			if accounts, err := s.ListRoomWithQueryByPage(pn, ps, &pageInfo, query); err == nil {
+				pageInfo.Results = accounts
+				api.Success(c, pageInfo)
+				return
+			}
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+
+}

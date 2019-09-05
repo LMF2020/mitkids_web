@@ -136,13 +136,13 @@ func ListChildByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountAccountByRole(query, consts.AccountRoleChild)
-			//pageInfo.ResultCount = totalRecords
-			if totalRecords == 0 {
-				api.Success(c, pageInfo)
-				return
-			}
+
 			if err != nil {
 				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
 				return
 			}
 			pageCount := totalRecords / ps
@@ -181,13 +181,14 @@ func ListChildNoInClassByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountChildNotInClassWithQuery(query)
+
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
 			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
-				return
-			}
-			if err != nil {
-				api.Fail(c, http.StatusBadRequest, err.Error())
 				return
 			}
 			pageCount := totalRecords / ps
@@ -226,13 +227,14 @@ func ListChildInClassByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountChildInClassWithQuery(query)
+
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
 			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
-				return
-			}
-			if err != nil {
-				api.Fail(c, http.StatusBadRequest, err.Error())
 				return
 			}
 			pageCount := totalRecords / ps

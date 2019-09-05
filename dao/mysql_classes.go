@@ -55,7 +55,7 @@ func (d *Dao) GetClassById(id string) (c *model.Class, err error) {
 // 根据学生ID查询学生报名的班级: 限制条件 - 学生不能同时报名多个班级
 func (d *Dao) GetJoinedClass(studentId string) (joinedClass model.Class, err error) {
 
-	var listJoinedClasses []model.Class
+	var joinedClassList []model.Class
 
 	sql := `SELECT 
 			  c.*
@@ -65,14 +65,30 @@ func (d *Dao) GetJoinedClass(studentId string) (joinedClass model.Class, err err
 				ON jc.class_id = c.class_id 
 			WHERE jc.student_id = ? AND c.status <> ? AND jc.status = ?
 			`
-	if err = d.DB.Raw(sql, studentId, consts.ClassEnd, consts.JoinClassSuccess).Scan(&listJoinedClasses).Error; err == nil {
-		if len(listJoinedClasses) > 1 {
+	if err = d.DB.Raw(sql, studentId, consts.ClassEnd, consts.JoinClassSuccess).Scan(&joinedClassList).Error; err == nil {
+		if len(joinedClassList) > 1 {
 			err = errors.New("学生同一时段只能加入一个班级")
 			return
 		}
-		joinedClass = listJoinedClasses[0]
+		joinedClass = joinedClassList[0]
 
 	}
+	return
+}
+
+// 根据教师ID查询教师加入的班级
+func (d *Dao) GetJoinClassByTeacher (teacherId string) (joinedClassList []model.Class, err error) {
+	sql := `
+		SELECT 
+		  c.* 
+		FROM
+		  mk_account a,
+		  mk_class c 
+		WHERE a.account_id = c.teacher_id
+          AND c.teacher_id = ?
+		  AND c.status <> ?
+		`
+	err = d.DB.Raw(sql, teacherId, consts.ClassEnd).Scan(&joinedClassList).Error
 	return
 }
 

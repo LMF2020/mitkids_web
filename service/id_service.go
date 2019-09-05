@@ -34,9 +34,9 @@ func (s *Service) tryToGetId(len int) (error, string) {
 	return errors.New("无法生成账号ID"), ""
 }
 
-// 教师身份6位(), 家庭身份6位(), 学生编号:8位(20190526),
+// 教师身份6位(), 合作家庭身份6位(), 学生编号:8位(20190526),
 func (s *Service) IdGen(accountRole uint) (error, string) {
-	if accountRole == consts.AccountRoleTeacher || accountRole == consts.AccountRoleCorp {
+	if accountRole == consts.AccountRoleTeacher || accountRole == consts.AccountRoleCorp || accountRole == consts.AccountRoleForeignTeacher {
 		return s.tryToGetId(6)
 	} else if accountRole == consts.AccountRoleChild {
 		return s.tryToGetId(8)

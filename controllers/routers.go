@@ -29,18 +29,23 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	}
 	// set routers
 	r.Use(gin.Logger(), filter.RequestLogger(), filter.SetCorsHeader())
+	// 静态资源路径
+	r.Static("/static", "./static")
+
 	/**
-	通用组Yyhy
+	通用接口
 	*/
 	commonGroup := r.Group("/common")
 	// 发送验证码：注册验证码，登录验证码，忘记密码
 	commonGroup.POST("/mobile/code", CodeHandler)
 	// 刷新 Access Token
 	commonGroup.POST("/token/refresh", jwtFilter.RefreshHandler)
-
+	// 文件上传
+	commonGroup.POST("/file/:type/upload", Fileupload)
 	// -------------------------------
+
 	/**
-	学生组
+	学生端接口
 	*/
 	childGroup := r.Group("/child")
 	// 学生注册
@@ -64,7 +69,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 查询教室关联的班级信息
 		childAuthGroup.GET("/class/byroom/:roomId", ClassesQueryByRoomIdHandler)
 		// 查询学生所在班级信息
-		childAuthGroup.GET("/class/info", ChildStudyInfoQueryByAccountIdHandler)
+		childAuthGroup.GET("/class/info", ChildClassInfoQueryByAccountIdHandler)
 		// 查询近期安排的课表
 		childAuthGroup.GET("/recent/occurrence", ChildRecentOccurrenceQueryByAccountIdHandler)
 		// 查询最近完成的(N)节课
@@ -79,10 +84,21 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childAuthGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
 
 	}
-	authGroup.POST("/file/:type/upload", Fileupload)
-	r.Static("/static", "./static")
 
-	//管理员接口
+	/**
+	教室端接口
+	*/
+	teacherGroup := r.Group("/teacher")
+	// 教师注册
+	teacherGroup.POST("/register", RegisterTeacherAccountHandler)
+	// 教师登录
+	teacherGroup.POST("/login", jwtFilter.LoginHandler)
+	// 查询教师所在班级进度
+	teacherGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
+
+	/**
+	管理员接口
+	*/
 	adminGroup := authGroup.Group("/admin")
 	//list child
 	adminGroup.POST("/child/list", ListChildByPage)

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"container/list"
 	"errors"
 	"fmt"
 	"mitkid_web/consts"
@@ -125,15 +124,15 @@ func (s *Service) ListChildInClassByPage(pageNumber int, pageSize int, query str
 	return s.dao.ListChildInClassByPage(offset, pageSize, query)
 }
 
-func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string]list.List, err error) {
-	classesMap = make(map[string]list.List)
+func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string][]model.ChildClass, err error) {
+	classesMap = make(map[string]([]model.ChildClass))
 	classes, err := s.dao.GetClassesByChildIds(ids)
 	for _, class := range *classes {
 		if listc, ok := classesMap[class.StudentId]; ok {
-			listc.PushBack(class)
+			listc = append(listc, class)
 		} else {
-			listc = *list.New()
-			listc.PushBack(class)
+			listc = make([]model.ChildClass, 1)
+			listc = append(listc, class)
 			classesMap[class.StudentId] = listc
 		}
 	}

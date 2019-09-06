@@ -67,10 +67,9 @@ const ListChildAccountByPageWithQuerySql = `SELECT
 												a.gender,
 												a.address,
 												a.created_at,
-												c.school 
+												a.school 
 											FROM
 												mk_account a
-												LEFT JOIN mk_child c ON a.account_id = c.account_id 
 											WHERE
 												account_role = ? 
 												AND (
@@ -85,10 +84,9 @@ const ListChildAccountByPageSql = `SELECT
 									a.gender,
 									a.address,
 									a.created_at,
-									c.school 
+									a.school 
 								FROM
 									mk_account a
-									LEFT JOIN mk_child c ON a.account_id = c.account_id 
 								WHERE
 									account_role = ?`
 
@@ -199,10 +197,9 @@ const ListChildNotInClassWithQuerySql = `SELECT
 											a.gender,
 											a.address,
 											a.created_at,
-											c.school 
+											a.school 
 										FROM
 											mk_account a
-											LEFT JOIN mk_child c ON a.account_id = c.account_id 
 										WHERE
 											a.account_role = 3 
 												AND (
@@ -229,10 +226,9 @@ const ListChildNotInClassSql = `SELECT
 									a.gender,
 									a.address,
 									a.created_at,
-									c.school 
+									a.school 
 								FROM
 									mk_account a
-									LEFT JOIN mk_child c ON a.account_id = c.account_id 
 								WHERE
 									a.account_role = 3 
 										AND (
@@ -321,10 +317,9 @@ const ListChildInClassWithQuerySql = `SELECT
 											a.gender,
 											a.address,
 											a.created_at,
-											c.school 
+											a.school 
 										FROM
 											mk_account a
-											LEFT JOIN mk_child c ON a.account_id = c.account_id 
 										WHERE
 											a.account_role = 3 
 												AND (
@@ -351,10 +346,9 @@ const ListChildInClassSql = `SELECT
 									a.gender,
 									a.address,
 									a.created_at,
-									c.school 
+									a.school 
 								FROM
 									mk_account a
-									LEFT JOIN mk_child c ON a.account_id = c.account_id 
 								WHERE
 									a.account_role = 3 
 										AND (

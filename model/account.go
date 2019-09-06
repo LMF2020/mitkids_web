@@ -1,7 +1,6 @@
 package model
 
 import (
-	"container/list"
 	"mitkid_web/consts"
 	"time"
 )
@@ -58,14 +57,14 @@ type ChildStudySchedule struct {
 
 // 账号
 type Child struct {
-	AccountId   string    `json:"account_id"`
-	AccountName string    `json:"account_name" `
-	PhoneNumber string    `json:"phone_number"`
-	Age         int64     `json:"age" `
-	Gender      uint      `json:"gender"`
-	Address     string    `json:"address"`
-	CreatedAt   time.Time `json:"create_at" `
-	PayTime     time.Time `json:"pay_time" `
-	School      string    `json:"school"`
-	Classes     list.List `json:"classes"`
+	AccountId   string      `json:"account_id"`
+	AccountName string      `json:"account_name" `
+	PhoneNumber string      `json:"phone_number"`
+	Age         int64       `json:"age" `
+	Gender      uint        `json:"gender"`
+	Address     string      `json:"address"`
+	CreatedAt   time.Time   `json:"create_at" `
+	PayTime     time.Time   `json:"pay_time" `
+	School      string      `json:"school"`
+	Classes     interface{} `json:"classes"`
 }

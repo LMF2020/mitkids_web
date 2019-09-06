@@ -241,8 +241,9 @@ func ListChildInClassByPage(c *gin.Context) {
 				}
 
 				if classesMap, err := s.GetClassesByChildIds(&ids); err == nil {
-					for _, child := range *accounts {
-						child.Classes = classesMap[child.AccountId]
+					for i, _ := range *accounts {
+						(*accounts)[i].Classes = classesMap[(*accounts)[i].AccountId]
+						log.Logger.Debug((*accounts)[i].Classes)
 					}
 					pageInfo.Results = accounts
 					api.Success(c, pageInfo)

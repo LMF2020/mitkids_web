@@ -29,7 +29,7 @@ func RegisterTeacherAccountHandler(c *gin.Context) {
 	if irole, err := strconv.Atoi(role); err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
-	} else if irole != consts.AccountRoleTeacher ||  irole != consts.AccountRoleForeignTeacher {
+	} else if irole != consts.AccountRoleTeacher || irole != consts.AccountRoleForeignTeacher {
 		api.Fail(c, http.StatusBadRequest, "参数:教师类型错误")
 		return
 	} else {
@@ -118,13 +118,13 @@ func ListChildByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountAccountByRole(query, consts.AccountRoleChild)
-			//pageInfo.ResultCount = totalRecords
-			if totalRecords == 0 {
-				api.Success(c, pageInfo)
-				return
-			}
+
 			if err != nil {
 				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
 				return
 			}
 			pageCount := totalRecords / ps
@@ -163,13 +163,14 @@ func ListChildNoInClassByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountChildNotInClassWithQuery(query)
+
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
 			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
-				return
-			}
-			if err != nil {
-				api.Fail(c, http.StatusBadRequest, err.Error())
 				return
 			}
 			pageCount := totalRecords / ps
@@ -208,13 +209,14 @@ func ListChildInClassByPage(c *gin.Context) {
 			}
 			query := c.PostForm("query")
 			totalRecords, err := s.CountChildInClassWithQuery(query)
+
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
 			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
-				return
-			}
-			if err != nil {
-				api.Fail(c, http.StatusBadRequest, err.Error())
 				return
 			}
 			pageCount := totalRecords / ps
@@ -239,8 +241,9 @@ func ListChildInClassByPage(c *gin.Context) {
 				}
 
 				if classesMap, err := s.GetClassesByChildIds(&ids); err == nil {
-					for _, child := range *accounts {
-						child.Classes = classesMap[child.AccountId]
+					for i, _ := range *accounts {
+						(*accounts)[i].Classes = classesMap[(*accounts)[i].AccountId]
+						log.Logger.Debug((*accounts)[i].Classes)
 					}
 					pageInfo.Results = accounts
 					api.Success(c, pageInfo)

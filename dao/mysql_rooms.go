@@ -3,6 +3,7 @@ package dao
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
+	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
 	"time"
@@ -51,4 +52,31 @@ func (d *Dao) UpdateRoom(b *model.Room) (err error) {
 		return errors.New("更新教室失败")
 	}
 	return nil
+}
+
+func (d *Dao) CountRoomWithQuery(R *model.RoomPageInfo, query string) (count int, err error) {
+	db := d.DB.Table(consts.TABLE_MK_ROOM).Where(R)
+	if query != "" {
+		query = "%" + query + "%"
+		db = db.Where("name like ? or address like ?", query, query)
+	}
+	if err = db.Count(&count).Error; err != nil {
+		log.Logger.Error("db error(%v)", err)
+		return
+	}
+	return
+}
+
+func (d *Dao) ListRoomWithQueryByPage(offset int, pageSize int, R *model.RoomPageInfo, query string) (rooms *[]model.Room, err error) {
+	db := d.DB.Table(consts.TABLE_MK_ROOM).Where(R)
+	if query != "" {
+		query = "%" + query + "%"
+		db = db.Where("name like ? or address like ?", query, query)
+	}
+	rooms = new([]model.Room)
+	if err = db.Find(rooms).Error; err != nil {
+		log.Logger.Error("db error(%v)", err)
+		return
+	}
+	return
 }

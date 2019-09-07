@@ -178,13 +178,14 @@ func ListClassByPageAndQuery(c *gin.Context) {
 				}
 			}
 			totalRecords, err := s.CountClassByPageAndQuery(query, classStatus)
+
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, err.Error())
+				return
+			}
 			//pageInfo.ResultCount = totalRecords
 			if totalRecords == 0 {
 				api.Success(c, pageInfo)
-				return
-			}
-			if err != nil {
-				api.Fail(c, http.StatusBadRequest, err.Error())
 				return
 			}
 			pageCount := totalRecords / ps

@@ -103,7 +103,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	}
 	/**
 	管理员接口
-	 */
+	*/
 	adminGroup := authGroup.Group("/admin")
 	//list child
 	adminGroup.POST("/child/list", ListChildByPage)
@@ -119,7 +119,6 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/room/get", GetRoomById)
 	adminGroup.POST("/room/delete", DeleteRoomById)
 	adminGroup.POST("/room/update", UpdateRoomById)
-
-
+	adminGroup.POST("/room/list", ListRoomWithQueryByPage)
 	return r
 }

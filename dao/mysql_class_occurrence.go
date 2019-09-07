@@ -10,7 +10,7 @@ import (
 )
 
 // 查询学生最近要上的(N)节课
-func (d *Dao) ListLatest5ClassOccurrence(classId, scheduledTimeOrder string, occurStatus, limit int) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, occurStatus, n int) (classOccurList []model.OccurClassPoJo, err error) {
 
 	sql := `SELECT 
 			  coo.class_id,
@@ -44,7 +44,7 @@ func (d *Dao) ListLatest5ClassOccurrence(classId, scheduledTimeOrder string, occ
 			`
 	sql = fmt.Sprintf(sql, scheduledTimeOrder)
 
-	err = d.DB.Raw(sql, classId, occurStatus, limit).Scan(&classOccurList).Error
+	err = d.DB.Raw(sql, classId, occurStatus, n).Scan(&classOccurList).Error
 	return
 }
 

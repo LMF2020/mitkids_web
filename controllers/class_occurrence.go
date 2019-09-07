@@ -12,14 +12,26 @@ import (
 	"strconv"
 )
 
-// 我的最近课表
-func ChildRecentOccurrenceQueryByAccountIdHandler(c *gin.Context) {
+// 查询学生课表
+func ChildScheduledClassesQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	studentId := claims["AccountId"].(string)
-	if result, err := s.ListClassOccurrenceInfo(studentId); err != nil {
+	if result, err := s.ListClassOccurrenceByChild(studentId); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 	} else {
-		log.Logger.WithField("student_id", studentId).Info("API to query child recent occurrence successfully")
+		log.Logger.WithField("student_id", studentId).Info("Query child scheduled classes successfully")
+		api.Success(c, result)
+	}
+}
+
+// 查询教师课表
+func TeacherScheduledClassesQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+	if result, err := s.ListClassOccurrenceByTeacher(teacherId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+	} else {
+		log.Logger.WithField("teacher_id", teacherId).Info("Query teacher scheduled classes successfully")
 		api.Success(c, result)
 	}
 }

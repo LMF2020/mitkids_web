@@ -52,8 +52,8 @@ func (d *Dao) GetClassById(id string) (c *model.Class, err error) {
 	return
 }
 
-// 根据学生ID查询学生报名的班级: 限制条件 - 学生不能同时报名多个班级
-func (d *Dao) GetJoinedClass(studentId string) (joinedClass model.Class, err error) {
+// 根据学生ID查询学生加入的班级: 限制条件 - 学生不能同时报名多个班级
+func (d *Dao) GetJoinedClassByChild(studentId string) (joinedClass model.Class, err error) {
 
 	var joinedClassList []model.Class
 

@@ -15,7 +15,7 @@ func (s *Service) ListAvailableClassesByRoomId(roomId string) (classes []model.C
 func (s *Service) GetJoinedClassByStudent(studentId string) (result map[string]interface{}, err error) {
 	var joinedClass model.Class
 	// 1.查询班级信息
-	if joinedClass, err = s.dao.GetJoinedClass(studentId); gorm.IsRecordNotFoundError(err) {
+	if joinedClass, err = s.dao.GetJoinedClassByChild(studentId); gorm.IsRecordNotFoundError(err) {
 		return nil, nil // 学生没有加入任何班级
 	} else if err != nil {
 		return nil, err // 查询报错

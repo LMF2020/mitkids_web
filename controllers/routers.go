@@ -70,7 +70,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 查询学生所在班级信息
 		childTokenGroup.GET("/class/info", ChildClassInfoQueryByAccountIdHandler)
 		// 查询近期安排的课表
-		childTokenGroup.GET("/recent/occurrence", ChildRecentOccurrenceQueryByAccountIdHandler)
+		childTokenGroup.GET("/recent/occurrence", ChildScheduledClassesQueryHandler)
 		// 查询最近完成的(N)节课
 		childTokenGroup.GET("/occurrence/history/list/:n", ChildPastOccurrenceQueryHandler)
 		// 分页-查询历史课表
@@ -100,6 +100,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.POST("/logout", nil)
 		// 查询教师所在班级
 		teacherTokenGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
+		// 查询教师最近安排的课表
+		teacherTokenGroup.GET("/recent/occurrence", TeacherScheduledClassesQueryHandler)
 	}
 	/**
 	管理员接口

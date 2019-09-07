@@ -148,3 +148,16 @@ func (s *Service) PageListAccountByRole(role, pageNumber, pageSize int, query st
 func (s *Service) CountAccountByRole(query string, role int) (count int, err error) {
 	return s.dao.CountAccountByRole(query, role)
 }
+
+// 是否教师
+func (s *Service) IsRoleTeacher (role int) bool {
+	return role == consts.AccountRoleForeignTeacher || role == consts.AccountRoleTeacher || role == consts.AccountRoleCorpWithTeacher
+}
+// 是否合作家庭
+func (s *Service) IsRoleCorp (role int) bool {
+	return role == consts.AccountRoleCorpWithTeacher || role == consts.AccountRoleCorp
+}
+// 是否学生
+func (s *Service) IsRoleChild (role int) bool {
+	return role == consts.AccountRoleChild
+}

@@ -37,4 +37,7 @@ const (
 var (
 	BOOK_LEVEL_SET      = map[uint]string{BookLevel1: "初级", BookLevel2: "中级", BookLevel3: "高级"}
 	URL_LOGOUT_API_LIST = fmt.Sprintf("%s_%s_%s", URL_CHILD_LOGOUT, URL_ADMIN_LOGOUT, URL_TEACHER_LOGOUT)
+	REGEX_TEACHER_API = "^/api/teacher/.*"
+	REGEX_CHILD_API = "^/api/child/.*"
+	REGEX_CORP_API = "^/api/corp/.*"
 )

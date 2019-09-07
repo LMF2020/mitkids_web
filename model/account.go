@@ -13,8 +13,10 @@ type AccountInfo struct {
 	AccountName   string    `json:"account_name" form:"account_name"`
 	Password      string    `form:"password" validate:"required"`
 	PhoneNumber   string    `json:"phone_number" form:"phone_number" validate:"required"`
+	// 1:免费注册 2:付费用户
 	AccountType   uint      `json:"account_type" form:"account_type"`
-	AccountRole   uint      `json:"account_role" form:"account_role" validate:"required"` // 1:中教 2:合作家庭 3:学生 4.外教
+	// 1:中教 2:合作家庭 3:学生 4.管理员 5.外教 6.合作家庭且中教
+	AccountRole   uint      `json:"account_role" form:"account_role" validate:"required"`
 	AccountStatus uint      `json:"account_status" form:"account_status" validate:"required"`
 	Email         string    `json:"email" form:"email" validate:"omitempty,email"`
 	Birth         string    `json:"birth" form:"birth"`
@@ -27,11 +29,10 @@ type AccountInfo struct {
 	CreatedAt     time.Time `json:"create_at" form:"create_at"`
 	UpdatedAt     time.Time `json:"update_at" form:"update_at"`
 	Code          string    `json:"code" form:"code" gorm:"-"` // 验证码, 数据库忽略该字段
-
 	// 扩展信息
 	School      string `json:"school" form:"school"`             // 学校
-	TeacherType int    `json:"teacher_type" form:"teacher_type"` // 教师类型：角色 1:系统教师 2:合作教师
-	IsPartener  int    `json:"is_partner" form:"is_partner"`     // 是否是合作家庭教师: 0:否 1:是
+	// 教师类型：角色 1:内部教师 2:外部教师
+	TeacherType int    `json:"teacher_type" form:"teacher_type"`
 }
 
 // 定义表名

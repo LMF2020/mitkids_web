@@ -52,36 +52,35 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	childGroup.POST("/register", RegisterChildAccountHandler)
 	// 学生登录
 	childGroup.POST("/login", jwtFilter.LoginHandler)
-
+	
 	authGroup := r.Group("/api")
-	// 学生认证
-	childAuthGroup := authGroup.Group("/child")
-	// used for verify token and check if token is logged out
-	childAuthGroup.Use(jwtFilter.MiddlewareFunc(), filter.LogoutHandler())
+	// 学生tokenGroup: used for verify token and check if token is logged out
+	childTokenGroup := authGroup.Group("/child").Use(jwtFilter.MiddlewareFunc(),
+		filter.RoleHandler(), filter.LogoutHandler())
 	{
-		childAuthGroup.POST("/logout", nil)
+		childTokenGroup.POST("/logout", nil)
 		// 查询学生资料
-		childAuthGroup.POST("/profile", ChildAccountInfoHandler)
+		childTokenGroup.POST("/profile", ChildAccountInfoHandler)
 		// 更新学生资料
-		childAuthGroup.POST("/profile/update", ChildAccountInfoUpdateHandler)
+		childTokenGroup.POST("/profile/update", ChildAccountInfoUpdateHandler)
 		// 查询坐标范围内的教室
-		childAuthGroup.POST("/rooms/nearby", RoomsBoundsQueryHandler)
+		childTokenGroup.POST("/rooms/nearby", RoomsBoundsQueryHandler)
 		// 查询教室关联的班级信息
-		childAuthGroup.GET("/class/byroom/:roomId", ClassesQueryByRoomIdHandler)
+		childTokenGroup.GET("/class/byroom/:roomId", ClassesQueryByRoomIdHandler)
 		// 查询学生所在班级信息
-		childAuthGroup.GET("/class/info", ChildClassInfoQueryByAccountIdHandler)
+		childTokenGroup.GET("/class/info", ChildClassInfoQueryByAccountIdHandler)
 		// 查询近期安排的课表
-		childAuthGroup.GET("/recent/occurrence", ChildRecentOccurrenceQueryByAccountIdHandler)
+		childTokenGroup.GET("/recent/occurrence", ChildRecentOccurrenceQueryByAccountIdHandler)
 		// 查询最近完成的(N)节课
-		childAuthGroup.GET("/occurrence/history/list/:n", ChildPastOccurrenceQueryHandler)
+		childTokenGroup.GET("/occurrence/history/list/:n", ChildPastOccurrenceQueryHandler)
 		// 分页-查询历史课表
-		childAuthGroup.POST("/occurrence/history/page", ChildPageOccurrenceHisQueryHandler)
+		childTokenGroup.POST("/occurrence/history/page", ChildPageOccurrenceHisQueryHandler)
 		// 查询学生上课日历
-		childAuthGroup.GET("/occurrence/calendar", ChildOccurrenceCalendarQueryHandler)
+		childTokenGroup.GET("/occurrence/calendar", ChildOccurrenceCalendarQueryHandler)
 		// 申请加入班级
-		childAuthGroup.POST("/apply/join", ChildApplyJoiningClassHandler)
+		childTokenGroup.POST("/apply/join", ChildApplyJoiningClassHandler)
 		// 撤销申请
-		childAuthGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
+		childTokenGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
 
 	}
 
@@ -93,9 +92,15 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	teacherGroup.POST("/register", RegisterTeacherAccountHandler)
 	// 教师登录
 	teacherGroup.POST("/login", jwtFilter.LoginHandler)
-	// 查询教师所在班级进度
-	teacherGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
-
+	// 教师tokenGroup: used for verify token and check if token is logged out
+	teacherTokenGroup := authGroup.Group("/teacher").Use(jwtFilter.MiddlewareFunc(),
+		filter.RoleHandler(), filter.LogoutHandler())
+	{
+		// 教师登出
+		teacherTokenGroup.POST("/logout", nil)
+		// 查询教师所在班级
+		teacherTokenGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
+	}
 	/**
 	管理员接口
 	 */

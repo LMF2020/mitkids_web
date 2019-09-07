@@ -126,8 +126,8 @@ func CreateClass(c *gin.Context) {
 					fu++
 				}
 			}
-			lName := consts.BOOK_LEVEL_SET[formClass.BookLevel]
-			formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
+			//lName := consts.BOOK_LEVEL_SET[formClass.BookLevel]
+			//formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
 			formClass.ChildNumber = uint(len(formClass.Childs))
 			formClass.Status = consts.ClassNoStart
 			if err = s.CreateClass(&formClass); err == nil {

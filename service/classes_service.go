@@ -36,7 +36,7 @@ func (s *Service) GetJoinedClassByStudent(studentId string) (result map[string]i
 		if occurrences, err = s.GetClassOccurrencesByClassId(joinedClass.ClassId); err != nil {
 			return nil, err
 		}
-		if !(len(*occurrences) > consts.BOOK_UNIT_CLASS_COUNT) {
+		if len(*occurrences) < consts.BOOK_UNIT_CLASS_COUNT {
 			return nil, errors.New("课程数据错误小于最少课程数")
 		}
 
@@ -74,7 +74,7 @@ func (s *Service) GetJoinedClassByTeacher(teacherId string) (result []map[string
 			if occurrences, err = s.GetClassOccurrencesByClassId(class.ClassId); err != nil {
 				return nil, err
 			}
-			if !(len(*occurrences) > consts.BOOK_UNIT_CLASS_COUNT) {
+			if len(*occurrences) < consts.BOOK_UNIT_CLASS_COUNT {
 				return nil, errors.New("课程数据错误小于最少课程数")
 			}
 

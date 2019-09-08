@@ -226,7 +226,12 @@ func GetClassAllInfoById(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	class.Occurrences = *s.GetClassOccurrencesByClassId(classId)
+	ocs, err := s.GetClassOccurrencesByClassId(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	class.Occurrences = *ocs
 	class.Childs, err = s.ListClassChildByClassId(classId)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())

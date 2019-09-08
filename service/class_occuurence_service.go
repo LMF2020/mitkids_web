@@ -8,6 +8,7 @@ import (
 	"mitkid_web/utils/log"
 	"time"
 )
+
 // 查询学生课表
 func (s *Service) ListClassOccurrenceByChild(studentId string) (classOccurList []model.OccurClassPoJo, err error) {
 	var joinedClass model.Class
@@ -140,6 +141,6 @@ func (s *Service) AddOccurrences(class *model.Class, bookCodes *[]string) (err e
 	return s.dao.AddOccurrences(class.ClassId, &os)
 }
 
-func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.Time) {
+func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.Time, err error) {
 	return s.dao.GetClassOccurrencesByClassId(classId)
 }

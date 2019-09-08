@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"mitkid_web/consts"
 	"mitkid_web/model"
+	"time"
 )
 
 func (s *Service) ListAvailableClassesByRoomId(roomId string) (classes []model.Class, err error) {
@@ -31,10 +32,17 @@ func (s *Service) GetJoinedClassByStudent(studentId string) (result map[string]i
 		if total, err = s.dao.CountJoinedClassOccurrence(joinedClass.ClassId, -1); err != nil {
 			return nil, err
 		}
+		var occurrences *[]time.Time
+		if occurrences, err = s.GetClassOccurrencesByClassId(joinedClass.ClassId); err != nil {
+			return nil, err
+		}
+		if !(len(*occurrences) > consts.BOOK_UNIT_CLASS_COUNT) {
+			return nil, errors.New("课程数据错误小于最少课程数")
+		}
 
 		result = make(map[string]interface{})
-		result["start_ime"] = joinedClass.StartTime
-		result["end_time"] = joinedClass.EndTime
+		result["start_time"] = (*occurrences)[0]
+		result["end_time"] = (*occurrences)[len(*occurrences)-1]
 		result["level"] = joinedClass.BookLevel
 		result["total"] = total
 		result["finished"] = finished
@@ -62,11 +70,18 @@ func (s *Service) GetJoinedClassByTeacher(teacherId string) (result []map[string
 			if total, err = s.dao.CountJoinedClassOccurrence(class.ClassId, -1); err != nil {
 				return nil, err
 			}
+			var occurrences *[]time.Time
+			if occurrences, err = s.GetClassOccurrencesByClassId(class.ClassId); err != nil {
+				return nil, err
+			}
+			if !(len(*occurrences) > consts.BOOK_UNIT_CLASS_COUNT) {
+				return nil, errors.New("课程数据错误小于最少课程数")
+			}
 
 			r := make(map[string]interface{})
 			r["class_name"] = class.ClassName
-			r["start_ime"] = class.StartTime
-			r["end_time"] = class.EndTime
+			r["start_time"] = (*occurrences)[0]
+			r["end_time"] = (*occurrences)[len(*occurrences)-1]
 			r["level"] = class.BookLevel
 			r["total"] = total
 			r["finished"] = finished

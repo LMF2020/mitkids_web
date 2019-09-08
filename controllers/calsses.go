@@ -89,7 +89,17 @@ func CreateClass(c *gin.Context) {
 	var err error
 	if err = c.ShouldBind(&formClass); err == nil {
 		if err = utils.ValidateParam(formClass); err == nil {
-			if formClass.EndTime.Before(formClass.StartTime) {
+			endTime, err := formClass.EndTime.Time()
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, "结束时间格式错误")
+				return
+			}
+			startTime, err := formClass.StartTime.Time()
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, "起始时间格式错误")
+				return
+			}
+			if endTime.Before(startTime) {
 				api.Fail(c, http.StatusBadRequest, "课程结束时间不能小于开始时间")
 				return
 			}

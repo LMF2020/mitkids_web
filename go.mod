@@ -14,6 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-playground/locales v0.12.1
 	github.com/go-playground/universal-translator v0.16.0
+	github.com/go-sql-driver/mysql v1.4.1
 	github.com/google/go-cmp v0.3.0 // indirect
 	github.com/jinzhu/gorm v1.9.8
 	github.com/jinzhu/inflection v0.0.0-20190603042836-f5c5f50e6090 // indirect

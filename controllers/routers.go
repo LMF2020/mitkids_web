@@ -76,7 +76,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 分页-查询历史课表
 		childTokenGroup.POST("/occurrence/history/page", ChildPageOccurrenceHisQueryHandler)
 		// 查询学生上课日历
-		childTokenGroup.GET("/occurrence/calendar", ChildOccurrenceCalendarQueryHandler)
+		childTokenGroup.GET("/occurrence/calendar", ChildCalendarQueryHandler)
 		// 申请加入班级
 		childTokenGroup.POST("/apply/join", ChildApplyJoiningClassHandler)
 		// 撤销申请
@@ -102,6 +102,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
 		// 查询教师最近安排的课表
 		teacherTokenGroup.GET("/recent/occurrence", TeacherScheduledClassesQueryHandler)
+		// 教师上课日历
+		teacherTokenGroup.GET("/occurrence/calendar", TeacherCalendarQueryHandler)
 	}
 	/**
 	管理员接口

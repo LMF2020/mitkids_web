@@ -79,7 +79,7 @@ func (s *Service) ListOccurrenceHistoryByPage(pageNumber, pageSize int, classId 
 }
 
 // 查询学生课表日历
-func (s *Service) ListOccurrenceCalendar(studentId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (s *Service) ListCalendarByChild(studentId string) (classOccurList []model.OccurClassPoJo, err error) {
 	var joinedClass model.Class
 	if joinedClass, err = s.dao.GetJoinedClassByChild(studentId); gorm.IsRecordNotFoundError(err) {
 		// 学生没有加入任何班级
@@ -93,6 +93,30 @@ func (s *Service) ListOccurrenceCalendar(studentId string) (classOccurList []mod
 		if err != nil {
 			log.Logger.WithField("student_id", studentId).Error("get calendar failed")
 			classOccurList = nil
+		}
+		return
+	}
+}
+
+// 查询教师课表日历
+func (s *Service) ListCalendarByTeacher(teacherId string) (classOccurList []model.OccurClassPoJo, err error) {
+	var joinedClass []model.Class
+	if joinedClass, err = s.dao.GetJoinClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
+		// 教师没有被分配班级
+		err = nil
+		return
+	} else if err != nil {
+		// 查询报错
+		return nil, err
+	} else {
+		//var list []model.OccurClassPoJo
+		for _, cls := range joinedClass {
+			tmpClasses, err := s.dao.ListOccurrenceCalendar(cls.ClassId)
+			if err == nil {
+				classOccurList = append(classOccurList, tmpClasses...)
+			} else {
+				log.Logger.WithField("teacher_id", teacherId).WithField("class_id", cls.ClassId).Error("get teacher calendar error")
+			}
 		}
 		return
 	}

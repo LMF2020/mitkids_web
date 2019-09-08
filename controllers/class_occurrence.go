@@ -120,11 +120,24 @@ func ChildPageOccurrenceHisQueryHandler(c *gin.Context) {
 }
 
 // 查询学生课表日历
-func ChildOccurrenceCalendarQueryHandler(c *gin.Context) {
+func ChildCalendarQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	studentId := claims["AccountId"].(string)
 
-	if clsList, err := s.ListOccurrenceCalendar(studentId); err != nil {
+	if clsList, err := s.ListCalendarByChild(studentId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		api.Success(c, clsList)
+	}
+}
+
+// 查询教师上课日历
+func TeacherCalendarQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+
+	if clsList, err := s.ListCalendarByTeacher(teacherId); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	} else {

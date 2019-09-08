@@ -2,6 +2,7 @@ package model
 
 import (
 	"mitkid_web/consts"
+	"mitkid_web/utils"
 	"time"
 )
 
@@ -16,16 +17,16 @@ type Class struct {
 	Status        uint        `json:"status" form:"status" `                                                   // 班級是否关闭(1:未开始,2:进行中,3:已结束)
 	ChildNumber   uint        `json:"child_number" form:"child_number" `                                       // 当前报名人数
 	Capacity      uint        `json:"capacity" form:"capacity" validate:"required"`                            // 班級计划人数
-	StartTime     time.Time   `json:"start_time" form:"start_time" validate:"required" time_format:"15:04:05"` // 开班时间
-	EndTime       time.Time   `json:"end_time" form:"end_time" validate:"required" time_format:"15:04:05"`     // 闭班时间
-	CreatedAt     time.Time   `json:"create_at" form:"create_at"`                                              // 创建时间
-	UpdatedAt     time.Time   `json:"update_at" form:"update_at"`                                              // 更新时间
+	StartTime     utils.RawTime  `json:"start_time" form:"start_time" validate:"required"` // 课程开始时间
+	EndTime       utils.RawTime   `json:"end_time" form:"end_time" validate:"required"`     // 课程结束时间
 	Childs        []string    `json:"childs" form:"childs" gorm:"-"`                                           // 学生id列表
 	BookFromUnit  uint        `json:"book_from_unit" form:"book_from_unit"  validate:"required" `              // 课程 开始单元
 	BookToUnit    uint        `json:"book_to_unit" form:"book_to_unit"  validate:"required" `                  // 课程 结束单元
 	Occurrences   []time.Time `json:"occurrences" form:"occurrences" gorm:"-" validate:"required" time_format:"2006-01-02"`
-	Weeks         string      `json:"weeks" form:"weeks" `
-	StartDate     time.Time   `json:"start_date" form:"start_date" time_format:"2006-01-02"`
+	Weeks         string      `json:"weeks" form:"weeks" `  									// 每周具体上课天数
+	StartDate     time.Time   `json:"start_date" form:"start_date" time_format:"2006-01-02"`  	// 课程开始日期
+	CreatedAt     time.Time   `json:"create_at" form:"create_at"`                                              // 创建时间
+	UpdatedAt     time.Time   `json:"update_at" form:"update_at"`                                              // 更新时间
 }
 
 // 定义表名

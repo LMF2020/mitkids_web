@@ -307,3 +307,67 @@ func ChildCancelJoiningClassHandler(c *gin.Context) {
 
 	api.Success(c, "撤销成功")
 }
+
+// 分页查询
+func ListTeacherByPage(c *gin.Context) {
+	var pageInfo model.AccountPageInfo
+	var err error
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			if len(pageInfo.AccountRole) == 0 {
+				pageInfo.AccountRole[0] = consts.AccountRoleTeacher
+				pageInfo.AccountRole[0] = consts.AccountRoleForeignTeacher
+			} else {
+				for _, role := range pageInfo.AccountRole {
+					if role != consts.AccountRoleTeacher && role != consts.AccountRoleForeignTeacher {
+						api.Fail(c, http.StatusBadRequest, "account role 不合法")
+						return
+					}
+				}
+			}
+			if err = ListAccountByPage(&pageInfo, c); err == nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+// 分页查询
+func ListAccountByPage(pageInfo *model.AccountPageInfo, c *gin.Context) (err error) {
+	pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+	if pn < 0 {
+		pn = 1
+	}
+	if ps <= 0 {
+		ps = consts.DEFAULT_PAGE_SIZE
+	}
+	query := c.PostForm("query")
+	totalRecords, err := s.CountAccountByPageInfo(pageInfo, query)
+
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if totalRecords == 0 {
+		api.Success(c, pageInfo)
+		return
+	}
+	pageCount := totalRecords / ps
+	if totalRecords%ps > 0 {
+		pageCount++
+	}
+	if pn > pageCount {
+		pn = pageCount
+	}
+	pageInfo.PageCount = pageCount
+	pageInfo.TotalCount = totalRecords
+	if accounts, err := s.PageListAccountByPageInfo(pageInfo, query); err == nil {
+		pageInfo.Results = accounts
+		api.Success(c, pageInfo)
+		return err
+	}
+
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return err
+}

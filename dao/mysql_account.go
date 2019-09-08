@@ -378,3 +378,34 @@ func (d *Dao) ListChildInClassByPage(offset int, pageSize int, query string) (ch
 	}
 	return
 }
+
+func (d *Dao) PageListAccountByPageInfo(pageInfo *model.AccountPageInfo, query string) (accounts []model.AccountInfo, err error) {
+	offset := (pageInfo.PageNumber - 1) * pageInfo.PageSize
+	db := d.DB.Table(consts.TABLE_ACCOUNT).Where(pageInfo).Offset(offset).Limit(pageInfo.PageSize)
+	if len(pageInfo.AccountRole) > 0 {
+		db = db.Where("account_role in (?)", pageInfo.AccountRole)
+	}
+	if query != "" {
+		query = "%" + query + "%"
+		db = db.Where("account_name like ? or phone_number like ?", query, query)
+	}
+	if err = db.Find(&accounts).Error; err != nil {
+		log.Logger.Error("db error(%v)", err)
+	}
+	return
+}
+
+func (d *Dao) CountAccountByPageInfo(pageInfo *model.AccountPageInfo, query string) (count int, err error) {
+	db := d.DB.Table(consts.TABLE_ACCOUNT).Where(pageInfo)
+	if len(pageInfo.AccountRole) > 0 {
+		db = db.Where("account_role in (?)", pageInfo.AccountRole)
+	}
+	if query != "" {
+		query = "%" + query + "%"
+		db = db.Where("account_name like ? or phone_number like ?", query, query)
+	}
+	if err = db.Count(&count).Error; err != nil {
+		log.Logger.Error("db error(%v)", err)
+	}
+	return
+}

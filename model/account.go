@@ -8,12 +8,12 @@ import (
 // 账号
 type AccountInfo struct {
 	// 中教编号:6位, 外教编号6位, 学生编号:8位
-	AccountId     string    `json:"account_id" form:"account_id" gorm:"primary_key"`
-	AccountName   string    `json:"account_name" form:"account_name"`
-	Password      string    `form:"password" validate:"required"`
-	PhoneNumber   string    `json:"phone_number" form:"phone_number" validate:"required"`
+	AccountId   string `json:"account_id" form:"account_id" gorm:"primary_key"`
+	AccountName string `json:"account_name" form:"account_name"`
+	Password    string `form:"password" validate:"required"`
+	PhoneNumber string `json:"phone_number" form:"phone_number" validate:"required"`
 	// 1:免费注册 2:付费用户
-	AccountType   uint      `json:"account_type" form:"account_type"`
+	AccountType uint `json:"account_type" form:"account_type"`
 	// 1:中教 2:合作家庭 3:学生 4.管理员 5.外教 6.合作家庭且中教
 	AccountRole   uint      `json:"account_role" form:"account_role" validate:"required"`
 	AccountStatus uint      `json:"account_status" form:"account_status" validate:"required"`
@@ -29,9 +29,9 @@ type AccountInfo struct {
 	UpdatedAt     time.Time `json:"update_at" form:"update_at"`
 	Code          string    `json:"code" form:"code" gorm:"-"` // 验证码, 数据库忽略该字段
 	// 扩展信息
-	School      string `json:"school" form:"school"`             // 学校
+	School string `json:"school" form:"school"` // 学校
 	// 教师类型：角色 1:内部教师 2:外部教师
-	TeacherType int    `json:"teacher_type" form:"teacher_type"`
+	TeacherType int `json:"teacher_type" form:"teacher_type"`
 }
 
 // 定义表名
@@ -68,4 +68,13 @@ type Child struct {
 	PayTime     time.Time   `json:"pay_time" `
 	School      string      `json:"school"`
 	Classes     interface{} `json:"classes"`
+}
+
+type AccountPageInfo struct {
+	PageNumber  int         `json:"page_number" form:"page_number" validate:"required" gorm:"-"`
+	PageSize    int         `json:"page_size" form:"page_size" validate:"required" gorm:"-"`
+	PageCount   int         `json:"page_count" gorm:"-"`
+	TotalCount  int         `json:"total_count" gorm:"-"`
+	Results     interface{} `json:"results" gorm:"-"`
+	AccountRole []int       `form:"account_role" json:"-" gorm:"-"`
 }

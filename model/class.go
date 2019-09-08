@@ -68,19 +68,19 @@ func (class *ClassOccurrence) TableName() string {
 }
 
 type ChildClass struct {
-	ClassId       string    `json:"class_id" form:"class_id" gorm:"primary_key"`                                        // 6位班级编号
-	ClassName     string    `json:"class_name" form:"class_name" validate:"required"`                                   // 6位班级编号
-	ForeTeacherId string    `json:"fore_teacher_id" form:"fore_teacher_id" `                                            // 6位外教老師编号
-	TeacherId     string    `json:"teacher_id" form:"teacher_id" `                                                      // 6位中教老師编号
-	RoomId        string    `json:"room_id" form:"room_id" `                                                            // 上课教室 ID
-	BookLevel     uint      `json:"book_level" form:"book_level" `                                                      // 课程级别
-	BookPlan      string    `json:"book_plan" form:"book_plan"`                                                         // 课程系列(套餐)
-	Status        uint      `json:"status" form:"status" `                                                              // 班級是否关闭(1:未开始,2:进行中,3:已结束)
-	ChildNumber   uint      `json:"child_number" form:"child_number" `                                                  // 当前报名人数
-	Capacity      uint      `json:"capacity" form:"capacity" validate:"required"`                                       // 班級计划人数
-	StartTime     time.Time `json:"start_time" form:"start_time" validate:"required" time_format:"2006-01-02 15:04:05"` // 开班时间
-	EndTime       time.Time `json:"end_time" form:"end_time" validate:"required" time_format:"2006-01-02 15:04:05"`     // 闭班时间
-	CreatedAt     time.Time `json:"create_at" form:"create_at"`                                                         // 创建时间
-	UpdatedAt     time.Time `json:"update_at" form:"update_at"`                                                         // 更新时间
-	StudentId     string    `json:"student_id" gorm:"student_id"`
+	ClassId       string        `json:"class_id" form:"class_id" gorm:"primary_key"`      // 6位班级编号
+	ClassName     string        `json:"class_name" form:"class_name" validate:"required"` // 6位班级编号
+	ForeTeacherId string        `json:"fore_teacher_id" form:"fore_teacher_id" `          // 6位外教老師编号
+	TeacherId     string        `json:"teacher_id" form:"teacher_id" `                    // 6位中教老師编号
+	RoomId        string        `json:"room_id" form:"room_id" `                          // 上课教室 ID
+	BookLevel     uint          `json:"book_level" form:"book_level" `                    // 课程级别
+	BookPlan      string        `json:"book_plan" form:"book_plan"`                       // 课程系列(套餐)
+	Status        uint          `json:"status" form:"status" `                            // 班級是否关闭(1:未开始,2:进行中,3:已结束)
+	ChildNumber   uint          `json:"child_number" form:"child_number" `                // 当前报名人数
+	Capacity      uint          `json:"capacity" form:"capacity" validate:"required"`     // 班級计划人数
+	StartTime     utils.RawTime `json:"start_time" form:"start_time" validate:"required"` // 课程开始时间
+	EndTime       utils.RawTime `json:"end_time" form:"end_time" validate:"required"`     // 课程结束时间    // 闭班时间
+	CreatedAt     time.Time     `json:"create_at" form:"create_at"`                       // 创建时间
+	UpdatedAt     time.Time     `json:"update_at" form:"update_at"`                       // 更新时间
+	StudentId     string        `json:"student_id" gorm:"student_id"`
 }

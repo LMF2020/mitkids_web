@@ -52,7 +52,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	childGroup.POST("/register", RegisterChildAccountHandler)
 	// 学生登录
 	childGroup.POST("/login", jwtFilter.LoginHandler)
-	
+
 	authGroup := r.Group("/api")
 	// 学生tokenGroup: used for verify token and check if token is logged out
 	childTokenGroup := authGroup.Group("/child").Use(jwtFilter.MiddlewareFunc(),
@@ -124,5 +124,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/room/delete", DeleteRoomById)
 	adminGroup.POST("/room/update", UpdateRoomById)
 	adminGroup.POST("/room/list", ListRoomWithQueryByPage)
+	adminGroup.POST("/teacher/list", ListTeacherByPage)
+
 	return r
 }

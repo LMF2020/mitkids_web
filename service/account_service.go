@@ -131,7 +131,7 @@ func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string][]m
 		if listc, ok := classesMap[class.StudentId]; ok {
 			listc = append(listc, class)
 		} else {
-			listc = make([]model.ChildClass, 1)
+			listc = make([]model.ChildClass, 0)
 			listc = append(listc, class)
 			classesMap[class.StudentId] = listc
 		}
@@ -149,14 +149,24 @@ func (s *Service) CountAccountByRole(query string, role int) (count int, err err
 }
 
 // 是否教师
-func (s *Service) IsRoleTeacher (role int) bool {
+func (s *Service) IsRoleTeacher(role int) bool {
 	return role == consts.AccountRoleForeignTeacher || role == consts.AccountRoleTeacher || role == consts.AccountRoleCorpWithTeacher
 }
+
 // 是否合作家庭
-func (s *Service) IsRoleCorp (role int) bool {
+func (s *Service) IsRoleCorp(role int) bool {
 	return role == consts.AccountRoleCorpWithTeacher || role == consts.AccountRoleCorp
 }
+
 // 是否学生
-func (s *Service) IsRoleChild (role int) bool {
+func (s *Service) IsRoleChild(role int) bool {
 	return role == consts.AccountRoleChild
+}
+
+func (s *Service) PageListAccountByPageInfo(pageInfo *model.AccountPageInfo, query string) (accounts []model.AccountInfo, err error) {
+	return s.dao.PageListAccountByPageInfo(pageInfo, query)
+}
+
+func (s *Service) CountAccountByPageInfo(pageInfo *model.AccountPageInfo, query string) (count int, err error) {
+	return s.dao.CountAccountByPageInfo(pageInfo, query)
 }

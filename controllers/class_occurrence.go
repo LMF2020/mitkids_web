@@ -36,8 +36,37 @@ func TeacherScheduledClassesQueryHandler(c *gin.Context) {
 	}
 }
 
-// 我最近完成的课 - 仅列出前几条
-func ChildPastOccurrenceQueryHandler(c *gin.Context) {
+// 教师最近完成的课时(N)
+func TeacherFinishedOccurrenceQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+
+	pageSize := c.Param("n") // 查询历史多少节课
+	size, err := strconv.Atoi(pageSize)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, "参数错误:n")
+		return
+	}
+	classList, err := s.GetJoinedClassByTeacher(teacherId)
+	if err == nil && classList == nil { // 没加入任何班级
+		return
+	}
+	var classIdArr []string
+	for _, v := range classList {
+		classIdArr = append(classIdArr, v.ClassId)
+	}
+
+	// 查询不区分班级
+	if result, err := s.PageFinishedOccurrenceByClassIdArray(1, size, classIdArr); err == nil {
+		api.Success(c, result)
+		return
+	} else {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+	}
+}
+
+// 学生最近完成的课时(N)
+func ChildFinishedOccurrenceQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	studentId := claims["AccountId"].(string)
 
@@ -61,7 +90,7 @@ func ChildPastOccurrenceQueryHandler(c *gin.Context) {
 	}
 
 	// 查询第一页，5条记录
-	if result, err2 := s.ListOccurrenceHistoryByPage(1, size, classId); err2 == nil {
+	if result, err2 := s.PageFinishedOccurrenceByClassId(1, size, classId); err2 == nil {
 		api.Success(c, result)
 		return
 	} else {
@@ -71,7 +100,7 @@ func ChildPastOccurrenceQueryHandler(c *gin.Context) {
 }
 
 // 我最近完成的课 - 分页
-func ChildPageOccurrenceHisQueryHandler(c *gin.Context) {
+func ChildPageQueryFinishedOccurrenceHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	studentId := claims["AccountId"].(string)
 	var pageInfo model.PageInfo
@@ -105,7 +134,7 @@ func ChildPageOccurrenceHisQueryHandler(c *gin.Context) {
 
 			pageInfo.PageCount = pageCount
 			pageInfo.TotalCount = totalRecords
-			if result, err2 := s.ListOccurrenceHistoryByPage(pn, ps, classId); err2 == nil {
+			if result, err2 := s.PageFinishedOccurrenceByClassId(pn, ps, classId); err2 == nil {
 				pageInfo.Results = result
 				api.Success(c, pageInfo)
 				return

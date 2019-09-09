@@ -77,7 +77,7 @@ func (d *Dao) GetJoinedClassByChild(studentId string) (joinedClass model.Class, 
 }
 
 // 根据教师ID查询教师加入的班级
-func (d *Dao) GetJoinClassByTeacher(teacherId string) (joinedClassList []model.Class, err error) {
+func (d *Dao) GetJoinedClassByTeacher(teacherId string) (joinedClassList []model.Class, err error) {
 	sql := `
 		SELECT 
 		  c.* 

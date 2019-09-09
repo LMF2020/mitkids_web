@@ -9,7 +9,7 @@ import (
 // 班級
 type Class struct {
 	ClassId       string        `json:"class_id" form:"class_id" gorm:"primary_key"`                // 6位班级编号
-	ClassName     string        `json:"class_name" form:"class_name" validate:"required"`           // 6位班级编号
+	ClassName     string        `json:"class_name" form:"class_name" validate:"required"`           // 6位班级名称
 	ForeTeacherId string        `json:"fore_teacher_id" form:"fore_teacher_id" `                    // 6位外教老師编号
 	TeacherId     string        `json:"teacher_id" form:"teacher_id" `                              // 6位中教老師编号
 	RoomId        string        `json:"room_id" form:"room_id" `                                    // 上课教室 ID

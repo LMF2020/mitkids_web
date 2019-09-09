@@ -27,6 +27,7 @@ func (class *Lessons) TableName() string {
 // 学生课程表 POJO 类
 type OccurClassPoJo struct {
 	ClassId         string    `json:"class_id" form:"class_id" `                  // 6位班级编号
+	ClassName     	string    `json:"class_name" form:"class_name"`       		  // 所在班级名称
 	TeacherId       string    `json:"teacher_id" form:"teacher_id"`               // 中教编号
 	ForeTeacherId   string    `json:"fore_teacher_id" form:"fore_teacher_id"`     // 外教编号
 	TeacherName     string    `json:"teacher_name" form:"teacher_name"`           // 中教姓名

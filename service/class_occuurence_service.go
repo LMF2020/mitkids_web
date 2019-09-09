@@ -35,7 +35,7 @@ func (s *Service) ListClassOccurrenceByChild(studentId string) (classOccurList [
 func (s *Service) ListClassOccurrenceByTeacher(teacherId string) (classes map[string]interface{}, err error) {
 	var joinedClass []model.Class
 	// 1.查询教师所在班级
-	if joinedClass, err = s.dao.GetJoinClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
+	if joinedClass, err = s.dao.GetJoinedClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
 		return nil, nil // 教师尚未加入班级
 	} else if err != nil {
 		return nil, err // 查询报错
@@ -73,10 +73,16 @@ func (s *Service) CountOccurrenceHistory(studentId string) (count int, classId s
 	}
 }
 
-// 分页查询结束课程
-func (s *Service) ListOccurrenceHistoryByPage(pageNumber, pageSize int, classId string) (classOccurList []model.OccurClassPoJo, err error) {
+// 分页查询结束课程 by ClassIdArray
+func (s *Service) PageFinishedOccurrenceByClassIdArray(pageNumber, pageSize int, classIdArr []string) (classOccurList []model.OccurClassPoJo, err error) {
 	offset := (pageNumber - 1) * pageSize
-	return s.dao.ListOccurrenceHisByPage(offset, pageSize, classId)
+	return s.dao.PageFinishedOccurrenceByClassIdArray(offset, pageSize, classIdArr)
+}
+
+// 分页查询结束课程 by ClassId
+func (s *Service) PageFinishedOccurrenceByClassId(pageNumber, pageSize int, classId string) (classOccurList []model.OccurClassPoJo, err error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.PageFinishedOccurrenceByClassId(offset, pageSize, classId)
 }
 
 // 查询学生课表日历
@@ -102,7 +108,7 @@ func (s *Service) ListCalendarByChild(studentId string) (classOccurList []model.
 // 查询教师课表日历
 func (s *Service) ListCalendarByTeacher(teacherId string) (classOccurList []model.OccurClassPoJo, err error) {
 	var joinedClass []model.Class
-	if joinedClass, err = s.dao.GetJoinClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
+	if joinedClass, err = s.dao.GetJoinedClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
 		// 教师没有被分配班级
 		err = nil
 		return

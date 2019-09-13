@@ -219,3 +219,12 @@ func (s *Service) ChangeToApplyJoiningClass(classId, childId string) (err error)
 	return
 
 }
+
+func (s *Service) PageListApplyClassChild(pageNumber, pageSize, status int, query string) ([]model.ApplyClassChild, error) {
+	offset := (pageNumber - 1) * pageSize
+	return s.dao.PageListApplyClassChild(offset, pageSize, status, query)
+}
+
+func (s *Service) CountApplyClassChild(status int, query string) (int, error) {
+	return s.dao.CountApplyClassChild(status, query)
+}

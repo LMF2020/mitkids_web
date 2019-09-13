@@ -93,3 +93,60 @@ const updateSatusSql = "update mk_join_class set `status` = ?,updated_at = now()
 func (d *Dao) UpdateJoinClassStatus(studentId, classId string, status int) error {
 	return d.DB.Exec(updateSatusSql, status, classId, studentId).Error
 }
+
+const CountApplyClassChildSql = `SELECT
+									count(*)
+								FROM
+									mk_account a,
+									mk_join_class j 
+								WHERE
+									a.account_id = j.student_id `
+
+func (d *Dao) CountApplyClassChild(status int, query string) (count int, err error) {
+	db := d.DB.Table(consts.TABLE_JOIN_CLASS)
+	sql := CountApplyClassChildSql
+	if status != 0 {
+		sql = sql + fmt.Sprintf(" and j.status = %d", status)
+	}
+	if query != "" {
+		query = "%" + query + "%"
+		sql = sql + fmt.Sprintf(" AND (a.account_name LIKE '%s' OR a.phone_number LIKE '%s') ", query, query)
+	}
+	err = db.Raw(sql).Count(&count).Error
+	return
+}
+
+const PageListApplyClassChildSql = `SELECT
+										j.class_id,
+										a.account_id,
+										a.account_name,
+										r.address,
+										c.book_level,
+										c.book_from_unit,
+										c.book_to_unit,
+										c.weeks,
+										c.start_time,
+										c.end_time,
+										c.start_date,
+										j.status,
+										j.created_at AS application_time 
+									FROM
+										mk_join_class j
+										LEFT JOIN mk_account a ON a.account_id = j.student_id
+										LEFT JOIN mk_class c ON j.class_id = c.class_id
+										LEFT JOIN mk_room r ON c.room_id = r.room_id 
+									WHERE 1=1 `
+
+func (d *Dao) PageListApplyClassChild(offset int, pageSize int, status int, query string) (classChilds []model.ApplyClassChild, err error) {
+	sql := PageListApplyClassChildSql
+	if status != 0 {
+		sql = sql + fmt.Sprintf(" and j.status = %d", status)
+	}
+	if query != "" {
+		query = "%" + query + "%"
+		sql = sql + fmt.Sprintf(" AND (a.account_name LIKE '%s' OR a.phone_number LIKE '%s') ", query, query)
+	}
+	sql = sql + " limit ?,?"
+	err = d.DB.Raw(sql, offset, pageSize).Scan(&classChilds).Error
+	return
+}

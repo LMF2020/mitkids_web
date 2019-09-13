@@ -2,6 +2,7 @@ package model
 
 import (
 	"mitkid_web/consts"
+	"mitkid_web/utils"
 	"time"
 )
 
@@ -77,4 +78,30 @@ type AccountPageInfo struct {
 	TotalCount  int         `json:"total_count" gorm:"-"`
 	Results     interface{} `json:"results" gorm:"-"`
 	AccountRole []int       `form:"account_role" json:"-" gorm:"-"`
+}
+
+type ApplyClassChildPageInfo struct {
+	PageNumber int         `json:"page_number" form:"page_number" validate:"required"`
+	PageSize   int         `json:"page_size" form:"page_size" validate:"required"`
+	PageCount  int         `json:"page_count"`
+	TotalCount int         `json:"total_count"`
+	Results    interface{} `json:"results"`
+	Status     int         `json:"-" form:"status"`
+}
+
+// 待审核列表
+type ApplyClassChild struct {
+	ApplicationTime time.Time     `json:"application_time" `
+	AccountName     string        `json:"account_name" `
+	Address         string        `json:"address" `
+	BookLevel       string        `json:"book_level"`
+	BookFromUnit    string        `json:"book_from_unit"`
+	BookToUnit      string        `json:"book_to_unit"`
+	Weeks           string        `json:"weeks" `
+	StartTime       utils.RawTime `json:"start_time" `
+	EndTime         utils.RawTime `json:"end_time" `
+	StartDate       time.Time     `json:"start_date" `
+	Status          int           `json:"status" `
+	classId         string        `json:"class_id" `
+	accountId       string        `json:"account_id" `
 }

@@ -41,3 +41,11 @@ var (
 	REGEX_CHILD_API = "^/api/child/.*"
 	REGEX_CORP_API = "^/api/corp/.*"
 )
+
+const (
+	_        = iota
+	KB int64 = 1 << (10 * iota)
+	MB
+	GB
+	TB
+)

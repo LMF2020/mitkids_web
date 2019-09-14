@@ -1,8 +1,13 @@
 package service
 
 import (
+	"bufio"
+	"encoding/base64"
+	"errors"
+	"mime/multipart"
 	"mitkid_web/consts"
 	"mitkid_web/model"
+	"mitkid_web/utils"
 )
 
 // 根据role 查询账号profile信息
@@ -24,8 +29,55 @@ func (s *Service) GetProfileByRole(account *model.AccountInfo, role int) (profil
 	if role == consts.AccountRoleChild {
 		profile.School = account.School
 	}
-
 	return
+}
+
+// 下载头像
+func (s *Service) DownloadAvatar(accountId string) (imgUrl string, err error) {
+
+	account, err := s.GetAccountById(accountId)
+
+	if account == nil && err == nil {
+		imgUrl = ""
+		err = nil
+		return
+	} else if account != nil {
+		imgUrl = account.AvatarUrl
+		return
+	}
+	return
+}
+
+// 上传头像
+func (s *Service) UploadAvatar(accountId string, imgFile multipart.File, fileHeader *multipart.FileHeader) (err error) {
+	// image size, image type
+	if fileHeader.Size >= consts.MB/2 {
+		err = errors.New("头像大小不能超过500k")
+		return
+	}
+	if !utils.VerifyImageFormat(fileHeader.Filename) {
+		err = errors.New("头像必须是图片格式")
+		return
+	}
+	buf := make([]byte, fileHeader.Size)
+
+	// read file content into buffer
+	fReader := bufio.NewReader(imgFile)
+	fReader.Read(buf)
+
+	// if create a new image instead of loading from file, encode the image to buffer instead with png.Encode()
+
+	// png.Encode(&buf, image)
+
+	// convert the buffer bytes to base64 string - use buf.Bytes() for new image
+	imgBase64Str := base64.StdEncoding.EncodeToString(buf)
+
+	// save into db_account
+
+	err = s.dao.UpdateAvatar(accountId, imgBase64Str)
+
+	return nil
+
 }
 
 /**
@@ -54,7 +106,7 @@ func (s *Service) UpdateProfileByRole(profile model.ProfilePoJo, role int) (err 
 	// 提交事务
 	//tx := s.dao.DB.Begin()
 
-	if err = s.dao.UpdateChildAccount(accountInfo); err != nil {
+	if err = s.dao.UpdateAccountInfo(accountInfo); err != nil {
 		//tx.Rollback()
 		return err
 	}

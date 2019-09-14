@@ -89,6 +89,8 @@ func (s *Service) GetJoinedClassInfoByTeacher(role int, teacherId string) (resul
 
 			r := make(map[string]interface{})
 			r["class_id"] = class.ClassId
+			r["teacher_id"] = class.TeacherId
+			r["fore_teacher_id"] = class.ForeTeacherId
 			r["class_name"] = class.ClassName
 			r["start_time"] = (*occurrences)[0]
 			r["end_time"] = (*occurrences)[len(*occurrences)-1]

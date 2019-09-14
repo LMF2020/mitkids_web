@@ -41,7 +41,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// 刷新 Access Token
 	commonGroup.POST("/token/refresh", jwtFilter.RefreshHandler)
 	// 文件上传
-	commonGroup.POST("/file/:type/upload", Fileupload)
+	commonGroup.POST("/file/:type/upload", FileuploadHandler)
 	// -------------------------------
 
 	/**
@@ -81,11 +81,14 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childTokenGroup.POST("/apply/join", ChildApplyJoiningClassHandler)
 		// 撤销申请
 		childTokenGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
-
+		// 学生头像上传
+		childTokenGroup.POST("/avatar/upload", UserAvatarUploadHandler)
+		// 学生头像下载
+		childTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
 	}
 
 	/**
-	教室端接口
+	教师端接口
 	*/
 	teacherGroup := r.Group("/teacher")
 	// 教师注册
@@ -108,6 +111,12 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.GET("/occurrence/history/list/:n", TeacherFinishedOccurrenceQueryHandler)
 		// 分页查询上课记录
 		teacherTokenGroup.POST("/occurrence/history/page", TeacherPageQueryFinishedOccurrenceHandler)
+		// 教师头像上传
+		teacherTokenGroup.POST("/avatar/upload", UserAvatarUploadHandler)
+		// 教师头像下载
+		teacherTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
+		// 教师搭档介绍（可能返回多个班级的搭档）
+		teacherTokenGroup.GET("/partner/info", TeacherPartnerQueryHandler)
 	}
 
 

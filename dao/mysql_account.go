@@ -134,8 +134,14 @@ func (d *Dao) PageListAccountByRole(role, offset, pageSize int, query string) (a
 }
 
 // 更新账户表
-func (d *Dao) UpdateChildAccount(account model.AccountInfo) (err error) {
+func (d *Dao) UpdateAccountInfo(account model.AccountInfo) (err error) {
 	err = d.DB.Model(&model.AccountInfo{}).Updates(account).Error
+	return
+}
+
+// 上传头像
+func (d *Dao) UpdateAvatar(accountId, imgUrl string) (err error) {
+	err = d.DB.Model(&model.AccountInfo{}).Where("account_id = ?", accountId).Update("avatar_url", imgUrl).Error
 	return
 }
 

@@ -33,6 +33,8 @@ type AccountInfo struct {
 	School string `json:"school" form:"school"` // 学校
 	// 教师类型：角色 1:内部教师 2:外部教师
 	TeacherType int `json:"teacher_type" form:"teacher_type"`
+	// 用户头像
+	AvatarUrl	string		`json:"avatar_url" form:"avatar_url"`
 }
 
 // 定义表名

@@ -104,6 +104,88 @@ func TeacherClassInfoQueryByAccountIdHandler(c *gin.Context) {
 	}
 }
 
+// 学生、教师获取头像
+func UserAvatarDownloadHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	imgUrl, err := s.DownloadAvatar(accountId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	api.Success(c, imgUrl)
+}
+
+// 学生、教师头像上传
+func UserAvatarUploadHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	imgFile, header, err := c.Request.FormFile("file")
+
+	defer imgFile.Close()
+
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = s.UploadAvatar(accountId, imgFile, header)
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	api.Success(c, "教师头像上传成功")
+}
+
+// 查询我的搭档
+// 获取搭档头像，姓名，年龄，班级，账号，联系方式
+func TeacherPartnerQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+	teacherRole := claims["AccountRole"].(float64)
+
+	result, err := s.GetJoinedClassInfoByTeacher(int(teacherRole), teacherId)
+	if err != nil {
+		log.Logger.WithField("teacherId", teacherId).Errorf("error to get partener: %", err.Error())
+		api.Failf(c, http.StatusBadRequest, "Teacher {%s} 获取搭档失败", teacherId)
+		return
+	}
+
+	var res []map[string]interface{}
+	if result == nil {
+		api.Success(c, res) // 无法获取搭档
+		return
+	}
+
+	for _, cls := range result { // 遍历班级
+		t := make(map[string]interface{}) // 用来保存搭档信息: teacher i
+		var partnerId string
+		// 判断搭档是外教还是中教
+		if teacherRole == consts.AccountRoleTeacher {
+			partnerId = cls["fore_teacher_id"].(string)
+		} else if teacherRole == consts.AccountRoleForeignTeacher {
+			partnerId = cls["teacher_id"].(string)
+		}
+		// 获取搭档信息
+		if partnerId != "" {
+			info, err := s.GetAccountById(partnerId)
+			if err == nil {
+				t["id"] = info.AccountId
+				t["imgurl"] = info.AvatarUrl
+				t["name"] = info.AccountName
+				t["age"] = info.Age
+				t["phone"] = info.PhoneNumber
+				t["class_name"] = cls["class_name"]
+				t["class_id"] = cls["class_id"]
+				res = append(res, t)
+			}
+		}
+	}
+
+	// 返回所在班级的搭档信息
+	api.Success(c, res)
+
+}
+
 // 分页查询
 func ListChildByPage(c *gin.Context) {
 	var pageInfo model.PageInfo

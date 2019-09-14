@@ -12,7 +12,7 @@ import (
 )
 
 /**上传方法**/
-func Fileupload(c *gin.Context) {
+func FileuploadHandler(c *gin.Context) {
 	typePath := c.Param("type")
 	if typePath == "user" || typePath == "room" {
 

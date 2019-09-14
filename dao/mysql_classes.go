@@ -77,8 +77,16 @@ func (d *Dao) GetJoinedClassByChild(studentId string) (joinedClass model.Class, 
 }
 
 // 根据教师ID查询教师加入的班级
-func (d *Dao) GetJoinedClassByTeacher(teacherId string) (joinedClassList []model.Class, err error) {
-	sql := `
+func (d *Dao) GetJoinedClassByTeacher(role int, teacherId string) (joinedClassList []model.Class, err error) {
+	var sql string
+
+	if role != consts.AccountRoleTeacher && role != consts.AccountRoleForeignTeacher {
+		err = errors.New("teacher role type not matched")
+		return
+	}
+
+	if role == consts.AccountRoleTeacher {
+		sql = `
 		SELECT 
 		  c.* 
 		FROM
@@ -88,6 +96,19 @@ func (d *Dao) GetJoinedClassByTeacher(teacherId string) (joinedClassList []model
           AND c.teacher_id = ?
 		  AND c.status <> ?
 		`
+	} else if role == consts.AccountRoleForeignTeacher {
+		sql = `
+		SELECT 
+		  c.* 
+		FROM
+		  mk_account a,
+		  mk_class c 
+		WHERE a.account_id = c.fore_teacher_id
+          AND c.fore_teacher_id = ?
+		  AND c.status <> ?
+		`
+	}
+
 	err = d.DB.Raw(sql, teacherId, consts.ClassEnd).Scan(&joinedClassList).Error
 	return
 }

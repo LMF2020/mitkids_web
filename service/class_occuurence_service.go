@@ -6,6 +6,7 @@ import (
 	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
+	"strings"
 	"time"
 )
 
@@ -32,10 +33,10 @@ func (s *Service) ListClassOccurrenceByChild(studentId string) (classOccurList [
 }
 
 // 查询教师课表
-func (s *Service) ListClassOccurrenceByTeacher(teacherId string) (classes map[string]interface{}, err error) {
+func (s *Service) ListClassOccurrenceByTeacher(role int, teacherId string) (classes map[string]interface{}, err error) {
 	var joinedClass []model.Class
 	// 1.查询教师所在班级
-	if joinedClass, err = s.dao.GetJoinedClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
+	if joinedClass, err = s.dao.GetJoinedClassByTeacher(role, teacherId); gorm.IsRecordNotFoundError(err) {
 		return nil, nil // 教师尚未加入班级
 	} else if err != nil {
 		return nil, err // 查询报错
@@ -54,23 +55,56 @@ func (s *Service) ListClassOccurrenceByTeacher(teacherId string) (classes map[st
 	}
 }
 
-// 查询结束的课程数量
-func (s *Service) CountOccurrenceHistory(studentId string) (count int, classId string, err error) {
-	var joinedClass model.Class
-	if joinedClass, err = s.dao.GetJoinedClassByChild(studentId); gorm.IsRecordNotFoundError(err) {
-		// 学生没有加入任何班级
-		count = 0
-		err = nil
-		classId = ""
-		return
-	} else if err != nil {
+// 查询结束的课程数量: for teacher API return classId list by comma , for child API return just one classId
+func (s *Service) CountClassOccursHisByRole(role int, accountId string) (count int, classId string, err error) {
+	var joinedClass []model.Class
+	var childClass model.Class
+	if role == consts.AccountRoleChild {
+		childClass, err = s.dao.GetJoinedClassByChild(accountId)
+		if gorm.IsRecordNotFoundError(err) {
+			// 学生没有加入任何班级
+			count = 0
+			err = nil
+			classId = ""
+			return
+		}
+
+		joinedClass = append(joinedClass, childClass)
+
+	} else if role == consts.AccountRoleTeacher {
+		joinedClass, err = s.dao.GetJoinedClassByTeacher(consts.AccountRoleTeacher, accountId)
+		if gorm.IsRecordNotFoundError(err) {
+			// 教师没有加入任何班级
+			count = 0
+			err = nil
+			classId = ""
+			return
+		}
+	} else if role == consts.AccountRoleForeignTeacher {
+		joinedClass, err = s.dao.GetJoinedClassByTeacher(consts.AccountRoleForeignTeacher, accountId)
+		if gorm.IsRecordNotFoundError(err) {
+			// 教师没有加入任何班级
+			count = 0
+			err = nil
+			classId = ""
+			return
+		}
+	}
+
+	if err != nil {
 		// 查询报错
 		return 0, "", err
-	} else {
-		classId = joinedClass.ClassId
-		count, err = s.dao.CountOccurrence(joinedClass.ClassId, consts.ClassOccurStatusFinished)
-		return
 	}
+
+	var classArr []string
+	for _, v := range joinedClass {
+		classArr = append(classArr, v.ClassId)
+	}
+
+	classId = strings.Join(classArr, ",")
+	count, err = s.dao.CountClassOccursList(classArr, consts.ClassOccurStatusFinished)
+
+	return
 }
 
 // 分页查询结束课程 by ClassIdArray
@@ -106,9 +140,9 @@ func (s *Service) ListCalendarByChild(studentId string) (classOccurList []model.
 }
 
 // 查询教师课表日历
-func (s *Service) ListCalendarByTeacher(teacherId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (s *Service) ListCalendarByTeacher(role int, teacherId string) (classOccurList []model.OccurClassPoJo, err error) {
 	var joinedClass []model.Class
-	if joinedClass, err = s.dao.GetJoinedClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
+	if joinedClass, err = s.dao.GetJoinedClassByTeacher(role, teacherId); gorm.IsRecordNotFoundError(err) {
 		// 教师没有被分配班级
 		err = nil
 		return

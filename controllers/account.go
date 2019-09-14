@@ -95,7 +95,8 @@ func ChildClassInfoQueryByAccountIdHandler(c *gin.Context) {
 func TeacherClassInfoQueryByAccountIdHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	teacherId := claims["AccountId"].(string)
-	if result, err := s.GetJoinedClassInfoByTeacher(teacherId); err != nil {
+	teacherRole := claims["AccountRole"].(float64)
+	if result, err := s.GetJoinedClassInfoByTeacher(int(teacherRole), teacherId); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 	} else {
 		log.Logger.WithField("teacher_id", teacherId).Info("API to query classes info for teacher successfully")

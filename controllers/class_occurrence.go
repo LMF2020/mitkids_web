@@ -10,6 +10,7 @@ import (
 	"mitkid_web/utils/log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 // 查询学生课表
@@ -28,7 +29,8 @@ func ChildScheduledClassesQueryHandler(c *gin.Context) {
 func TeacherScheduledClassesQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	teacherId := claims["AccountId"].(string)
-	if result, err := s.ListClassOccurrenceByTeacher(teacherId); err != nil {
+	role := claims["AccountRole"].(float64)
+	if result, err := s.ListClassOccurrenceByTeacher(int(role), teacherId); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 	} else {
 		log.Logger.WithField("teacher_id", teacherId).Info("Query teacher scheduled classes successfully")
@@ -40,14 +42,14 @@ func TeacherScheduledClassesQueryHandler(c *gin.Context) {
 func TeacherFinishedOccurrenceQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	teacherId := claims["AccountId"].(string)
-
+	teacherRole := claims["AccountRole"].(float64)
 	pageSize := c.Param("n") // 查询历史多少节课
 	size, err := strconv.Atoi(pageSize)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, "参数错误:n")
 		return
 	}
-	classList, err := s.GetJoinedClassByTeacher(teacherId)
+	classList, err := s.GetJoinedClassByTeacher(int(teacherRole), teacherId)
 	if err == nil && classList == nil { // 没加入任何班级
 		return
 	}
@@ -65,7 +67,7 @@ func TeacherFinishedOccurrenceQueryHandler(c *gin.Context) {
 	}
 }
 
-// 学生最近完成的课时(N)
+// 学生最近的上课记录(完成N课时)
 func ChildFinishedOccurrenceQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	studentId := claims["AccountId"].(string)
@@ -77,7 +79,7 @@ func ChildFinishedOccurrenceQueryHandler(c *gin.Context) {
 		return
 	}
 
-	_, classId, err := s.CountOccurrenceHistory(studentId)
+	_, classId, err := s.CountClassOccursHisByRole(consts.AccountRoleChild, studentId)
 	if err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
@@ -96,10 +98,55 @@ func ChildFinishedOccurrenceQueryHandler(c *gin.Context) {
 	} else {
 		api.Fail(c, http.StatusInternalServerError, err2.Error())
 	}
-
 }
 
-// 我最近完成的课 - 分页
+// 分页查询教师上课记录
+func TeacherPageQueryFinishedOccurrenceHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+	teacherRole := claims["AccountRole"].(float64)
+	var pageInfo model.PageInfo
+	var err error
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+			if pn < 0 {
+				pn = 1
+			}
+			if ps <= 0 {
+				ps = consts.DEFAULT_PAGE_SIZE
+			}
+			totalRecords, classIdlist, err := s.CountClassOccursHisByRole(int(teacherRole), teacherId)
+			if err != nil {
+				api.Fail(c, http.StatusInternalServerError, err.Error())
+				return
+			}
+			if classIdlist == "" {
+				api.Success(c, nil) // 教师未加入任何班级
+				return
+			}
+			pageCount := totalRecords / ps
+			if totalRecords%ps > 0 {
+				pageCount++
+			}
+			if pn > pageCount {
+				pn = pageCount
+			}
+
+			pageInfo.PageCount = pageCount
+			pageInfo.TotalCount = totalRecords
+			if result, err2 := s.PageFinishedOccurrenceByClassIdArray(pn, ps, strings.Split(classIdlist, ",")); err2 == nil {
+				pageInfo.Results = result
+				api.Success(c, pageInfo)
+				return
+			} else {
+				api.Fail(c, http.StatusInternalServerError, err2.Error())
+			}
+		}
+	}
+	api.Fail(c, http.StatusBadRequest, err.Error())
+}
+// 查询学生分页上课记录
 func ChildPageQueryFinishedOccurrenceHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	studentId := claims["AccountId"].(string)
@@ -114,7 +161,7 @@ func ChildPageQueryFinishedOccurrenceHandler(c *gin.Context) {
 			if ps <= 0 {
 				ps = consts.DEFAULT_PAGE_SIZE
 			}
-			totalRecords, classId, err := s.CountOccurrenceHistory(studentId)
+			totalRecords, classId, err := s.CountClassOccursHisByRole(consts.AccountRoleChild, studentId)
 			if err != nil {
 				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return
@@ -165,8 +212,8 @@ func ChildCalendarQueryHandler(c *gin.Context) {
 func TeacherCalendarQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	teacherId := claims["AccountId"].(string)
-
-	if clsList, err := s.ListCalendarByTeacher(teacherId); err != nil {
+	accountRole := claims["AccountRole"].(float64)
+	if clsList, err := s.ListCalendarByTeacher(int(accountRole), teacherId); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	} else {

@@ -53,17 +53,17 @@ func (s *Service) GetJoinedClassByStudent(studentId string) (result map[string]i
 }
 
 // 获取教师加入的班级
-func (s *Service) GetJoinedClassByTeacher(teacherId string) (result []model.Class, err error) {
-	if result, err = s.dao.GetJoinedClassByTeacher(teacherId); gorm.IsRecordNotFoundError(err) {
+func (s *Service) GetJoinedClassByTeacher(role int, teacherId string) (result []model.Class, err error) {
+	if result, err = s.dao.GetJoinedClassByTeacher(role, teacherId); gorm.IsRecordNotFoundError(err) {
 		return nil, nil // 教师没有加入任何班级
 	}
 	return
 }
 
 // 获取教师加入的班级
-func (s *Service) GetJoinedClassInfoByTeacher(teacherId string) (result []map[string]interface{}, err error) {
+func (s *Service) GetJoinedClassInfoByTeacher(role int, teacherId string) (result []map[string]interface{}, err error) {
 	var classList []model.Class
-	classList, err = s.GetJoinedClassByTeacher(teacherId)
+	classList, err = s.GetJoinedClassByTeacher(role, teacherId)
 	if classList == nil && err == nil {
 		return nil, nil // 教师没有加入任何班级
 	} else if err != nil {

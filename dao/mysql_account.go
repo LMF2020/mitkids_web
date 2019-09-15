@@ -146,7 +146,7 @@ func (d *Dao) UpdateAvatar(accountId, imgUrl string) (err error) {
 }
 
 const countChildNotInClassSql = `SELECT
-									count(*)
+									count(1)
 								FROM
 									mk_account a
 								WHERE
@@ -187,7 +187,7 @@ const countChildNotInClassWithQuerySql = `SELECT
 
 func (d *Dao) CountChildNotInClassWithQuery(query string) (count int, err error) {
 	if query == "" {
-		err = d.DB.Raw(countChildNotInClassSql).Scan(&count).Error
+		err = d.DB.Raw(countChildNotInClassSql).Count(&count).Error
 		return
 	}
 	query = "%" + query + "%"

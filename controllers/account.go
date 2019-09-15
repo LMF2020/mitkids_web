@@ -62,29 +62,37 @@ func TeacherViewChildInfoHandler(c *gin.Context) {
 	}
 
 }
-
-// 学生查看个人信息
-func ChildAccountInfoHandler(c *gin.Context) {
+// 教师个人资料查询
+func TeacherAccountInfoHandler (c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleTeacher(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
 	if account, err := s.GetAccountById(accountId); err != nil {
 		log.Logger.WithError(err)
-		api.Fail(c, http.StatusInternalServerError, "学生账号查询失败")
+		api.Fail(c, http.StatusInternalServerError, "账号查询失败")
 		return
 	} else if account == nil {
-		api.Fail(c, errorcode.USER_NOT_EXIS, "学生账号不存在")
+		api.Fail(c, errorcode.USER_NOT_EXIS, "账号不存在")
 		return
 	} else {
-		profile, _ := s.GetProfileByRole(account, consts.AccountRoleChild)
+		profile, _ := s.GetProfileByRole(account, int(accountRole))
 		api.Success(c, profile)
 	}
-
 }
 
-// 更新学生profile信息
-func ChildAccountInfoUpdateHandler(c *gin.Context) {
+// 教师个人资料更新
+func TeacherAccountInfoUpdateHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleTeacher(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
 	var profile model.ProfilePoJo // 学生信息更新
 	var err error
 	if err = c.ShouldBind(&profile); err == nil {
@@ -92,7 +100,59 @@ func ChildAccountInfoUpdateHandler(c *gin.Context) {
 			api.Fail(c, http.StatusBadRequest, "登录账号不一致")
 			return
 		}
-		if err = s.UpdateProfileByRole(profile, consts.AccountRoleChild); err != nil {
+		if err = s.UpdateProfileByRole(profile, int(accountRole)); err != nil {
+			api.Fail(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		api.Success(c, "更新成功")
+		return
+	}
+
+	log.Logger.Println(err)
+	api.Fail(c, http.StatusBadRequest, "请求参数绑定失败")
+
+}
+
+// 学生个人资料查询
+func ChildAccountInfoHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleChild(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
+	if account, err := s.GetAccountById(accountId); err != nil {
+		log.Logger.WithError(err)
+		api.Fail(c, http.StatusInternalServerError, "账号查询失败")
+		return
+	} else if account == nil {
+		api.Fail(c, errorcode.USER_NOT_EXIS, "账号不存在")
+		return
+	} else {
+		profile, _ := s.GetProfileByRole(account, int(accountRole))
+		api.Success(c, profile)
+	}
+
+}
+
+// 学生个人资料更新
+func ChildAccountInfoUpdateHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleChild(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
+	var profile model.ProfilePoJo // 学生信息更新
+	var err error
+	if err = c.ShouldBind(&profile); err == nil {
+		if accountId != profile.AccountId {
+			api.Fail(c, http.StatusBadRequest, "登录账号不一致")
+			return
+		}
+		if err = s.UpdateProfileByRole(profile, int(accountRole)); err != nil {
 			api.Fail(c, http.StatusInternalServerError, err.Error())
 			return
 		}

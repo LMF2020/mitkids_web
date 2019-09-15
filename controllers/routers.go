@@ -59,9 +59,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		filter.RoleHandler(), filter.LogoutHandler())
 	{
 		childTokenGroup.POST("/logout", nil)
-		// 查询学生资料
+		// 查询个人资料
 		childTokenGroup.POST("/profile", ChildAccountInfoHandler)
-		// 更新学生资料
+		// 更新个人资料
 		childTokenGroup.POST("/profile/update", ChildAccountInfoUpdateHandler)
 		// 查询坐标范围内的教室
 		childTokenGroup.POST("/rooms/nearby", RoomsBoundsQueryHandler)
@@ -101,6 +101,10 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	{
 		// 教师登出
 		teacherTokenGroup.POST("/logout", nil)
+		// 查询个人资料
+		teacherTokenGroup.POST("/profile", TeacherAccountInfoHandler)
+		// 更新个人资料
+		teacherTokenGroup.POST("/profile/update", TeacherAccountInfoUpdateHandler)
 		// 查询教师所在班级
 		teacherTokenGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
 		// 查询教师最近安排的课表
@@ -122,7 +126,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 教师分页查询学生列表 (根据班级查询)
 		teacherTokenGroup.POST("/class/child/list", TeacherPageListChildByClassHandler)
 		// 教师查看学生资料
-		teacherTokenGroup.POST("/child/info/view", TeacherViewChildInfoHandler)
+		teacherTokenGroup.POST("/child/profile", TeacherViewChildInfoHandler)
 	}
 
 	/**

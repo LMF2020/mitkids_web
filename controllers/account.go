@@ -136,6 +136,12 @@ func UserAvatarUploadHandler(c *gin.Context) {
 	api.Success(c, "教师头像上传成功")
 }
 
+// 查看教师课件
+func TeacherBookListHandler(c *gin.Context) {
+
+}
+
+
 // 查询我的搭档
 // 获取搭档头像，姓名，年龄，班级，账号，联系方式
 func TeacherPartnerQueryHandler(c *gin.Context) {
@@ -232,7 +238,7 @@ func ListChildByPage(c *gin.Context) {
 }
 
 // 分页查询
-func ListChildNoInClassByPage(c *gin.Context) {
+func ListChildNotJoinedByPage(c *gin.Context) {
 	var pageInfo model.PageInfo
 	var err error
 	if err = c.ShouldBind(&pageInfo); err == nil {
@@ -278,7 +284,7 @@ func ListChildNoInClassByPage(c *gin.Context) {
 }
 
 // 分页查询 已安排班级学生
-func ListChildInClassByPage(c *gin.Context) {
+func ListChildJoinedByPage(c *gin.Context) {
 	var pageInfo model.PageInfo
 	var err error
 	if err = c.ShouldBind(&pageInfo); err == nil {

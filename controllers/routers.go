@@ -117,8 +117,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
 		// 教师搭档介绍（可能返回多个班级的搭档）
 		teacherTokenGroup.GET("/partner/info", TeacherPartnerQueryHandler)
+		// 教师课件列表 (lv1-3)
+		teacherTokenGroup.POST("/book/list", BookListHandler)
 	}
-
 
 	/**
 	管理员接口
@@ -126,8 +127,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup := authGroup.Group("/admin")
 	//list child
 	adminGroup.POST("/child/list", ListChildByPage)
-	adminGroup.POST("/noinclass/child/list", ListChildNoInClassByPage)
-	adminGroup.POST("/inclass/child/list", ListChildInClassByPage)
+	adminGroup.POST("/noinclass/child/list", ListChildNotJoinedByPage) // joined
+	adminGroup.POST("/inclass/child/list", ListChildJoinedByPage)      // notjoined
 	adminGroup.POST("/class/create", CreateClass)
 	adminGroup.POST("/class/list", ListClassByPageAndQuery)
 	adminGroup.POST("/class/get", GetClassAllInfoById)

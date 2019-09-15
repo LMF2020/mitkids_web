@@ -124,7 +124,7 @@ func (s *Service) CreateClass(c *model.Class) (err error) {
 func (s *Service) GetClassById(id string) (c *model.Class, err error) {
 	return s.dao.GetClassById(id)
 }
-func (s *Service) ListClassByPageAndQuery(pageNumber int, pageSize int, query string, classStatus int) (classes []*model.Class, err error) {
+func (s *Service) ListClassByPageAndQuery(pageNumber int, pageSize int, query string, classStatus int) (classes []model.ClassListItem, err error) {
 	offset := (pageNumber - 1) * pageSize
 	return s.dao.ListClassByPageAndQuery(offset, pageSize, query, classStatus)
 }

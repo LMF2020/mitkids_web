@@ -128,16 +128,27 @@ func (d *Dao) CountJoinedClassOccurrence(classId string, status int) (count int,
 	return
 }
 
-func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, classStatus int) (classes []*model.Class, err error) {
-	db := d.DB
+const ListClassByPageAndQuerySql = `SELECT
+	a.account_name AS teacher_name,
+	a2.account_name AS fore_teacher_name,
+	c.* 
+FROM
+	mk_class c
+	LEFT JOIN mk_account a ON c.teacher_id = a.account_id
+	LEFT JOIN mk_account a2 ON c.fore_teacher_id = a2.account_id 
+WHERE
+	1 = 1`
+
+func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, classStatus int) (classes []model.ClassListItem, err error) {
+	sql := ListClassByPageAndQuerySql
 	if classStatus != 0 {
-		db = db.Where("status = ?", classStatus)
+		sql = sql + fmt.Sprintf(" and c.status = %d", classStatus)
 	}
 	if query != "" {
 		query = "%" + query + "%"
-		db = db.Where("class_id like ? or class_name like ?", query, query)
+		sql = sql + fmt.Sprintf(" and c.class_id like %s or c.class_name like %s", query, query)
 	}
-	if err = db.Offset(offset).Limit(pageSize).Find(&classes).Error; err != nil {
+	if err = d.DB.Raw(sql).Offset(offset).Limit(pageSize).Find(&classes).Error; err != nil {
 		log.Logger.Error("db error(%v)", err)
 		return
 	}

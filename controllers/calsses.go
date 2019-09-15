@@ -292,7 +292,7 @@ func UpdateClassTeacher(c *gin.Context) {
 				api.Fail(c, http.StatusBadRequest, err.Error())
 				return
 			}
-			if teacher == nil || teacher.AccountRole != consts.AccountRoleTeacher {
+			if teacher == nil || teacher.AccountRole != consts.AccountRoleForeignTeacher {
 				api.Fail(c, http.StatusBadRequest, "无效的teacher_id")
 				return
 			}

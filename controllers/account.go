@@ -62,8 +62,9 @@ func TeacherViewChildInfoHandler(c *gin.Context) {
 	}
 
 }
+
 // 教师个人资料查询
-func TeacherAccountInfoHandler (c *gin.Context) {
+func TeacherAccountInfoHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)
 	accountRole := claims["AccountRole"].(float64)
@@ -222,7 +223,6 @@ func UserAvatarUploadHandler(c *gin.Context) {
 	api.Success(c, "教师头像上传成功")
 }
 
-
 // 查询我的搭档
 // 获取搭档头像，姓名，年龄，班级，账号，联系方式
 func TeacherPartnerQueryHandler(c *gin.Context) {
@@ -274,7 +274,7 @@ func TeacherPartnerQueryHandler(c *gin.Context) {
 }
 
 // 教师端 - 根据班级分页查询学生列表
-func TeacherPageListChildByClassHandler(c *gin.Context)  {
+func TeacherPageListChildByClassHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	teacherRole := claims["AccountRole"].(float64)
 
@@ -304,7 +304,7 @@ func TeacherPageListChildByClassHandler(c *gin.Context)  {
 				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return
 			}
-			if len(_ids) <=2 {
+			if len(_ids) <= 2 {
 				api.Fail(c, http.StatusInternalServerError, "班级人数不能少于两人")
 				return
 			}
@@ -556,9 +556,10 @@ func ListTeacherByPage(c *gin.Context) {
 	var err error
 	if err = c.ShouldBind(&pageInfo); err == nil {
 		if err = utils.ValidateParam(pageInfo); err == nil {
-			if len(pageInfo.AccountRole) == 0 {
-				pageInfo.AccountRole[0] = consts.AccountRoleTeacher
-				pageInfo.AccountRole[0] = consts.AccountRoleForeignTeacher
+			if pageInfo.AccountRole == nil {
+				pageInfo.AccountRole = []int{consts.AccountRoleTeacher, consts.AccountRoleForeignTeacher}
+				//pageInfo.AccountRole[0] = consts.AccountRoleTeacher
+				//pageInfo.AccountRole[1] = consts.AccountRoleForeignTeacher
 			} else {
 				for _, role := range pageInfo.AccountRole {
 					if role != consts.AccountRoleTeacher && role != consts.AccountRoleForeignTeacher {

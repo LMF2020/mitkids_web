@@ -59,52 +59,11 @@ func (d *Dao) CountChildAccount(query string) (count int, err error) {
 	return
 }
 
-const ListChildAccountByPageWithQuerySql = `SELECT
-												a.account_id,
-												a.account_name,
-												a.phone_number,
-												a.age,
-												a.gender,
-												a.address,
-												a.created_at,
-												a.school 
-											FROM
-												mk_account a
-											WHERE
-												account_role = ? 
-												AND (
-													account_name LIKE ? 
-												OR phone_number LIKE ?) 
-												LIMIT ?,?`
-const ListChildAccountByPageSql = `SELECT
-									a.account_id,
-									a.account_name,
-									a.phone_number,
-									a.age,
-									a.gender,
-									a.address,
-									a.created_at,
-									a.school 
-								FROM
-									mk_account a
-								WHERE
-									account_role = ?`
-
-func (d *Dao) ListChildAccountByPage(offset int, pageSize int, query string) (cs *[]model.Child, err error) {
-	cs = new([]model.Child)
-	if query == "" {
-		err = d.DB.Raw(ListChildAccountByPageSql, consts.AccountRoleChild, offset, pageSize).Scan(cs).Error
-	} else {
-		query = "%" + query + "%"
-		err = d.DB.Raw(ListChildAccountByPageWithQuerySql, consts.AccountRoleChild, query, query, offset, pageSize).Scan(cs).Error
-	}
-	if err != nil {
-		log.Logger.Error("db error(%v)", err)
-	}
-	return
-}
-func (d *Dao) CountAccountByRole(query string, role int) (count int, err error) {
+func (d *Dao) CountAccountByRole(query, includeIds string, role int) (count int, err error) {
 	db := d.DB.Table(consts.TABLE_ACCOUNT).Where("account_role = ?", role)
+	if includeIds != "" {
+		db.Where("account_id in (?)", includeIds)
+	}
 	if query != "" {
 		query = "%" + query + "%"
 		db = db.Where("account_name like ? or phone_number like ?", query, query)
@@ -116,17 +75,40 @@ func (d *Dao) CountAccountByRole(query string, role int) (count int, err error) 
 	return
 }
 
-const ListAccountByPageWithQuerySql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) AND (account_name like ? or phone_number like ?) limit ?,?"
-const ListAccountByPageSql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) limit ?,?"
+const ListAccountByPageBaseSql = "SELECT * FROM `mk_account` WHERE (account_role = ?)"
+const whereHasQuery = " AND (account_name like ? or phone_number like ?)"
+const whereIncludeIdsQuery = " AND (account_id in (?))"
+const limitQuery = " limit ?,?"
+var queryParams []interface{}
 
-func (d *Dao) PageListAccountByRole(role, offset, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
+//const ListAccountByPageWithQuerySql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) AND (account_name like ? or phone_number like ?) limit ?,?"
+//const ListAccountByPageSql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) limit ?,?"
+
+func (d *Dao) PageListAccountByRole(role, offset, pageSize int, query, includeIds string) (accounts *[]model.AccountInfo, err error) {
 	accounts = new([]model.AccountInfo)
-	if query == "" {
-		err = d.DB.Raw(ListAccountByPageSql, role, offset, pageSize).Scan(accounts).Error
-	} else {
-		query = "%" + query + "%"
-		err = d.DB.Raw(ListAccountByPageWithQuerySql, role, query, query, offset, pageSize).Scan(accounts).Error
+
+	var sql  = ListAccountByPageBaseSql
+	queryParams = append(queryParams, role)
+	if query != "" {
+		sql += whereHasQuery
+		queryParams = append(queryParams, query, query)
 	}
+	if includeIds != "" {
+		sql += whereIncludeIdsQuery
+		queryParams = append(queryParams, includeIds)
+	}
+	sql += limitQuery
+	queryParams = append(queryParams, offset, pageSize)
+
+	err = d.DB.Raw(sql, queryParams).Scan(accounts).Error
+
+	//if query == "" {
+	//	err = d.DB.Raw(ListAccountByPageSql, role, offset, pageSize).Scan(accounts).Error
+	//} else {
+	//	query = "%" + query + "%"
+	//	err = d.DB.Raw(ListAccountByPageWithQuerySql, role, query, query, offset, pageSize).Scan(accounts).Error
+	//}
+
 	if err != nil {
 		log.Logger.Error("db error(%v)", err)
 	}

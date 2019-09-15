@@ -11,6 +11,7 @@ import (
 	"mitkid_web/utils/log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 // 学生注册
@@ -136,11 +137,6 @@ func UserAvatarUploadHandler(c *gin.Context) {
 	api.Success(c, "教师头像上传成功")
 }
 
-// 查看教师课件
-func TeacherBookListHandler(c *gin.Context) {
-
-}
-
 
 // 查询我的搭档
 // 获取搭档头像，姓名，年龄，班级，账号，联系方式
@@ -192,10 +188,19 @@ func TeacherPartnerQueryHandler(c *gin.Context) {
 
 }
 
-// 分页查询
-func ListChildByPage(c *gin.Context) {
+// 教师端 - 根据班级分页查询学生列表
+func TeacherPageListChildByClassHandler(c *gin.Context)  {
+	claims := jwt.ExtractClaims(c)
+	teacherRole := claims["AccountRole"].(float64)
+
+	if !s.IsRoleTeacher(int(teacherRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查询权限")
+		return
+	}
+
 	var pageInfo model.PageInfo
 	var err error
+	var _ids []string
 	if err = c.ShouldBind(&pageInfo); err == nil {
 		if err = utils.ValidateParam(pageInfo); err == nil {
 			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
@@ -206,10 +211,23 @@ func ListChildByPage(c *gin.Context) {
 				ps = consts.DEFAULT_PAGE_SIZE
 			}
 			query := c.PostForm("query")
-			totalRecords, err := s.CountAccountByRole(query, consts.AccountRoleChild)
+			classId := c.PostForm("class_id")
 
+			// 查询班级里的所有学生ID列表
+			_ids, err = s.ListClassChildByClassId(classId)
 			if err != nil {
-				api.Fail(c, http.StatusBadRequest, err.Error())
+				api.Fail(c, http.StatusInternalServerError, err.Error())
+				return
+			}
+			if len(_ids) <=2 {
+				api.Fail(c, http.StatusInternalServerError, "班级人数不能少于两人")
+				return
+			}
+
+			// 组合条件分页查询班级学生总数
+			totalRecords, err := s.CountAccountByRole(query, strings.Join(_ids, ","), consts.AccountRoleChild)
+			if err != nil {
+				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return
 			}
 			if totalRecords == 0 {
@@ -225,7 +243,57 @@ func ListChildByPage(c *gin.Context) {
 			}
 			pageInfo.PageCount = pageCount
 			pageInfo.TotalCount = totalRecords
-			if accounts, err := s.PageListAccountByRole(consts.AccountRoleChild, pn, ps, query); err == nil {
+
+			// 组合条件查询班级内的学生
+			if accounts, err := s.PageListAccountByRole(consts.AccountRoleChild, pn, ps, query, strings.Join(_ids, ",")); err == nil {
+				pageInfo.Results = accounts
+				api.Success(c, pageInfo)
+				return
+			}
+
+			// end page query
+		}
+	}
+
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
+
+}
+
+// 分页查询学生列表
+func ListChildByPage(c *gin.Context) {
+	var pageInfo model.PageInfo
+	var err error
+	if err = c.ShouldBind(&pageInfo); err == nil {
+		if err = utils.ValidateParam(pageInfo); err == nil {
+			pn, ps := pageInfo.PageNumber, pageInfo.PageSize
+			if pn < 0 {
+				pn = 1
+			}
+			if ps <= 0 {
+				ps = consts.DEFAULT_PAGE_SIZE
+			}
+			query := c.PostForm("query")
+			totalRecords, err := s.CountAccountByRole(query, "", consts.AccountRoleChild)
+
+			if err != nil {
+				api.Fail(c, http.StatusInternalServerError, err.Error())
+				return
+			}
+			if totalRecords == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+			pageCount := totalRecords / ps
+			if totalRecords%ps > 0 {
+				pageCount++
+			}
+			if pn > pageCount {
+				pn = pageCount
+			}
+			pageInfo.PageCount = pageCount
+			pageInfo.TotalCount = totalRecords
+			if accounts, err := s.PageListAccountByRole(consts.AccountRoleChild, pn, ps, query, ""); err == nil {
 				pageInfo.Results = accounts
 				api.Success(c, pageInfo)
 				return

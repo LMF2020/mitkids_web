@@ -97,15 +97,6 @@ func (s *Service) LoginWithCode(login model.LoginForm) (account *model.AccountIn
 	return
 }
 
-func (s *Service) ListChildAccountByPage(pageNumber int, pageSize int, query string) (accounts *[]model.Child, err error) {
-	offset := (pageNumber - 1) * pageSize
-	return s.dao.ListChildAccountByPage(offset, pageSize, query)
-}
-
-func (s *Service) CountChildAccount(query string) (count int, err error) {
-	return s.dao.CountChildAccount(query)
-}
-
 func (s *Service) CountChildNotInClassWithQuery(query string) (count int, err error) {
 	return s.dao.CountChildNotInClassWithQuery(query)
 }
@@ -139,13 +130,13 @@ func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string][]m
 	return
 }
 
-func (s *Service) PageListAccountByRole(role, pageNumber, pageSize int, query string) (accounts *[]model.AccountInfo, err error) {
+func (s *Service) PageListAccountByRole(role, pageNumber, pageSize int, query, includeIds string) (accounts *[]model.AccountInfo, err error) {
 	offset := (pageNumber - 1) * pageSize
-	return s.dao.PageListAccountByRole(role, offset, pageSize, query)
+	return s.dao.PageListAccountByRole(role, offset, pageSize, query, includeIds)
 }
 
-func (s *Service) CountAccountByRole(query string, role int) (count int, err error) {
-	return s.dao.CountAccountByRole(query, role)
+func (s *Service) CountAccountByRole(query, includeIds string, role int) (count int, err error) {
+	return s.dao.CountAccountByRole(query, includeIds, role)
 }
 
 // 是否教师

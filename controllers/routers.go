@@ -119,8 +119,10 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.GET("/partner/info", TeacherPartnerQueryHandler)
 		// 教师课件列表 (lv1-3)
 		teacherTokenGroup.POST("/book/list", BookListHandler)
-		// 分页查询学生列表 (根据班级查询)
+		// 教师分页查询学生列表 (根据班级查询)
 		teacherTokenGroup.POST("/class/child/list", TeacherPageListChildByClassHandler)
+		// 教师查看学生资料
+		teacherTokenGroup.POST("/child/info/view", TeacherViewChildInfoHandler)
 	}
 
 	/**

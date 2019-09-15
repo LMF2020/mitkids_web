@@ -38,7 +38,32 @@ func RegisterTeacherAccountHandler(c *gin.Context) {
 	}
 }
 
-// 查询学生profile信息
+// 教师查询学生信息
+func TeacherViewChildInfoHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	role := claims["AccountRole"].(float64)
+	if !s.IsRoleTeacher(int(role)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
+
+	accountId := c.PostForm("student_id")
+
+	if account, err := s.GetAccountById(accountId); err != nil {
+		log.Logger.WithError(err)
+		api.Fail(c, http.StatusInternalServerError, "学生账号查询失败")
+		return
+	} else if account == nil {
+		api.Fail(c, errorcode.USER_NOT_EXIS, "学生账号不存在")
+		return
+	} else {
+		profile, _ := s.GetProfileByRole(account, consts.AccountRoleChild)
+		api.Success(c, profile)
+	}
+
+}
+
+// 学生查看个人信息
 func ChildAccountInfoHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)

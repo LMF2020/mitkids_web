@@ -12,7 +12,7 @@ type Class struct {
 	ClassName     string        `json:"class_name" form:"class_name" validate:"required"`           // 6位班级名称
 	ForeTeacherId string        `json:"fore_teacher_id" form:"fore_teacher_id" `                    // 6位外教老師编号
 	TeacherId     string        `json:"teacher_id" form:"teacher_id" `                              // 6位中教老師编号
-	RoomId        string        `json:"room_id" form:"room_id" `                                    // 上课教室 ID
+	RoomId        string        `json:"room_id" form:"room_id" validate:"required"`                 // 上课教室 ID
 	BookLevel     uint          `json:"book_level" form:"book_level" `                              // 课程级别
 	Status        uint          `json:"status" form:"status" `                                      // 班級是否关闭(1:未开始,2:进行中,3:已结束)
 	ChildNumber   uint          `json:"child_number" form:"child_number" `                          // 当前报名人数

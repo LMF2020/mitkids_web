@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"mitkid_web/consts"
 	"mitkid_web/model"
@@ -77,7 +78,8 @@ func (d *Dao) CountAccountByRole(query, includeIds string, role int) (count int,
 
 const ListAccountByPageBaseSql = "SELECT * FROM `mk_account` WHERE (account_role = ?)"
 const whereHasQuery = " AND (account_name like ? or phone_number like ?)"
-const whereIncludeIdsQuery = " AND (account_id in (?))"
+// 这个特殊处理
+const whereIncludeIdsQuery = " AND (account_id in (%s))"
 const limitQuery = " limit ?,?"
 var queryParams []interface{}
 
@@ -85,22 +87,27 @@ var queryParams []interface{}
 //const ListAccountByPageSql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) limit ?,?"
 
 func (d *Dao) PageListAccountByRole(role, offset, pageSize int, query, includeIds string) (accounts *[]model.AccountInfo, err error) {
-	accounts = new([]model.AccountInfo)
 
+	//includeIds = "26445657','26445658','86824296"
+
+	accounts = new([]model.AccountInfo)
 	var sql  = ListAccountByPageBaseSql
 	queryParams = append(queryParams, role)
 	if query != "" {
 		sql += whereHasQuery
 		queryParams = append(queryParams, query, query)
 	}
-	if includeIds != "" {
-		sql += whereIncludeIdsQuery
-		queryParams = append(queryParams, includeIds)
+	if includeIds != "" { // "in" 的逻辑特殊处理  例如: account_id in(26445657,26445658,86824296)
+		sql += fmt.Sprintf(whereIncludeIdsQuery, includeIds)
+		//queryParams = append(queryParams, includeIds)
 	}
 	sql += limitQuery
 	queryParams = append(queryParams, offset, pageSize)
 
-	err = d.DB.Raw(sql, queryParams).Scan(accounts).Error
+	err = d.DB.Raw(sql, queryParams...).Scan(accounts).Error
+
+	// 清空
+	queryParams = (queryParams)[0:0]
 
 	//if query == "" {
 	//	err = d.DB.Raw(ListAccountByPageSql, role, offset, pageSize).Scan(accounts).Error

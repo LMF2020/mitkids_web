@@ -156,7 +156,8 @@ func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.Occ
 			  bk.book_name,
 			  bk.book_link,
 			  coo.occurrence_status AS status,
-			  coo.schedule_time 
+			  coo.schedule_time,
+              coo.occurrence_time 
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 

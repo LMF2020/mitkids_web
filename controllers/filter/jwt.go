@@ -30,6 +30,7 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 			if v, ok := data.(*model.AccountInfo); ok {
 
 				//Map(v)
+				v.AvatarUrl = "" // token不返回头像信息
 				return structs.Map(v)
 			}
 			log.Logger.Error("无法获取token")

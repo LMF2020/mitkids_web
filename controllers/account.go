@@ -500,6 +500,23 @@ func ListChildJoinedByPage(c *gin.Context) {
 	return
 }
 
+// 查询该学生申请的班级列表
+func ChildApplyJoinClassListHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	studentId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleChild(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
+	list, err := s.ListJoiningClassByStudent(studentId)
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+	} else {
+		api.Success(c, list)
+	}
+}
+
 // 申请加入班级
 func ChildApplyJoiningClassHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)

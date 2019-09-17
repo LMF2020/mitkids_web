@@ -12,6 +12,12 @@ func (s *Service) ListAvailableClassesByRoomId(roomId string) (classes []model.C
 	return s.dao.ListAvailableClassesByRoomId(roomId)
 }
 
+// 获取学生申请的班级列表
+func (s *Service) ListJoiningClassByStudent(studentId string) (joinClassList []model.JoinClassItem, err error) {
+	joinClassList, err = s.dao.GetJoiningClassListByChild(studentId)
+	return
+}
+
 // 获取学生加入的班级
 func (s *Service) GetJoinedClassByStudent(studentId string) (result map[string]interface{}, err error) {
 	var joinedClass model.Class

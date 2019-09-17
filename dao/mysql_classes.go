@@ -95,6 +95,10 @@ func (d *Dao) GetJoinedClassByChild(studentId string) (joinedClass model.Class, 
 			err = errors.New("学生同一时段只能加入一个班级")
 			return
 		}
+		if len(joinedClassList) == 0 {
+			err = gorm.ErrRecordNotFound
+			return
+		}
 		joinedClass = joinedClassList[0]
 
 	}

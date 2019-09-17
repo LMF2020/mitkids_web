@@ -220,7 +220,7 @@ func UserAvatarUploadHandler(c *gin.Context) {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	api.Success(c, "教师头像上传成功")
+	api.Success(c, "头像已上传")
 }
 
 // 查询我的搭档

@@ -25,6 +25,7 @@ func (s *Service) GetProfileByRole(account *model.AccountInfo, role int) (profil
 	profile.City = account.City
 	profile.District = account.District
 	profile.Email = account.Email
+	profile.AvatarUrl = account.AvatarUrl
 
 	if role == consts.AccountRoleChild {
 		profile.School = account.School

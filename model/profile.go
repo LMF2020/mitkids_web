@@ -17,4 +17,5 @@ type ProfilePoJo struct {
 	City          int    `json:"city" form:"city"`         // 城市代码
 	District      int    `json:"district" form:"district"` // 区县代码
 	Address       string `json:"address" form:"address"`
+	AvatarUrl     string `json:"avatar_url" form:"avatar_url"`
 }

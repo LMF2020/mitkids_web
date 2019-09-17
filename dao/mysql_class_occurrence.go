@@ -18,13 +18,14 @@ func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, oc
 			  c.teacher_id,
 			  c.fore_teacher_id,
 			  c.book_level,
+              c.class_name,
 			  at_1.account_name AS teacher_name,
 			  at_2.account_name AS fore_teacher_name,
 			  rm.name AS room_name,
 			  coo.book_code,
 			  bk.book_name,
 			  bk.book_link,
-			  coo.occurrence_status AS STATUS,
+			  coo.occurrence_status AS status,
 			  coo.occurrence_time
 			FROM
 			  mk_class_occurrence coo 

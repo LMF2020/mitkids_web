@@ -16,7 +16,7 @@ WORKDIR /go/web/cache
 
 ADD go.mod .
 ADD go.sum .
-RUN go mod download
+RUN export GO111MODULE=on && export GOPROXY=https://goproxy.io && go mod download
 
 WORKDIR /app/mulkids
 

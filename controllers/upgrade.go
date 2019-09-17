@@ -24,7 +24,7 @@ func upgrade(c *gin.Context) {
 		}
 		if c.Query("type") == "js" {
 			ExecCommand("sshpass -p Zoomus123 ssh  -o StrictHostKeyChecking=no  root@49.234.73.182 '/opt/workdoc/buildjs.sh'")
-			api.Success(c, "upgrade成功 至"+ExecCommand("cd /opt/nginxdocker/mulkids-cms-pro;git rev-parse HEAD")) // 没有数据
+			api.Success(c, "upgrade js成功 至"+ExecCommand("cd /opt/nginxdocker/mulkids-cms-pro;git rev-parse HEAD")) // 没有数据
 		}
 
 	} else {

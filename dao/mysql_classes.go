@@ -52,6 +52,31 @@ func (d *Dao) GetClassById(id string) (c *model.Class, err error) {
 	return
 }
 
+// 查询学生申请班级列表
+func (d *Dao) GetJoiningClassListByChild(studentId string) (joinClassList []model.JoinClassItem, err error) {
+	sql := `SELECT 
+			  jc.class_id,
+			  c.class_name,
+			  c.weeks,
+			  c.start_time,
+			  c.end_time,
+			  c.start_date,
+			  jc.student_id,
+			  jc.status
+			FROM
+			  mk_join_class jc 
+			  LEFT JOIN mk_class c 
+				ON jc.class_id = c.class_id 
+			WHERE jc.student_id = ?
+			  AND c.status = ? AND c.child_number < c.capacity
+			`
+	if err = d.DB.Raw(sql, studentId, consts.ClassNoStart).Scan(&joinClassList).Error; gorm.IsRecordNotFoundError(err) {
+		err = nil
+	}
+
+	return
+}
+
 // 根据学生ID查询学生加入的班级: 限制条件 - 学生不能同时报名多个班级
 func (d *Dao) GetJoinedClassByChild(studentId string) (joinedClass model.Class, err error) {
 

@@ -77,9 +77,11 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childTokenGroup.POST("/occurrence/history/page", ChildPageQueryFinishedOccurrenceHandler)
 		// 查询学生上课日历
 		childTokenGroup.GET("/occurrence/calendar", ChildCalendarQueryHandler)
-		// 申请加入班级
+		// 申请约课
 		childTokenGroup.POST("/apply/join", ChildApplyJoiningClassHandler)
-		// 撤销申请
+		// 申请约课的班级列表
+		childTokenGroup.POST("/apply/join/list", ChildApplyJoinClassListHandler)
+		// 取消约课申请
 		childTokenGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
 		// 学生头像上传
 		childTokenGroup.POST("/avatar/upload", UserAvatarUploadHandler)

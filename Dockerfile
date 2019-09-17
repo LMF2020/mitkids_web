@@ -16,7 +16,9 @@ WORKDIR /go/web/cache
 
 ADD go.mod .
 ADD go.sum .
-RUN export GO111MODULE=on && export GOPROXY=http://mirrors.aliyun.com/goproxy/ && go mod download
+ENV GO111MODULE=on
+ENV GOPROXY=http://mirrors.aliyun.com/goproxy/
+#RUN go mod download
 
 WORKDIR /app/mulkids
 

@@ -95,6 +95,8 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
 	if joinCls != nil && err == nil {
 		return errors.New("审批成功，不能撤销")
+	} else if err != nil {
+		return err
 	}
 
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)

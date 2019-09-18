@@ -66,24 +66,29 @@ func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []string, err error)
 	return
 }
 
-// 根据学生ID查询申请班级
-func (d *Dao) GetJoiningClass(classId, studentId string, status int) (joinList *model.JoinClass, err error) {
-	if err = d.DB.Where("student_id = ? AND status = ? AND class_id = ? ", studentId, status, classId).Find(&joinList).Error; gorm.IsRecordNotFoundError(err) {
+// 根据审核状态查询学生班级的约课申请 (class status 未开班)
+func (d *Dao) GetJoiningClass(classId, studentId string, joinStatus int) (joinclass *model.JoinClass, err error) {
+	joinclass = &model.JoinClass{}
+	if err = d.DB.Where("mk_join_class.student_id = ? AND mk_join_class.status = ? AND mk_join_class.class_id = ? ", studentId, joinStatus, classId).Joins(
+		"JOIN mk_class on mk_class.class_id = mk_join_class.class_id and  mk_class.status = ?", consts.ClassNoStart).First(&joinclass).Error;
+			gorm.IsRecordNotFoundError(err) {
+		joinclass = nil
 		err = nil
 	}
 	return
 }
 
-// 根据学生ID查询申请班级
-func (d *Dao) GetJoinClassById(classId, studentId string) (join *model.JoinClass, err error) {
-	join = &model.JoinClass{}
-	if err = d.DB.Where("student_id = ? AND class_id = ? ", studentId, classId).Find(&join).Error; gorm.IsRecordNotFoundError(err) {
+// 查询学生班级的约课申请
+func (d *Dao) GetJoinClassById(classId, studentId string) (joinclass *model.JoinClass, err error) {
+	joinclass = &model.JoinClass{}
+	if err = d.DB.Where("student_id = ? AND class_id = ? ", studentId, classId).First(&joinclass).Error; gorm.IsRecordNotFoundError(err) {
 		err = nil
+		joinclass = nil
 	}
 	return
 }
 
-// 删除记录
+// 删除学生约课申请记录
 func (d *Dao) DeleteJoiningClass(studentId, classId string) (err error) {
 	err = d.DB.Where("student_id = ? AND class_id = ?", studentId, classId).Delete(&model.JoinClass{}).Error
 	return

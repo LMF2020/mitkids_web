@@ -11,32 +11,33 @@ import (
 )
 
 //添加学生到班级
-func (d *Dao) AddChildToClass(classId string, childId string) (err error) {
-	sql := genAddChildsToClassSql(classId, []string{childId})
+func (d *Dao) AddChildToClass(classId string, childId string, joinStatus int) (err error) {
+	sql := genAddChildsToClassSql(classId, []string{childId}, joinStatus)
 	if err = d.DB.Exec(sql).Error; err != nil {
 		log.Logger.Errorf("添加学生到班级失败：classId:%s，childId:%s,err:%s", classId, childId, err)
 		return errors.New("添加学生到班级失败")
 	}
 	return nil
 }
-func genAddChildsToClassSql(classId string, childIds []string) (sql string) {
+
+func genAddChildsToClassSql(classId string, childIds []string, joinStatus int) (sql string) {
 	sql = "INSERT INTO `mk_join_class`(`class_id`, `student_id`, `status`, `created_at`, `updated_at`) VALUES  "
 	// 循环data数组,组合sql语句
 	lastKey := len(childIds) - 1
 	for key, childId := range childIds {
 		if lastKey == key {
 			//最后一条数据 以分号结尾
-			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW());", classId, childId, consts.JoinClassSuccess)
+			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW());", classId, childId, joinStatus)
 		} else {
-			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW()),", classId, childId, consts.JoinClassSuccess)
+			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW()),", classId, childId, joinStatus)
 		}
 	}
 	return
 }
 
 //添加学生到班级
-func (d *Dao) AddChildsToClass(classId string, childIds []string) (err error) {
-	sql := genAddChildsToClassSql(classId, childIds)
+func (d *Dao) AddChildsToClass(classId string, childIds []string, joinStatus int) (err error) {
+	sql := genAddChildsToClassSql(classId, childIds, joinStatus)
 	if err = d.DB.Exec(sql).Error; err != nil {
 		log.Logger.Errorf("添加学生到班级失败：classId:%s，childId:%s,err:%s", classId, childIds, err)
 		return errors.New("添加学生到班级失败")

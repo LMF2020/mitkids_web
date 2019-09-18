@@ -8,11 +8,11 @@ import (
 )
 
 func (s *Service) AddChildToClass(id string, childId string) (err error) {
-	return s.dao.AddChildToClass(id, childId)
+	return s.dao.AddChildToClass(id, childId, consts.JoinClassSuccess)
 }
 
 func (s *Service) AddChildsToClass(id string, childIds []string) (err error) {
-	return s.dao.AddChildsToClass(id, childIds)
+	return s.dao.AddChildsToClass(id, childIds, consts.JoinClassSuccess)
 }
 
 /**
@@ -64,12 +64,12 @@ func (s *Service) ApplyJoiningClass(childId, classId string) error {
 	}
 
 	// 插入申请记录
-	err = s.dao.AddChildToClass(classId, childId)
+	err = s.dao.AddChildToClass(classId, childId, consts.JoinClassInProgress)
 	if err != nil {
 		return err
 	}
 
-	log.Logger.WithField("class id", classId).WithField("child id", childId).Info("正在申请加入班级")
+	log.Logger.WithField("class id", classId).WithField("child id", childId).Info("申请加入班级")
 
 	return nil
 }

@@ -174,7 +174,7 @@ func (s *Service) ApproveJoiningClass(classId, childId string) (err error) {
 		return errors.New("班级学生数量已满")
 	}
 
-	err = s.UpdateJoinClassStatus(classId, childId, consts.JoinClassSuccess)
+	err = s.UpdateJoinClassStatus(childId, classId, consts.JoinClassSuccess)
 	if err != nil {
 		return
 	}

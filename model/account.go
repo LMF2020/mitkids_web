@@ -104,6 +104,6 @@ type ApplyClassChild struct {
 	EndTime         utils.RawTime `json:"end_time" `
 	StartDate       time.Time     `json:"start_date" `
 	Status          int           `json:"status" `
-	classId         string        `json:"class_id" `
-	accountId       string        `json:"account_id" `
+	ClassId         string        `json:"class_id" `
+	AccountId       string        `json:"account_id" `
 }

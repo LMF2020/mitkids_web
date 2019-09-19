@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
-	"mitkid_web/consts/errorcode"
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/utils"

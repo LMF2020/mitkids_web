@@ -42,7 +42,6 @@ import (
 }
 */
 
-
 func CreateClass(c *gin.Context) {
 	var formClass model.Class
 	var err error

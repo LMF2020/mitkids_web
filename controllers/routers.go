@@ -87,6 +87,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childTokenGroup.POST("/avatar/upload", UserAvatarUploadHandler)
 		// 学生头像下载
 		childTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
+		// 我的老师（中教外教）
+		childTokenGroup.GET("/my/teachers", MyTeachersQueryHandler)
 	}
 
 	/**

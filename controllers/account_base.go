@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
 	"mitkid_web/consts/errorcode"
@@ -61,4 +62,37 @@ func CreateAccount(c *gin.Context, role uint) {
 		log.Logger.WithField("account", account).Error("create account failed")
 		api.Fail(c, http.StatusBadRequest, err.Error())
 	}
+}
+
+// 学生、教师头像上传
+func UserAvatarUploadHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	imgFile, header, err := c.Request.FormFile("file")
+
+	defer imgFile.Close()
+
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	err = s.UploadAvatar(accountId, imgFile, header)
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	api.Success(c, "头像已上传")
+}
+
+
+// 学生、教师头像下载
+func UserAvatarDownloadHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	imgUrl, err := s.DownloadAvatar(accountId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	api.Success(c, imgUrl)
 }

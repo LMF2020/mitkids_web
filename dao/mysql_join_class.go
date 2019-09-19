@@ -11,32 +11,33 @@ import (
 )
 
 //添加学生到班级
-func (d *Dao) AddChildToClass(classId string, childId string) (err error) {
-	sql := genAddChildsToClassSql(classId, []string{childId})
+func (d *Dao) AddChildToClass(classId string, childId string, joinStatus int) (err error) {
+	sql := genAddChildsToClassSql(classId, []string{childId}, joinStatus)
 	if err = d.DB.Exec(sql).Error; err != nil {
 		log.Logger.Errorf("添加学生到班级失败：classId:%s，childId:%s,err:%s", classId, childId, err)
 		return errors.New("添加学生到班级失败")
 	}
 	return nil
 }
-func genAddChildsToClassSql(classId string, childIds []string) (sql string) {
+
+func genAddChildsToClassSql(classId string, childIds []string, joinStatus int) (sql string) {
 	sql = "INSERT INTO `mk_join_class`(`class_id`, `student_id`, `status`, `created_at`, `updated_at`) VALUES  "
 	// 循环data数组,组合sql语句
 	lastKey := len(childIds) - 1
 	for key, childId := range childIds {
 		if lastKey == key {
 			//最后一条数据 以分号结尾
-			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW());", classId, childId, consts.JoinClassSuccess)
+			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW());", classId, childId, joinStatus)
 		} else {
-			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW()),", classId, childId, consts.JoinClassSuccess)
+			sql += fmt.Sprintf("('%s', '%s', '%d', NOW(), NOW()),", classId, childId, joinStatus)
 		}
 	}
 	return
 }
 
 //添加学生到班级
-func (d *Dao) AddChildsToClass(classId string, childIds []string) (err error) {
-	sql := genAddChildsToClassSql(classId, childIds)
+func (d *Dao) AddChildsToClass(classId string, childIds []string, joinStatus int) (err error) {
+	sql := genAddChildsToClassSql(classId, childIds, joinStatus)
 	if err = d.DB.Exec(sql).Error; err != nil {
 		log.Logger.Errorf("添加学生到班级失败：classId:%s，childId:%s,err:%s", classId, childIds, err)
 		return errors.New("添加学生到班级失败")
@@ -65,24 +66,29 @@ func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []string, err error)
 	return
 }
 
-// 根据学生ID查询申请班级
-func (d *Dao) GetJoiningClass(classId, studentId string, status int) (joinList *model.JoinClass, err error) {
-	if err = d.DB.Where("student_id = ? AND status = ? AND class_id = ? ", studentId, status, classId).Find(&joinList).Error; gorm.IsRecordNotFoundError(err) {
+// 根据审核状态查询学生班级的约课申请 (class status 未开班)
+func (d *Dao) GetJoiningClass(classId, studentId string, joinStatus int) (joinclass *model.JoinClass, err error) {
+	joinclass = &model.JoinClass{}
+	if err = d.DB.Where("mk_join_class.student_id = ? AND mk_join_class.status = ? AND mk_join_class.class_id = ? ", studentId, joinStatus, classId).Joins(
+		"JOIN mk_class on mk_class.class_id = mk_join_class.class_id and  mk_class.status = ?", consts.ClassNoStart).First(&joinclass).Error;
+			gorm.IsRecordNotFoundError(err) {
+		joinclass = nil
 		err = nil
 	}
 	return
 }
 
-// 根据学生ID查询申请班级
-func (d *Dao) GetJoinClassById(classId, studentId string) (join *model.JoinClass, err error) {
-	join = &model.JoinClass{}
-	if err = d.DB.Where("student_id = ? AND class_id = ? ", studentId, classId).Find(&join).Error; gorm.IsRecordNotFoundError(err) {
+// 查询学生班级的约课申请
+func (d *Dao) GetJoinClassById(classId, studentId string) (joinclass *model.JoinClass, err error) {
+	joinclass = &model.JoinClass{}
+	if err = d.DB.Where("student_id = ? AND class_id = ? ", studentId, classId).First(&joinclass).Error; gorm.IsRecordNotFoundError(err) {
 		err = nil
+		joinclass = nil
 	}
 	return
 }
 
-// 删除记录
+// 删除学生约课申请记录
 func (d *Dao) DeleteJoiningClass(studentId, classId string) (err error) {
 	err = d.DB.Where("student_id = ? AND class_id = ?", studentId, classId).Delete(&model.JoinClass{}).Error
 	return
@@ -91,7 +97,7 @@ func (d *Dao) DeleteJoiningClass(studentId, classId string) (err error) {
 const updateSatusSql = "update mk_join_class set `status` = ?,updated_at = now() where student_id = ? AND class_id = ? "
 
 func (d *Dao) UpdateJoinClassStatus(studentId, classId string, status int) error {
-	return d.DB.Exec(updateSatusSql, status, classId, studentId).Error
+	return d.DB.Exec(updateSatusSql, status, studentId, classId).Error
 }
 
 const CountApplyClassChildSql = `SELECT

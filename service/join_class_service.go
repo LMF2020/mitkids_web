@@ -8,11 +8,11 @@ import (
 )
 
 func (s *Service) AddChildToClass(id string, childId string) (err error) {
-	return s.dao.AddChildToClass(id, childId)
+	return s.dao.AddChildToClass(id, childId, consts.JoinClassSuccess)
 }
 
 func (s *Service) AddChildsToClass(id string, childIds []string) (err error) {
-	return s.dao.AddChildsToClass(id, childIds)
+	return s.dao.AddChildsToClass(id, childIds, consts.JoinClassSuccess)
 }
 
 /**
@@ -56,20 +56,28 @@ func (s *Service) ApplyJoiningClass(childId, classId string) error {
 	}
 	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
 	if joinCls != nil && err == nil { // 存在记录
-		return errors.New("已有加入班级的申请")
+		return errors.New("您仍有申请在处理")
 	}
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
 	if joinCls != nil && err == nil {
 		return errors.New("已加入班级，不能重复申请")
 	}
 
+	// 处理失败的case,允许继续申请
+	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassFail)
+	if joinCls != nil && err == nil {
+		// 修改申请审核状态 失败 -> 待审核
+		err = s.dao.UpdateJoinClassStatus(childId, classId, consts.JoinClassInProgress)
+		return err
+	}
+
 	// 插入申请记录
-	err = s.dao.AddChildToClass(classId, childId)
+	err = s.dao.AddChildToClass(classId, childId, consts.JoinClassInProgress)
 	if err != nil {
 		return err
 	}
 
-	log.Logger.WithField("class id", classId).WithField("child id", childId).Info("正在申请加入班级")
+	log.Logger.WithField("class id", classId).WithField("child id", childId).Info("申请加入班级")
 
 	return nil
 }
@@ -95,6 +103,8 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 	joinCls, err := s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
 	if joinCls != nil && err == nil {
 		return errors.New("审批成功，不能撤销")
+	} else if err != nil {
+		return err
 	}
 
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
@@ -164,7 +174,7 @@ func (s *Service) ApproveJoiningClass(classId, childId string) (err error) {
 		return errors.New("班级学生数量已满")
 	}
 
-	err = s.UpdateJoinClassStatus(classId, childId, consts.JoinClassSuccess)
+	err = s.UpdateJoinClassStatus(childId, classId, consts.JoinClassSuccess)
 	if err != nil {
 		return
 	}

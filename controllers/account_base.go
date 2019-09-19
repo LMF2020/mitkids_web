@@ -81,6 +81,7 @@ func UserAvatarDownloadHandler(c *gin.Context) {
 func AccountPicUpdateHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	accountId := claims["AccountId"].(string)
+	urlMap := make(map[string]string)
 	file, header, err := c.Request.FormFile("file")
 	if file != nil {
 		if err != nil {
@@ -100,9 +101,10 @@ func AccountPicUpdateHandler(c *gin.Context) {
 			api.Fail(c, http.StatusInternalServerError, err.Error())
 			return
 		}
-		api.Success(c, "更新成功")
+		urlMap["avatar_url"] = avatarUrl
+		api.Success(c, urlMap)
 		return
 	}
-	api.Success(c, "更新成功")
+	api.Success(c, urlMap)
 	return
 }

@@ -52,8 +52,8 @@ func (s *Service) DownloadAvatar(accountId string) (imgUrl string, err error) {
 // 上传头像
 func (s *Service) UploadAvatar(accountId string, imgFile multipart.File, fileHeader *multipart.FileHeader) (err error) {
 	// image size, image type
-	if fileHeader.Size >= consts.MB/2 {
-		err = errors.New("头像大小不能超过500k")
+	if fileHeader.Size >= consts.KB*15 {
+		err = errors.New("头像大小不能超过15kb")
 		return
 	}
 	if !utils.VerifyImageFormat(fileHeader.Filename) {

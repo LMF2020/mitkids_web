@@ -346,6 +346,38 @@ func ChildApplyJoinClassListHandler(c *gin.Context) {
 }
 
 // 学生端 - 我的老师
-func MyTeachersQueryHandler (c *gin.Context) {
+func ChildMyTeachersQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	studentId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleChild(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
+
+	result, err := s.GetJoinedClassByStudent(studentId)
+	if err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		teacherId := result["teacher_id"]
+		foreTeacherId := result["fore_teacher_id"]
+		var res []model.AccountInfo
+		if teacherId != "" {
+			info, err := s.GetAccountById(teacherId.(string))
+			if err == nil {
+				res = append(res, *info)
+			}
+		}
+
+		if foreTeacherId != "" {
+			info, err := s.GetAccountById(foreTeacherId.(string))
+			if err == nil {
+				res = append(res, *info)
+			}
+		}
+
+		api.Success(c, res)
+	}
 
 }

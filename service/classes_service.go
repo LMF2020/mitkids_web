@@ -50,6 +50,10 @@ func (s *Service) GetJoinedClassByStudent(studentId string) (result map[string]i
 		result["start_time"] = (*occurrences)[0]
 		result["end_time"] = (*occurrences)[len(*occurrences)-1]
 		result["level"] = joinedClass.BookLevel
+		result["class_id"] = joinedClass.ClassId
+		result["class_name"] = joinedClass.ClassName
+		result["teacher_id"] = joinedClass.TeacherId
+		result["fore_teacher_id"] = joinedClass.ForeTeacherId
 		result["total"] = total
 		result["finished"] = finished
 

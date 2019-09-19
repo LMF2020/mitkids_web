@@ -84,7 +84,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 取消约课申请
 		childTokenGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
 		// 学生头像上传
-		childTokenGroup.POST("/avatar/upload", UserAvatarUploadHandler)
+		childTokenGroup.POST("/avatar/upload", AccountPicUpdateHandler)
 		// 学生头像下载
 		childTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
 		// 我的老师（中教外教）
@@ -109,6 +109,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.POST("/profile", TeacherAccountInfoHandler)
 		// 更新个人资料
 		teacherTokenGroup.POST("/profile/update", TeacherAccountInfoUpdateHandler)
+
 		// 查询教师所在班级
 		teacherTokenGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
 		// 查询教师最近安排的课表
@@ -120,7 +121,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 分页查询上课记录
 		teacherTokenGroup.POST("/occurrence/history/page", TeacherPageQueryFinishedOccurrenceHandler)
 		// 教师头像上传
-		teacherTokenGroup.POST("/avatar/upload", UserAvatarUploadHandler)
+		teacherTokenGroup.POST("/avatar/upload", AccountPicUpdateHandler)
 		// 教师头像下载
 		teacherTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
 		// 教师搭档介绍（可能返回多个班级的搭档）

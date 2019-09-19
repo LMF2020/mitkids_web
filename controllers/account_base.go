@@ -10,6 +10,7 @@ import (
 	"mitkid_web/model"
 	"mitkid_web/utils"
 	"mitkid_web/utils/cache"
+	"mitkid_web/utils/fileUtils"
 	"mitkid_web/utils/log"
 	"net/http"
 )
@@ -64,27 +65,6 @@ func CreateAccount(c *gin.Context, role uint) {
 	}
 }
 
-// 学生、教师头像上传
-func UserAvatarUploadHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
-	accountId := claims["AccountId"].(string)
-	imgFile, header, err := c.Request.FormFile("file")
-
-	defer imgFile.Close()
-
-	if err != nil {
-		api.Fail(c, http.StatusBadRequest, err.Error())
-		return
-	}
-	err = s.UploadAvatar(accountId, imgFile, header)
-	if err != nil {
-		api.Fail(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	api.Success(c, "头像已上传")
-}
-
-
 // 学生、教师头像下载
 func UserAvatarDownloadHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
@@ -95,4 +75,34 @@ func UserAvatarDownloadHandler(c *gin.Context) {
 		return
 	}
 	api.Success(c, imgUrl)
+}
+
+// 学生个人资料更新
+func AccountPicUpdateHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	file, header, err := c.Request.FormFile("file")
+	if file != nil {
+		if err != nil {
+			c.String(http.StatusBadRequest, "头像更新失败")
+			return
+		}
+		//文件的名称
+		filename := header.Filename
+		avatarUrl, err := fileUtils.UpdateUserPic(accountId, filename, file)
+		if err != nil {
+			c.String(http.StatusBadRequest, "头像更新失败")
+			return
+		}
+		account := model.AccountInfo{AccountId: accountId,
+			AvatarUrl: avatarUrl}
+		if err = s.UpdateAccountInfo(account); err != nil {
+			api.Fail(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		api.Success(c, "更新成功")
+		return
+	}
+	api.Success(c, "更新成功")
+	return
 }

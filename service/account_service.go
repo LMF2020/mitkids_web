@@ -53,6 +53,11 @@ func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
 	return nil
 }
 
+// 更新账号
+func (s *Service) UpdateAccountInfo(b model.AccountInfo) (err error) {
+	return s.dao.UpdateAccountInfo(b)
+}
+
 // 手机密码登录
 func (s *Service) LoginWithPass(login model.LoginForm) (account *model.AccountInfo, err error) {
 

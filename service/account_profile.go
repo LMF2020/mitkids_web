@@ -99,6 +99,9 @@ func (s *Service) UpdateProfileByRole(profile model.ProfilePoJo, role int) (err 
 		District:    profile.Province,
 		Email:       profile.Email,
 	}
+	if profile.AvatarUrl != "" {
+		accountInfo.AvatarUrl = profile.AvatarUrl
+	}
 
 	if role == consts.AccountRoleChild {
 		accountInfo.School = profile.School

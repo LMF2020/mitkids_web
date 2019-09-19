@@ -8,6 +8,7 @@ import (
 	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/utils"
+	"mitkid_web/utils/fileUtils"
 	"mitkid_web/utils/log"
 	"net/http"
 	"strconv"
@@ -56,6 +57,21 @@ func ChildAccountInfoUpdateHandler(c *gin.Context) {
 		if accountId != profile.AccountId {
 			api.Fail(c, http.StatusBadRequest, "登录账号不一致")
 			return
+		}
+
+		file, header, err := c.Request.FormFile("avatar_file")
+		if file != nil {
+			if err != nil {
+				c.String(http.StatusBadRequest, "头像更新失败")
+				return
+			}
+			//文件的名称
+			filename := header.Filename
+			profile.AvatarUrl, err = fileUtils.UpdateUserPic(accountId, filename, file)
+			if err != nil {
+				c.String(http.StatusBadRequest, "头像更新失败")
+				return
+			}
 		}
 		if err = s.UpdateProfileByRole(profile, int(accountRole)); err != nil {
 			api.Fail(c, http.StatusInternalServerError, err.Error())
@@ -346,6 +362,6 @@ func ChildApplyJoinClassListHandler(c *gin.Context) {
 }
 
 // 学生端 - 我的老师
-func MyTeachersQueryHandler (c *gin.Context) {
+func MyTeachersQueryHandler(c *gin.Context) {
 
 }

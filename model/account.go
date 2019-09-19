@@ -34,7 +34,7 @@ type AccountInfo struct {
 	// 教师类型：角色 1:内部教师 2:外部教师
 	TeacherType int `json:"teacher_type" form:"teacher_type"`
 	// 用户头像
-	AvatarUrl	string		`json:"avatar_url" form:"avatar_url"`
+	AvatarUrl string `json:"avatar_url" form:"avatar_url"`
 }
 
 // 定义表名
@@ -106,4 +106,5 @@ type ApplyClassChild struct {
 	Status          int           `json:"status" `
 	ClassId         string        `json:"class_id" `
 	AccountId       string        `json:"account_id" `
+	ChildNumber     string        `json:"child_number" `
 }

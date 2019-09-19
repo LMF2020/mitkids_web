@@ -70,8 +70,7 @@ func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []string, err error)
 func (d *Dao) GetJoiningClass(classId, studentId string, joinStatus int) (joinclass *model.JoinClass, err error) {
 	joinclass = &model.JoinClass{}
 	if err = d.DB.Where("mk_join_class.student_id = ? AND mk_join_class.status = ? AND mk_join_class.class_id = ? ", studentId, joinStatus, classId).Joins(
-		"JOIN mk_class on mk_class.class_id = mk_join_class.class_id and  mk_class.status = ?", consts.ClassNoStart).First(&joinclass).Error;
-			gorm.IsRecordNotFoundError(err) {
+		"JOIN mk_class on mk_class.class_id = mk_join_class.class_id and  mk_class.status = ?", consts.ClassNoStart).First(&joinclass).Error; gorm.IsRecordNotFoundError(err) {
 		joinclass = nil
 		err = nil
 	}
@@ -134,6 +133,7 @@ const PageListApplyClassChildSql = `SELECT
 										c.start_time,
 										c.end_time,
 										c.start_date,
+										c.child_number,
 										j.status,
 										j.created_at AS application_time 
 									FROM

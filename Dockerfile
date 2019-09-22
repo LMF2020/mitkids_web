@@ -7,9 +7,7 @@ LABEL maintainer="Mulkids <jiangzx0526@gmail.com>"
 
 ARG APP_NAME=go-docker
 ARG LOG_DIR=/${APP_NAME}/logs
-RUN wget http://sourceforge.net/projects/sshpass/files/latest/download -O sshpass.tar.gz && tar -zxvf sshpass.tar.gz &&  cd sshpass-1.06/ &&./configure && make&& make install
 RUN mkdir -p ${LOG_DIR}
-
 ENV LOG_FILE_LOCATION=${LOG_DIR}/app.log
 
 WORKDIR /go/web/cache

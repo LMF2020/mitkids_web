@@ -1,6 +1,9 @@
 version: '3'
 services:
   web01:
+    depends_on:
+      - db
+      - memcached
     build: .
     restart: always
     volumes:
@@ -14,3 +17,19 @@ services:
       image: 'bitnami/memcached:1'
       ports:
         - '11211:11211'
+  db:
+    image: mysql:5.7
+    ports:
+      - '3308:3306'
+    command:
+      - --default_authentication_plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - /opt/mysql_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ZoOMus123
+      MYSQL_DATABASE: MulKids
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ZoOMus123

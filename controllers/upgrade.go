@@ -23,7 +23,7 @@ func upgrade(c *gin.Context) {
 			}()
 		}
 		if c.Query("type") == "js" {
-			s := ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.17.0.1 'sudo chmod +x /opt/workdoc/buildjs.sh;sudo /opt/workdoc/buildjs.sh'")
+			s := ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'sudo chmod +x /opt/workdoc/buildjs.sh;sudo /opt/workdoc/buildjs.sh'")
 			api.Success(c, s+"\nupgrade js成功 至"+ExecCommand("sshpass -p Zoomus123 ssh  -o StrictHostKeyChecking=no  root@49.234.73.182 'cd /opt/nginxdocker/mulkids-cms-pro && git rev-parse HEAD'")) // 没有数据
 		}
 

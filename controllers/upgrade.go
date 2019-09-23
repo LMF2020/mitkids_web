@@ -7,7 +7,6 @@ import (
 	"mitkid_web/controllers/api"
 	"net/http"
 	"os/exec"
-	"strings"
 	"time"
 )
 
@@ -25,8 +24,7 @@ func upgrade(c *gin.Context) {
 		}
 		if c.Query("type") == "js" {
 			s := ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'sudo chmod +x /opt/workdoc/buildjs.sh;sudo /opt/workdoc/buildjs.sh'")
-			s = strings.ReplaceAll(s, "\n", "<br />")
-			c.String(200, s+"<br />upgrade js成功 至"+ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'cd /opt/nginxdocker/mulkids-cms-pro && git rev-parse HEAD'")) // 没有数据
+			c.String(200, s+"\n upgrade js成功 至"+ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'cd /opt/nginxdocker/mulkids-cms-pro && git rev-parse HEAD'")) // 没有数据
 		}
 
 	} else {

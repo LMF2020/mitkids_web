@@ -21,6 +21,11 @@ func (s *Service) GetRoomById(id int) (room *model.Room, err error) {
 	return s.dao.GetRoomById(id)
 }
 
+//获取教室
+func (s *Service) GetRoomByAddAndGeo(geo, addr string) (room *model.Room, err error) {
+	return s.dao.GetRoomByAddAndGeo(geo, addr)
+}
+
 //删除教室
 func (s *Service) DeleteRoomById(id int) (err error) {
 	return s.dao.DeleteRoomById(id)

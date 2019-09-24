@@ -14,8 +14,6 @@ import (
 
 var wg sync.WaitGroup
 
-
-
 // 查询匹配5公里范围内的教室
 func MatchRoom(queue chan model.Room, room model.Room, lan, lng float64) {
 	defer wg.Done()
@@ -30,6 +28,15 @@ func CreateRoom(c *gin.Context) {
 	var err error
 	if err = c.ShouldBind(&from); err == nil {
 		if err = utils.ValidateParam(from); err == nil {
+			exist, err := s.GetRoomByAddAndGeo(from.GeoAddr, from.Address)
+			if err != nil {
+				api.Failf(c, http.StatusBadRequest, "查询错误", err)
+				return
+			}
+			if exist != nil {
+				api.Failf(c, http.StatusBadRequest, "教室地址重复")
+				return
+			}
 			if err = s.CreateRoom(&from); err == nil {
 				api.Success(c, "新建教室成功")
 				return

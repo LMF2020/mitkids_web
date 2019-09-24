@@ -40,6 +40,16 @@ func (d *Dao) GetRoomById(id int) (room *model.Room, err error) {
 	return
 }
 
+//获取教室
+func (d *Dao) GetRoomByAddAndGeo(geo, addr string) (room *model.Room, err error) {
+	room = &model.Room{}
+	if err := d.DB.Where("geo_addr = ? and address =?", geo, addr).First(room).Error; err == gorm.ErrRecordNotFound {
+		err = nil
+		room = nil
+	}
+	return
+}
+
 //删除教室
 func (d *Dao) DeleteRoomById(id int) (err error) {
 	return d.DB.Where("room_id = ?", id).Delete(&model.Room{}).Error

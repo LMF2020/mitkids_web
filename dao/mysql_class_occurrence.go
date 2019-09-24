@@ -26,7 +26,9 @@ func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, oc
 			  bk.book_name,
 			  bk.book_link,
 			  coo.occurrence_status AS status,
-			  coo.occurrence_time
+			  coo.occurrence_time,
+				rm.geo_addr,
+				rm.address
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 
@@ -69,8 +71,8 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 	}
 	sqlStart := `SELECT 
 			  coo.class_id,
-			  coo.teacher_id,
-			  coo.fore_teacher_id,
+			  c.teacher_id,
+			  c.fore_teacher_id,
 			  c.class_name,
 			  c.book_level,
 			  at_1.account_name AS teacher_name,
@@ -80,7 +82,9 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 			  bk.book_name,
 			  bk.book_link,
 			  coo.occurrence_status AS status,
-			  coo.schedule_time 
+			  c.start_time  as schedule_time,
+				rm.geo_addr,
+				rm.address
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 
@@ -90,9 +94,9 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 			  LEFT JOIN mk_book bk 
 				ON bk.book_code = coo.book_code 
 			  LEFT JOIN mk_account at_1 
-				ON at_1.account_id = coo.teacher_id 
+				ON at_1.account_id = c.teacher_id 
 			  LEFT JOIN mk_account at_2 
-				ON at_2.account_id = coo.fore_teacher_id 
+				ON at_2.account_id = c.fore_teacher_id 
 			WHERE c.class_id in (`
 
 	sqlEnd := `

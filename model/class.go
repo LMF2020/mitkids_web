@@ -94,6 +94,8 @@ type ClassListItem struct {
 	ForeTeacherName string        `json:"fore_teacher_name" form:"fore_teacher_name" `                // 6位外教老師编号
 	TeacherName     string        `json:"teacher_name" form:"teacher_name" `                          // 6位中教老師编号
 	RoomId          string        `json:"room_id" form:"room_id" validate:"required"`                 // 上课教室 ID
+	GeoAddr   		string    	  `json:"geo_addr" form:"geo_addr"` 								  // 地图认证的经纬度的地点名称
+	Address   		string    	  `json:"address" form:"address"`                       			  // 教师的具体地点(地图标记地址的补充)
 	BookLevel       uint          `json:"book_level" form:"book_level" `                              // 课程级别
 	Status          uint          `json:"status" form:"status" `                                      // 班級是否关闭(1:未开始,2:进行中,3:已结束)
 	ChildNumber     uint          `json:"child_number" form:"child_number" `                          // 当前报名人数

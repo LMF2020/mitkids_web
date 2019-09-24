@@ -110,9 +110,9 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId string) (classOccurList []model.OccurClassPoJo, err error) {
 	sql := `SELECT 
 			  coo.class_id,
-			  coo.teacher_id,
-			  coo.fore_teacher_id,
-  			  c.class_name,
+			  c.teacher_id,
+			  c.fore_teacher_id,
+			  c.class_name,
 			  c.book_level,
 			  at_1.account_name AS teacher_name,
 			  at_2.account_name AS fore_teacher_name,
@@ -120,20 +120,24 @@ func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId stri
 			  coo.book_code,
 			  bk.book_name,
 			  bk.book_link,
-			  coo.occurrence_status AS status,
-			  coo.schedule_time 
+			  coo.occurrence_status AS STATUS,
+			  coo.schedule_time,
+			  coo.occurrence_time,
+			  rm.geo_addr,
+			  rm.address
+			  
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 
 				ON coo.class_id = c.class_id 
 			  LEFT JOIN mk_room rm 
-				ON rm.room_id = coo.room_id 
+				ON rm.room_id = c.room_id 
 			  LEFT JOIN mk_book bk 
 				ON bk.book_code = coo.book_code 
 			  LEFT JOIN mk_account at_1 
-				ON at_1.account_id = coo.teacher_id 
+				ON at_1.account_id = c.teacher_id 
 			  LEFT JOIN mk_account at_2 
-				ON at_2.account_id = coo.fore_teacher_id 
+				ON at_2.account_id = c.fore_teacher_id 
 			WHERE c.class_id = ? 
 			  AND coo.occurrence_status = ?
 			ORDER BY coo.schedule_time DESC

@@ -2,6 +2,7 @@ package model
 
 import (
 	"mitkid_web/consts"
+	"mitkid_web/utils"
 	"time"
 )
 
@@ -36,8 +37,10 @@ type OccurClassPoJo struct {
 	BookCode        string    `json:"book_code" form:"book_code"`                 // 课本的代码
 	BookName        string    `json:"book_name" form:"book_name"`                 // 课本的名称
 	RoomName        string    `json:"room_name" form:"room_name"`                 // 上课教室
-	ScheduleTime    time.Time `json:"schedule_time" form:"schedule_time"`         // 计划上课时间
-	OccurrenceTime  time.Time `json:"occurrence_time" form:"occurrence_time"`                         // 实际上课时间                                   // 闭班时间
+	ScheduleTime    utils.RawTime `json:"schedule_time" form:"schedule_time"`         // 计划上课时间
+	OccurrenceTime  time.Time `json:"occurrence_time" form:"occurrence_time"`                         // 实际上课时间
+	GeoAddr   		string    `json:"geo_addr" form:"geo_addr"` // 地图认证的经纬度的地点名称
+	Address   		string    `json:"address" form:"address"`
 	BookLink        string    `json:"book_link" form:"book_link"`                 // 课本预习链接
 	Status          uint      `json:"status" form:"status" `                      // 完成状态; 1未上课 2已上课
 }

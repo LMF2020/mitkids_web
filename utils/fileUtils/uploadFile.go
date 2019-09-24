@@ -10,6 +10,7 @@ import (
 
 const uploadPath = "/apistatic/uploadfile/"
 const userPicPath = "userpic/"
+const localPath = "."
 
 func UpdateUserPic(accountId, fileName string, file multipart.File) (filePath string, err error) {
 	newName := getNewFileName(fileName)
@@ -25,7 +26,10 @@ func getNewFileName(fileName string) string {
 }
 
 func UploadFile(file multipart.File, fileName, tofileDirPath string) (filePath string, err error) {
-	os.MkdirAll(tofileDirPath, os.ModePerm)
+	err = os.MkdirAll(localPath+tofileDirPath, os.ModePerm)
+	if err != nil {
+		return
+	}
 	filePath = tofileDirPath + fileName
 	out, err := os.Create(filePath)
 	if err != nil {

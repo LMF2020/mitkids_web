@@ -219,13 +219,12 @@ func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.
 	return
 }
 
-const EndClassOccurrClassOccurrencesByDateTimeSql = `SELECT
-														* 
-													FROM
-														mk_class_occurrence co,
+const EndClassOccurrClassOccurrencesByDateTimeSql = `UPDATE mk_class_occurrence co,
 														mk_class c 
-													WHERE
-														co.class_id = c.class_id 
+														SET co.occurrence_status = 2 
+														WHERE
+															co.class_id = c.class_id 
+															and co.occurrence_status=1
 														AND co.occurrence_time < ? 
 														OR (
 														co.occurrence_time = ? 
@@ -234,5 +233,5 @@ const EndClassOccurrClassOccurrencesByDateTimeSql = `SELECT
 func (d *Dao) EndClassOccurrClassOccurrencesByDateTimeSql(datetime *time.Time) error {
 	date := datetime.Format("2006-01-02 00:00:00")
 	time := datetime.Format("15:04:05")
-	return d.DB.Raw(EndClassOccurrClassOccurrencesByDateTimeSql, date, date, time).Error
+	return d.DB.Exec(EndClassOccurrClassOccurrencesByDateTimeSql, date, date, time).Error
 }

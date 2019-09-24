@@ -13,10 +13,9 @@ var s *service.Service
 func Init(conf *conf.Config, service *service.Service) {
 	s = service
 	cron := cron.New()
-	cron.Start()
-	defer cron.Stop()
-
 	cron.AddFunc(conf.Job.EndClassOccurrClassOccurrencesCron, endClassOccurrClassOccurrencesJob)
+	cron.Start()
+	//defer cron.Stop()
 }
 
 func endClassOccurrClassOccurrencesJob() {

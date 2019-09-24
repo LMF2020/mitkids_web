@@ -24,6 +24,7 @@ type Config struct {
 	DB        *DB
 	Log       *Log
 	Memcached *CacheHost
+	Job       *Job
 }
 
 type DB struct {
@@ -39,4 +40,7 @@ type CacheHost struct {
 }
 type Log struct {
 	Level string
+}
+type Job struct {
+	EndClassOccurrClassOccurrencesCron string
 }

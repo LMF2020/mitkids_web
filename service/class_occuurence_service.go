@@ -184,3 +184,6 @@ func (s *Service) AddOccurrences(class *model.Class, bookCodes *[]string) (err e
 func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.Time, err error) {
 	return s.dao.GetClassOccurrencesByClassId(classId)
 }
+func (s *Service) EndClassOccurrClassOccurrencesByDateTimeSql(datetime *time.Time) error {
+	return s.dao.EndClassOccurrClassOccurrencesByDateTimeSql(datetime)
+}

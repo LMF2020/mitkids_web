@@ -9,3 +9,6 @@
     hosts=["workdoc_memcached_1:11211"]
 [log]
     level="debug"
+
+[job]
+    EndClassOccurrClassOccurrencesCron="0 */1 * * *"

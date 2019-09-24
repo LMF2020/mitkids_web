@@ -6,6 +6,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"mitkid_web/conf"
 	"mitkid_web/controllers"
+	"mitkid_web/job"
 	"mitkid_web/service"
 	"mitkid_web/utils/cache"
 	"mitkid_web/utils/log"
@@ -24,9 +25,11 @@ func main() {
 	log.Init(conf.Conf)
 	// 初始化memcachedClient
 	cache.NewCacheClient(conf.Conf)
-
+	s := service.New(conf.Conf)
+	//job 初始化
+	job.Init(conf.Conf, s)
 	// 路由绑定
-	r := controllers.SetUpRouters(conf.Conf, service.New(conf.Conf))
+	r := controllers.SetUpRouters(conf.Conf, s)
 
 	log.Logger.Info("web server started...")
 

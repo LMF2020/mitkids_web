@@ -82,7 +82,7 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 			  bk.book_name,
 			  bk.book_link,
 			  coo.occurrence_status AS status,
-			  coo.schedule_time 
+			  c.start_time  as schedule_time
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 

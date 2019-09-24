@@ -30,7 +30,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// set routers
 	r.Use(gin.Logger(), filter.RequestLogger(), filter.SetCorsHeader())
 	// 静态资源路径
-	r.Static("/static", "./static")
+	r.Static("/apistatic", "./apistatic")
 
 	/**
 	通用接口

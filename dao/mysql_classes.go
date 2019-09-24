@@ -160,11 +160,14 @@ func (d *Dao) CountJoinedClassOccurrence(classId string, status int) (count int,
 const ListClassByPageAndQuerySql = `SELECT
 	a.account_name AS teacher_name,
 	a2.account_name AS fore_teacher_name,
+	rm.geo_addr,
+	rm.address,
 	c.* 
 FROM
 	mk_class c
 	LEFT JOIN mk_account a ON c.teacher_id = a.account_id
 	LEFT JOIN mk_account a2 ON c.fore_teacher_id = a2.account_id 
+	LEFT JOIN mk_room rm ON c.room_id = rm.room_id
 WHERE
 	1 = 1`
 

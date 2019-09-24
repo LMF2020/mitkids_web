@@ -26,7 +26,9 @@ func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, oc
 			  bk.book_name,
 			  bk.book_link,
 			  coo.occurrence_status AS status,
-			  coo.occurrence_time
+			  coo.occurrence_time,
+				rm.geo_addr,
+				rm.address
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 
@@ -129,7 +131,7 @@ func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId stri
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 
-				ON coo.class_id = c.class_id 
+				ON coo.class_idgpl = c.class_id 
 			  LEFT JOIN mk_room rm 
 				ON rm.room_id = c.room_id 
 			  LEFT JOIN mk_book bk 

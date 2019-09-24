@@ -34,7 +34,7 @@ func FileuploadHandler(c *gin.Context) {
 		newFileName = newFileName + "." + fileExt
 		//创建文件
 		path := "/apistatic/uploadfile/" + typePath + "/"
-		os.MkdirAll(path, os.ModePerm)
+		os.MkdirAll("."+path, os.ModePerm)
 		out, err := os.Create(path + newFileName)
 		if err != nil {
 			log.Fatal(err)

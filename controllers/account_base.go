@@ -85,14 +85,14 @@ func AccountPicUpdateHandler(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if file != nil {
 		if err != nil {
-			c.String(http.StatusBadRequest, "头像更新失败")
+			api.Fail(c, http.StatusBadRequest, "头像更新失败")
 			return
 		}
 		//文件的名称
 		filename := header.Filename
 		avatarUrl, err := fileUtils.UpdateUserPic(accountId, filename, file)
 		if err != nil {
-			c.String(http.StatusBadRequest, "头像更新失败")
+			api.Fail(c, http.StatusBadRequest, "头像更新失败")
 			return
 		}
 		account := model.AccountInfo{AccountId: accountId,

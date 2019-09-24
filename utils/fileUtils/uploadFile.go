@@ -26,7 +26,7 @@ func getNewFileName(fileName string) string {
 }
 
 func UploadFile(file multipart.File, fileName, tofileDirPath string) (filePath string, err error) {
-	tofileDirPath += localPath
+	tofileDirPath = localPath + tofileDirPath
 	err = os.MkdirAll(tofileDirPath, os.ModePerm)
 	if err != nil {
 		return

@@ -90,7 +90,7 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 			  LEFT JOIN mk_class c 
 				ON coo.class_id = c.class_id 
 			  LEFT JOIN mk_room rm 
-				ON rm.room_id = coo.room_id 
+				ON rm.room_id = c.room_id 
 			  LEFT JOIN mk_book bk 
 				ON bk.book_code = coo.book_code 
 			  LEFT JOIN mk_account at_1 

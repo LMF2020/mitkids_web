@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const uploadPath = "static/uploadfile/"
+const uploadPath = "/apistatic/uploadfile/"
 const userPicPath = "userpic/"
 
 func UpdateUserPic(accountId, fileName string, file multipart.File) (filePath string, err error) {

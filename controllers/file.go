@@ -33,7 +33,7 @@ func FileuploadHandler(c *gin.Context) {
 		newFileName := uuid.NewV4().String()
 		newFileName = newFileName + "." + fileExt
 		//创建文件
-		path := "static/uploadfile/" + typePath + "/"
+		path := "/apistatic/uploadfile/" + typePath + "/"
 		os.MkdirAll(path, os.ModePerm)
 		out, err := os.Create(path + newFileName)
 		if err != nil {

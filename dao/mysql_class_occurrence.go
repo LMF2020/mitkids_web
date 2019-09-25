@@ -198,12 +198,12 @@ func (d *Dao) AddOccurrences(classId string, cOs *[]model.ClassOccurrence) (err 
 }
 
 func genAddOccurrenceSql(classId string, cOs *[]model.ClassOccurrence) (sql string) {
-	sql = "INSERT INTO `mk_class_occurrence`(`class_id`, `occurrence_time`, `book_code`, `schedule_time`, `occurrence_status`, `create_at`, `updated_at`) VALUES "
+	sql = "INSERT INTO `mk_class_occurrence`(`class_id`, `occurrence_time`, `book_code`, `occurrence_status`, `create_at`, `updated_at`) VALUES "
 	// 循环data数组,组合sql语句
-	insertValuesFmt := "('%s','%s','%s', '%s', %d, NOW(), NOW()),"
-	insertValuesFmt = fmt.Sprintf(insertValuesFmt, classId, "%s", "%s", "", consts.ClassOccurStatusNotStart)
+	insertValuesFmt := "('%s','%s','%s', %d, NOW(), NOW()),"
+	insertValuesFmt = fmt.Sprintf(insertValuesFmt, classId, "%s", "%s", consts.ClassOccurStatusNotStart)
 	for _, cO := range *cOs {
-		sql += fmt.Sprintf(insertValuesFmt, cO.OccurrenceTime, cO.BookCode)
+		sql += fmt.Sprintf(insertValuesFmt, cO.OccurrenceTime.Format("2006-01-02 00:00:00"), cO.BookCode)
 	}
 	sql = sql[0:len(sql)-1] + ";"
 	return

@@ -51,6 +51,14 @@ func (d *Dao) GetClassById(id string) (c *model.Class, err error) {
 	}
 	return
 }
+func (d *Dao) GetClassByName(name string) (c *model.Class, err error) {
+	c = &model.Class{}
+	if err := d.DB.Where("class_name = ?", name).First(c).Error; err == gorm.ErrRecordNotFound {
+		err = nil
+		c = nil
+	}
+	return
+}
 
 // 查询学生申请班级列表
 func (d *Dao) GetJoiningClassListByChild(studentId string) (joinClassList []model.JoinClassItem, err error) {

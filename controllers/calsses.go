@@ -98,6 +98,16 @@ func CreateClass(c *gin.Context) {
 			//formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
 			formClass.ChildNumber = uint(len(formClass.Childs))
 			formClass.Status = consts.ClassNoStart
+
+			exist, err := s.GetClassByName(formClass.ClassName)
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, "创建班级失败")
+				return
+			}
+			if exist != nil {
+				api.Fail(c, http.StatusBadRequest, "班级名已被使用,请更换班级名")
+				return
+			}
 			err = s.CreateClass(&formClass)
 			if err == nil {
 				if formClass.ChildNumber != 0 {

@@ -98,14 +98,17 @@ func CreateClass(c *gin.Context) {
 			//formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
 			formClass.ChildNumber = uint(len(formClass.Childs))
 			formClass.Status = consts.ClassNoStart
-			if err = s.CreateClass(&formClass); err == nil {
+			err = s.CreateClass(&formClass)
+			if err == nil {
 				if formClass.ChildNumber != 0 {
-					if err = s.AddChildsToClass(formClass.ClassId, formClass.Childs); err != nil {
+					err = s.AddChildsToClass(formClass.ClassId, formClass.Childs)
+					if err != nil {
 						api.Fail(c, http.StatusBadRequest, "学生添加失败")
 						return
 					}
 				}
-				if err = s.AddOccurrences(&formClass, &bookCodes); err == nil {
+				err = s.AddOccurrences(&formClass, &bookCodes)
+				if err == nil {
 					api.Success(c, "创建班级成功")
 					return
 				}

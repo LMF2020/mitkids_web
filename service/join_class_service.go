@@ -203,7 +203,7 @@ func (s *Service) RefuseJoiningClass(classId, childId string) (err error) {
 	if join.Status == consts.JoinClassFail {
 		return
 	}
-	err = s.UpdateJoinClassStatus(classId, childId, consts.JoinClassFail)
+	err = s.UpdateJoinClassStatus(childId, classId, consts.JoinClassFail)
 	if err != nil {
 		return
 	}

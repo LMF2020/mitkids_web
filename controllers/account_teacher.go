@@ -55,7 +55,6 @@ func TeacherAccountInfoHandler(c *gin.Context) {
 	}
 }
 
-
 // 教师个人资料更新
 func TeacherAccountInfoUpdateHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
@@ -85,7 +84,6 @@ func TeacherAccountInfoUpdateHandler(c *gin.Context) {
 
 }
 
-
 // 教师所在班级进度查询
 func TeacherClassInfoQueryByAccountIdHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
@@ -111,7 +109,6 @@ func TeacherScheduledClassesQueryHandler(c *gin.Context) {
 		api.Success(c, result)
 	}
 }
-
 
 // 查询教师上课日历
 func TeacherCalendarQueryHandler(c *gin.Context) {
@@ -283,10 +280,10 @@ func TeacherPageListChildByClassHandler(c *gin.Context) {
 				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return
 			}
-			if len(_ids) <= 2 {
-				api.Fail(c, http.StatusInternalServerError, "班级人数不能少于两人")
-				return
-			}
+			//if len(_ids) <= 2 {
+			//	api.Fail(c, http.StatusInternalServerError, "班级人数不能少于两人")
+			//	return
+			//}
 
 			// 组合条件分页查询班级学生总数
 			totalRecords, err := s.CountAccountByRole(query, strings.Join(_ids, ","), consts.AccountRoleChild)

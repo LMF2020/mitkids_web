@@ -15,6 +15,27 @@ import (
 	"net/http"
 )
 
+// 设置默认昵称
+func _setDefaultName(phone string, role uint) string {
+	if s.IsRoleChild(int(role)) {
+		return fmt.Sprintf("学员%s", phone)
+	}
+
+	if s.IsRoleChineseTeacher(int(role)) {
+		return fmt.Sprintf("中教%s", phone)
+	}
+
+	if s.IsRoleForeTeacher(int(role)) {
+		return fmt.Sprintf("外教%s", phone)
+	}
+
+	if s.IsRoleCorp(int(role)) {
+		return fmt.Sprintf("合作%s", phone)
+	}
+
+	return ""
+}
+
 func CreateAccount(c *gin.Context, role uint) {
 
 	var account model.AccountInfo
@@ -49,6 +70,9 @@ func CreateAccount(c *gin.Context, role uint) {
 			api.Fail(c, errorcode.VERIFY_CODE_ERR, "验证码错误")
 			return
 		}
+
+		// 设置默认姓名
+		account.AccountName = _setDefaultName(account.PhoneNumber, role)
 
 		// 创建账号信息
 		if err := s.CreateAccount(&account); err != nil {

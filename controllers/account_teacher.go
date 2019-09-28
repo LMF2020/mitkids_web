@@ -25,7 +25,7 @@ func RegisterTeacherAccountHandler(c *gin.Context) {
 	if irole, err := strconv.Atoi(role); err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
-	} else if irole != consts.AccountRoleTeacher || irole != consts.AccountRoleForeignTeacher {
+	} else if irole != consts.AccountRoleTeacher && irole != consts.AccountRoleForeignTeacher {
 		api.Fail(c, http.StatusBadRequest, "参数:教师类型错误")
 		return
 	} else {

@@ -203,10 +203,22 @@ func GetClassAllInfoById(c *gin.Context) {
 		return
 	}
 	class.Occurrences = *ocs
-	class.Childs, err = s.ListClassChildByClassId(classId)
+	childs, err := s.ListClassChildByClassId(classId)
+	//class.Childs, err = s.ListClassChildByClassId(classId)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
+	}
+	len := len(childs)
+	if len > 0 {
+		childIds := make([]string, len, len)
+		ChildNames := make([]string, len, len)
+		for i, child := range childs {
+			childIds[i] = child.AccountId
+			ChildNames[i] = child.AccountName
+		}
+		class.Childs = childIds
+		class.ChildNames = ChildNames
 	}
 	api.Success(c, class)
 	return

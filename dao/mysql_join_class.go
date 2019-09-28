@@ -46,8 +46,7 @@ func (d *Dao) AddChildsToClass(classId string, childIds []string, joinStatus int
 }
 
 // 根据ClassID获取学生列表
-func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []string, err error) {
-
+func (d *Dao) ListClassChildIdsByClassId(cid string) (ChildIds []string, err error) {
 	var rows *sql.Rows
 	if rows, err = d.DB.Table(consts.TABLE_JOIN_CLASS).Where("class_id = ?", cid).Select("student_id").Rows(); err != nil {
 		log.Logger.Error("查询班级学生列表失败：classId {%s} err:%s", cid, err)
@@ -62,7 +61,17 @@ func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []string, err error)
 		}
 		ChildIds = append(ChildIds, childId)
 	}
+	return
+}
 
+// 根据ClassID获取学生列表
+const ListClassChildByClassIdSql = "select a.* from mk_account a,mk_join_class c where a.account_id=c.student_id and c.class_id= ?"
+
+func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []model.AccountInfo, err error) {
+	if err = d.DB.Raw(ListClassChildByClassIdSql, cid).Scan(&ChildIds).Error; err != nil {
+		log.Logger.Error("查询班级学生列表失败：classId {%s} err:%s", cid, err)
+		return
+	}
 	return
 }
 

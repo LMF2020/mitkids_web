@@ -116,8 +116,13 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 	return nil
 }
 
+// 根据ClassID获取学生列表id
+func (s *Service) ListClassChildIdsByClassId(cid string) (ChildIds []string, err error) {
+	return s.dao.ListClassChildIdsByClassId(cid)
+}
+
 // 根据ClassID获取学生列表
-func (s *Service) ListClassChildByClassId(cid string) (ChildIds []string, err error) {
+func (s *Service) ListClassChildByClassId(cid string) (ChildIds []model.AccountInfo, err error) {
 	return s.dao.ListClassChildByClassId(cid)
 }
 

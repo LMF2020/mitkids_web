@@ -275,7 +275,7 @@ func TeacherPageListChildByClassHandler(c *gin.Context) {
 			classId := c.PostForm("class_id")
 
 			// 查询班级里的所有学生ID列表
-			_ids, err = s.ListClassChildByClassId(classId)
+			_ids, err = s.ListClassChildIdsByClassId(classId)
 			if err != nil {
 				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return

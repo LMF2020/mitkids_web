@@ -25,8 +25,23 @@ func (d *Dao) ListClasses(query model.Class) (classes []model.Class, err error) 
 // 根据上课地点和班级状态查询
 func (d *Dao) ListAvailableClassesByRoomId(roomId string) (classes []model.Class, err error) {
 
-	classes = []model.Class{}
-	if err = d.DB.Where("room_id = ? AND status <> ? ", roomId, consts.ClassEnd).Find(&classes).Error; err == gorm.ErrRecordNotFound {
+	sql :=
+		`SELECT 
+		  c.*,
+		  rm.address,
+		  rm.geo_addr,
+		  t1.account_name AS teacher_name, 
+		  t2.account_name AS fore_teacher_name
+		FROM
+		  mk_class c 
+		  LEFT JOIN mk_room rm 
+			ON c.room_id = rm.room_id 
+			LEFT JOIN mk_account t1 ON c.teacher_id = t1.account_id
+			LEFT JOIN mk_account t2 ON c.fore_teacher_id = t2.account_id
+		WHERE c.room_id = ? 
+		  AND c.status <> ? `
+
+	if err = d.DB.Raw(sql, roomId, consts.ClassEnd).Scan(&classes).Error; err == gorm.ErrRecordNotFound {
 		err = nil
 		classes = nil
 	}

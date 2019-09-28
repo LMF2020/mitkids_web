@@ -149,6 +149,16 @@ func (s *Service) IsRoleTeacher(role int) bool {
 	return role == consts.AccountRoleForeignTeacher || role == consts.AccountRoleTeacher || role == consts.AccountRoleCorpWithTeacher
 }
 
+// 是否外教
+func (s *Service) IsRoleForeTeacher (role int) bool {
+	return role == consts.AccountRoleForeignTeacher
+}
+
+// 是否中教
+func (s *Service) IsRoleChineseTeacher (role int) bool {
+	return role == consts.AccountRoleTeacher || role == consts.AccountRoleCorpWithTeacher
+}
+
 // 是否合作家庭
 func (s *Service) IsRoleCorp(role int) bool {
 	return role == consts.AccountRoleCorpWithTeacher || role == consts.AccountRoleCorp

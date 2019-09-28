@@ -27,6 +27,13 @@ type Class struct {
 	StartDate     time.Time     `json:"start_date" form:"start_date" time_format:"2006-01-02"` // 课程开始日期
 	CreatedAt     time.Time     `json:"create_at" form:"create_at"`                            // 创建时间
 	UpdatedAt     time.Time     `json:"update_at" form:"update_at"`                            // 更新时间
+
+	// 从roomid关联过来的json字段
+	GeoAddr   string    `json:"geo_addr" form:"geo_addr" gorm:"-"` 								// 地图认证的经纬度的地点名称
+	Address   string    `json:"address" form:"address" gorm:"-"`                        		// 教师的具体地点(地图标记地址的补充)
+	TeacherName string	`json:"teacher_name" form:"teacher_name" gorm:"-"`     					// 中教姓名
+	ForeTeacherName string	`json:"fore_teacher_name" form:"fore_teacher_name" gorm:"-"`     	// 外教姓名
+
 }
 
 // 定义表名

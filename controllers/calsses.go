@@ -295,3 +295,23 @@ func UpdateClassTeacher(c *gin.Context) {
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }
+
+func GetClassChildsByClassId(c *gin.Context) {
+	classId := c.PostForm("class_id")
+	class, err := s.GetClassById(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if class == nil {
+		api.Fail(c, http.StatusBadRequest, "教室不存在")
+		return
+	}
+	childs, err := s.ListClassChildByClassId(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	api.Success(c, childs)
+	return
+}

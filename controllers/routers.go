@@ -148,6 +148,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/class/update", UpdateClass)
 	adminGroup.POST("/class/teacher/update", UpdateClassTeacher)
 	adminGroup.POST("/class/child/status/update", UpdateClassChildStatus)
+	adminGroup.POST("/class/child/list", GetClassChildsByClassId)
 	adminGroup.POST("/room/create", CreateRoom)
 	adminGroup.POST("/room/get", GetRoomById)
 	adminGroup.POST("/room/delete", DeleteRoomById)

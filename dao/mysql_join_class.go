@@ -65,7 +65,7 @@ func (d *Dao) ListClassChildIdsByClassId(cid string) (ChildIds []string, err err
 }
 
 // 根据ClassID获取学生列表
-const ListClassChildByClassIdSql = "select a.* from mk_account a,mk_join_class c where a.account_id=c.student_id and c.class_id= ?"
+const ListClassChildByClassIdSql = "select a.* from mk_account a,mk_join_class c where a.account_id=c.student_id and c.`status`=2  and c.class_id= ?"
 
 func (d *Dao) ListClassChildByClassId(cid string) (ChildIds []model.AccountInfo, err error) {
 	if err = d.DB.Raw(ListClassChildByClassIdSql, cid).Scan(&ChildIds).Error; err != nil {

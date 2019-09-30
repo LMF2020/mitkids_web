@@ -48,7 +48,7 @@ func CreateRoom(c *gin.Context) {
 
 //获取教室
 func GetRoomById(c *gin.Context) {
-	idStr := c.PostForm("id")
+	idStr := c.PostForm("room_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		api.Failf(c, http.StatusBadRequest, "参数错误 id:%s", idStr)
@@ -69,7 +69,7 @@ func GetRoomById(c *gin.Context) {
 
 //获取教室
 func DeleteRoomById(c *gin.Context) {
-	idStr := c.PostForm("id")
+	idStr := c.PostForm("room_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		api.Failf(c, http.StatusBadRequest, "参数错误 id:%s", idStr)
@@ -91,7 +91,7 @@ func DeleteRoomById(c *gin.Context) {
 
 //获取教室
 func UpdateRoomById(c *gin.Context) {
-	idStr := c.PostForm("id")
+	idStr := c.PostForm("room_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		api.Failf(c, http.StatusBadRequest, "参数错误 id:%s", idStr)

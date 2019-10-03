@@ -259,3 +259,7 @@ func (d *Dao) GetClassesByChildIds(ids *[]string) (classes *[]model.ChildClass, 
 	err = d.DB.Raw(sql).Scan(classes).Error
 	return
 }
+
+func (d *Dao) DeleteClassById(id string) error {
+	return d.DB.Where("class_id = ?", id).Delete(&model.Class{}).Error
+}

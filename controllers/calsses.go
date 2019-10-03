@@ -198,12 +198,15 @@ func GetClassAllInfoById(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	ocs, err := s.GetClassOccurrencesByClassId(classId)
+	if class == nil {
+		api.Fail(c, http.StatusBadRequest, "教室不存在")
+		return
+	}
+	class.Occurrences, err = s.GetClassOccurrencesByClassId(classId)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	class.Occurrences = *ocs
 	childs, err := s.ListClassChildByClassId(classId)
 	//class.Childs, err = s.ListClassChildByClassId(classId)
 	if err != nil {
@@ -388,6 +391,30 @@ func InterfaceArrtoStringArr(params []interface{}) []string {
 		strArray[i] = arg.(string)
 	}
 	return strArray
+}
+
+func DeleteClass(c *gin.Context) {
+	classId := c.PostForm("class_id")
+
+	var err error
+	formClass, err := s.GetClassById(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if formClass == nil {
+		api.Fail(c, http.StatusBadRequest, "班级不存在")
+		return
+	}
+	err = s.DeleteClassById(classId)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, "删除班级失败")
+		return
+	}
+	s.DeleteAllClassOccurrencesByClassId(classId)
+	s.DeleteJoiningClassesByClassId(classId)
+	api.Success(c, "更新成功")
+	return
 }
 
 func UpdateClassTeacher(c *gin.Context) {

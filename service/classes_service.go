@@ -38,17 +38,17 @@ func (s *Service) GetJoinedClassByStudent(studentId string) (result map[string]i
 		if total, err = s.dao.CountJoinedClassOccurrence(joinedClass.ClassId, -1); err != nil {
 			return nil, err
 		}
-		var occurrences *[]time.Time
+		var occurrences []time.Time
 		if occurrences, err = s.GetClassOccurrencesByClassId(joinedClass.ClassId); err != nil {
 			return nil, err
 		}
-		if len(*occurrences) < consts.BOOK_UNIT_CLASS_COUNT {
+		if len(occurrences) < consts.BOOK_UNIT_CLASS_COUNT {
 			return nil, errors.New("课程数据错误小于最少课程数")
 		}
 
 		result = make(map[string]interface{})
-		result["start_time"] = (*occurrences)[0]
-		result["end_time"] = (*occurrences)[len(*occurrences)-1]
+		result["start_time"] = occurrences[0]
+		result["end_time"] = occurrences[len(occurrences)-1]
 		result["level"] = joinedClass.BookLevel
 		result["class_id"] = joinedClass.ClassId
 		result["class_name"] = joinedClass.ClassName
@@ -89,11 +89,11 @@ func (s *Service) GetJoinedClassInfoByTeacher(role int, teacherId string) (resul
 			if total, err = s.dao.CountJoinedClassOccurrence(class.ClassId, -1); err != nil {
 				return nil, err
 			}
-			var occurrences *[]time.Time
+			var occurrences []time.Time
 			if occurrences, err = s.GetClassOccurrencesByClassId(class.ClassId); err != nil {
 				return nil, err
 			}
-			if len(*occurrences) < consts.BOOK_UNIT_CLASS_COUNT {
+			if len(occurrences) < consts.BOOK_UNIT_CLASS_COUNT {
 				return nil, errors.New("课程数据错误小于最少课程数")
 			}
 
@@ -102,8 +102,8 @@ func (s *Service) GetJoinedClassInfoByTeacher(role int, teacherId string) (resul
 			r["teacher_id"] = class.TeacherId
 			r["fore_teacher_id"] = class.ForeTeacherId
 			r["class_name"] = class.ClassName
-			r["start_time"] = (*occurrences)[0]
-			r["end_time"] = (*occurrences)[len(*occurrences)-1]
+			r["start_time"] = occurrences[0]
+			r["end_time"] = occurrences[len(occurrences)-1]
 			r["level"] = class.BookLevel
 			r["total"] = total
 			r["finished"] = finished
@@ -148,4 +148,7 @@ func (s *Service) CountClassByPageAndQuery(query string, classStatus int) (count
 }
 func (s *Service) UpdateClass(class *model.Class) (err error) {
 	return s.dao.UpdateClass(class)
+}
+func (s *Service) DeleteClassById(id string) error {
+	return s.dao.DeleteClassById(id)
 }

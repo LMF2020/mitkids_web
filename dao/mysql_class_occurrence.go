@@ -213,7 +213,7 @@ func genAddOccurrenceSql(classId string, cOs *[]model.ClassOccurrence) (sql stri
 
 const GetClassOccurrencesByClassId_sql = "select occurrence_time from mk_class_occurrence where class_id=?"
 
-func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.Time, err error) {
+func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences []time.Time, err error) {
 	//rows, err :=d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?",classId).Select("occurrence_time").Rows()
 	//defer rows.Close()
 	//for rows.Next() {
@@ -224,9 +224,8 @@ func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.
 	//	}
 	//	occurrences = append(occurrences, o)
 	//}
-	occurrences = new([]time.Time)
 	//d.DB.Raw(GetClassOccurrencesByClassId_sql, classId).Scan(occurrences)
-	err = d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?", classId).Pluck("occurrence_time", occurrences).Error
+	err = d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?", classId).Pluck("occurrence_time", &occurrences).Error
 	return
 }
 

@@ -413,7 +413,7 @@ func DeleteClass(c *gin.Context) {
 	}
 	s.DeleteAllClassOccurrencesByClassId(classId)
 	s.DeleteJoiningClassesByClassId(classId)
-	api.Success(c, "更新成功")
+	api.Success(c, "删除班级成功")
 	return
 }
 

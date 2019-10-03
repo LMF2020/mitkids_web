@@ -227,7 +227,7 @@ func (d *Dao) CountClassByPageAndQuery(query string, classStatus int) (count int
 }
 func (d *Dao) UpdateClass(class *model.Class) (err error) {
 	class.UpdatedAt = time.Now()
-	return d.DB.Model(class).Updates(class).Error
+	return d.DB.Model(class).Updates(class).Where("class_id = ?", class.ClassId).Error
 }
 
 const updateChildNumSql = "update mk_class set child_number = child_number+? where class_id =?"

@@ -246,3 +246,10 @@ func (d *Dao) EndClassOccurrClassOccurrencesByDateTimeSql(datetime *time.Time) e
 	time := datetime.Format("15:04:05")
 	return d.DB.Exec(EndClassOccurrClassOccurrencesByDateTimeSql, date, date, time).Error
 }
+func (d *Dao) GetAllClassOccurrencesByClassId(classId string) (cOs []model.ClassOccurrence, err error) {
+	err = d.DB.Model(&model.ClassOccurrence{}).Where("class_id = ?", classId).Find(&cOs).Error
+	return
+}
+func (d *Dao) DeleteAllClassOccurrencesByClassId(classId string) error {
+	return d.DB.Where("class_id = ?", classId).Delete(&model.ClassOccurrence{}).Error
+}

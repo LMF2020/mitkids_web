@@ -187,3 +187,10 @@ func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences *[]t
 func (s *Service) EndClassOccurrClassOccurrencesByDateTimeSql(datetime *time.Time) error {
 	return s.dao.EndClassOccurrClassOccurrencesByDateTimeSql(datetime)
 }
+func (s *Service) GetAllClassOccurrencesByClassId(classId string) (cOs []model.ClassOccurrence, err error) {
+	return s.dao.GetAllClassOccurrencesByClassId(classId)
+}
+
+func (s *Service) DeleteAllClassOccurrencesByClassId(classId string) error {
+	return s.dao.DeleteAllClassOccurrencesByClassId(classId)
+}

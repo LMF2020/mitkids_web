@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/fatih/set"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
 	"mitkid_web/controllers/api"
@@ -224,25 +225,169 @@ func GetClassAllInfoById(c *gin.Context) {
 	return
 }
 
+//func UpdateClass(c *gin.Context) {
+//	classId := c.PostForm("class_id")
+//
+//	var err error
+//	class, err := s.GetClassById(classId)
+//	if err != nil {
+//		api.Fail(c, http.StatusBadRequest, err.Error())
+//		return
+//	}
+//	if err = c.ShouldBind(&class); err == nil {
+//		if err = utils.ValidateParam(class); err == nil {
+//			if err = s.UpdateClass(class); err == nil {
+//				api.Success(c, "更新成功")
+//				return
+//			}
+//		}
+//	}
+//	api.Fail(c, http.StatusBadRequest, err.Error())
+//	return
+//}
+
 func UpdateClass(c *gin.Context) {
 	classId := c.PostForm("class_id")
 
 	var err error
-	class, err := s.GetClassById(classId)
+	formClass, err := s.GetClassById(classId)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	if err = c.ShouldBind(&class); err == nil {
-		if err = utils.ValidateParam(class); err == nil {
-			if err = s.UpdateClass(class); err == nil {
-				api.Success(c, "更新成功")
+	if err = c.ShouldBind(&formClass); err == nil {
+		if err = utils.ValidateParam(formClass); err == nil {
+			endTime, err := formClass.EndTime.Time()
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, "结束时间格式错误")
+				return
+			}
+			startTime, err := formClass.StartTime.Time()
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, "起始时间格式错误")
+				return
+			}
+			if endTime.Before(startTime) {
+				api.Fail(c, http.StatusBadRequest, "课程结束时间不能小于开始时间")
+				return
+			}
+			level, fu, tu := formClass.BookLevel, formClass.BookFromUnit, formClass.BookToUnit
+			if _, ok := consts.BOOK_LEVEL_SET[level]; !ok {
+				api.Fail(c, http.StatusBadRequest, "无效的课程")
+				return
+			}
+			if fu > tu {
+				api.Fail(c, http.StatusBadRequest, "课程开始单元不能大于结束单元")
+				return
+			}
+			if fu < consts.BOOK_MIN_UNIT || fu > consts.BOOK_MAX_UNIT {
+				api.Fail(c, http.StatusBadRequest, "课程开始单元无效")
+				return
+			}
+			if tu < consts.BOOK_MIN_UNIT || tu > consts.BOOK_MAX_UNIT {
+				api.Fail(c, http.StatusBadRequest, "课程结束单元无效")
+				return
+			}
+			bookCodeLen := (tu - fu + 1) * consts.BOOK_UNIT_CLASS_COUNT
+			if int(bookCodeLen) != len(formClass.Occurrences) {
+				api.Fail(c, http.StatusBadRequest, "课程日期数量不对")
+				return
+			}
+			bookFmt := "lv" + strconv.Itoa(int(level)) + "_%d_%d"
+			bookCodes := make([]string, bookCodeLen)
+			bookCodeNo := 1
+			for i, _ := range bookCodes {
+				bookCodes[i] = fmt.Sprintf(bookFmt, fu, bookCodeNo)
+				bookCodeNo++
+				if bookCodeNo > consts.BOOK_UNIT_CLASS_COUNT {
+					bookCodeNo = 1
+					fu++
+				}
+			}
+			//lName := consts.BOOK_LEVEL_SET[formClass.BookLevel]
+			//formClass.BookPlan = fmt.Sprintf(consts.BOOK_PLAN_FMT, lName, formClass.BookFromUnit, formClass.BookToUnit)
+			formClass.ChildNumber = uint(len(formClass.Childs))
+			formClass.Status = consts.ClassNoStart
+
+			exist, err := s.GetClassByName(formClass.ClassName)
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, "更新班级失败")
+				return
+			}
+			if exist != nil && exist.ClassId != formClass.ClassId {
+				api.Fail(c, http.StatusBadRequest, "班级名已被使用,请更换班级名")
+				return
+			}
+			err = s.UpdateClass(formClass)
+			if err == nil {
+				//if formClass.ChildNumber != 0 {
+				childIds, err := s.ListClassChildIdsByClassId(formClass.ClassId)
+				if err != nil {
+					api.Fail(c, http.StatusBadRequest, "学生添加失败")
+					return
+				}
+				if len(childIds) == 0 {
+					if formClass.Childs != nil && len(formClass.Childs) != 0 {
+						if err := s.AddChildsToClass(formClass.ClassId, formClass.Childs); err != nil {
+							api.Fail(c, http.StatusBadRequest, "学生添加失败")
+							return
+						}
+					}
+				} else {
+					childIdSet := set.New(set.NonThreadSafe)
+					for _, id := range childIds {
+						childIdSet.Add(id)
+					}
+					formChildIdSet := set.New(set.NonThreadSafe)
+					for _, id := range formClass.Childs {
+						formChildIdSet.Add(id)
+					}
+					addList := set.Difference(formChildIdSet, childIdSet).List()
+					if len(addList) > 0 {
+						s.AddChildsToClass(formClass.ClassId, InterfaceArrtoStringArr(addList))
+					}
+					deleteList := set.Difference(childIdSet, formChildIdSet).List()
+					if len(deleteList) > 0 {
+						s.DeleteJoiningClasses(formClass.ClassId, InterfaceArrtoStringArr(deleteList))
+					}
+					//}
+				}
+				cos, err := s.GetAllClassOccurrencesByClassId(formClass.ClassId)
+				if err != nil {
+					api.Fail(c, http.StatusBadRequest, "更新班级失败")
+					return
+				}
+				isChange := false
+				if len(cos) != len(formClass.Occurrences) {
+					isChange = true
+				}
+				if !isChange {
+					for i, item := range cos {
+						if !item.OccurrenceTime.Equal(formClass.Occurrences[i]) || bookCodes[i] != item.BookCode {
+							isChange = true
+						}
+					}
+				}
+				if isChange {
+					s.DeleteAllClassOccurrencesByClassId(classId)
+					s.AddOccurrences(formClass, &bookCodes)
+				}
+
+				api.Success(c, "更新班级成功")
 				return
 			}
 		}
 	}
+	log.Logger.Error(err.Error())
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
+}
+func InterfaceArrtoStringArr(params []interface{}) []string {
+	strArray := make([]string, len(params))
+	for i, arg := range params {
+		strArray[i] = arg.(string)
+	}
+	return strArray
 }
 
 func UpdateClassTeacher(c *gin.Context) {

@@ -1,6 +1,6 @@
 #!/bin/bash
 cd /opt/nginxdocker/mulkids-cms-pro
-var yarnbash = "yarn run build"
+yarnbash="yarn run build"
 if [ $1 == "all" ]; then
   yarnbash="yarn &&yarn run build"
 fi

@@ -280,6 +280,12 @@ func TeacherPageListChildByClassHandler(c *gin.Context) {
 				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return
 			}
+
+			if len(_ids) == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+
 			//if len(_ids) <= 2 {
 			//	api.Fail(c, http.StatusInternalServerError, "班级人数不能少于两人")
 			//	return

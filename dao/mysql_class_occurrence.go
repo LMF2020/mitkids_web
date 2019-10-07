@@ -70,6 +70,7 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 		return
 	}
 	sqlStart := `SELECT 
+              coo.occurrence_time,
 			  coo.class_id,
 			  c.teacher_id,
 			  c.fore_teacher_id,

@@ -11,7 +11,7 @@ import (
 )
 
 // 查询学生课表
-func (s *Service) ListClassOccurrenceByChild(studentId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (s *Service) ListClassOccurrenceByChild(studentId string) (classRecordList []model.ClassRecordItem, err error) {
 	var joinedClass model.Class
 	// 1.查询班级信息
 	if joinedClass, err = s.dao.GetJoinedClassByChild(studentId); gorm.IsRecordNotFoundError(err) {
@@ -21,10 +21,10 @@ func (s *Service) ListClassOccurrenceByChild(studentId string) (classOccurList [
 	} else {
 		// 学生已经加入了班级
 		// 2.查询近5节课的课程表
-		classOccurList, err = s.dao.ListScheduledOccurringClass(joinedClass.ClassId, "ASC", consts.ClassOccurStatusNotStart, 5)
+		classRecordList, err = s.dao.ListScheduledOccurringClass(joinedClass.ClassId, "ASC", consts.ClassOccurStatusNotStart, 5)
 		if err != nil {
 			log.Logger.WithField("student_id", studentId).Error("list class occurrence failed")
-			classOccurList = nil
+			classRecordList = nil
 		}
 
 		return
@@ -108,19 +108,19 @@ func (s *Service) CountClassOccursHisByRole(role int, accountId string) (count i
 }
 
 // 分页查询结束课程 by ClassIdArray
-func (s *Service) PageFinishedOccurrenceByClassIdArray(pageNumber, pageSize int, classIdArr []string) (classOccurList []model.OccurClassPoJo, err error) {
+func (s *Service) PageFinishedOccurrenceByClassIdArray(pageNumber, pageSize int, classIdArr []string) (classRecordList []model.ClassRecordItem, err error) {
 	offset := (pageNumber - 1) * pageSize
 	return s.dao.PageFinishedOccurrenceByClassIdArray(offset, pageSize, classIdArr)
 }
 
 // 分页查询结束课程 by ClassId
-func (s *Service) PageFinishedOccurrenceByClassId(pageNumber, pageSize int, classId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (s *Service) PageFinishedOccurrenceByClassId(pageNumber, pageSize int, classId string) (classRecordList []model.ClassRecordItem, err error) {
 	offset := (pageNumber - 1) * pageSize
 	return s.dao.PageFinishedOccurrenceByClassId(offset, pageSize, classId)
 }
 
 // 查询学生课表日历
-func (s *Service) ListCalendarByChild(studentId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (s *Service) ListCalendarByChild(studentId string) (classRecordList []model.ClassRecordItem, err error) {
 	var joinedClass model.Class
 	if joinedClass, err = s.dao.GetJoinedClassByChild(studentId); gorm.IsRecordNotFoundError(err) {
 		// 学生没有加入任何班级
@@ -130,17 +130,17 @@ func (s *Service) ListCalendarByChild(studentId string) (classOccurList []model.
 		// 查询报错
 		return nil, err
 	} else {
-		classOccurList, err = s.dao.ListOccurrenceCalendar(joinedClass.ClassId)
+		classRecordList, err = s.dao.ListOccurrenceCalendar(joinedClass.ClassId)
 		if err != nil {
 			log.Logger.WithField("student_id", studentId).Error("get calendar failed")
-			classOccurList = nil
+			classRecordList = nil
 		}
 		return
 	}
 }
 
 // 查询教师课表日历
-func (s *Service) ListCalendarByTeacher(role int, teacherId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (s *Service) ListCalendarByTeacher(role int, teacherId string) (classRecordList []model.ClassRecordItem, err error) {
 	var joinedClass []model.Class
 	if joinedClass, err = s.dao.GetJoinedClassByTeacher(role, teacherId); gorm.IsRecordNotFoundError(err) {
 		// 教师没有被分配班级
@@ -150,11 +150,11 @@ func (s *Service) ListCalendarByTeacher(role int, teacherId string) (classOccurL
 		// 查询报错
 		return nil, err
 	} else {
-		//var list []model.OccurClassPoJo
+		//var list []model.ClassRecordItem
 		for _, cls := range joinedClass {
 			tmpClasses, err := s.dao.ListOccurrenceCalendar(cls.ClassId)
 			if err == nil {
-				classOccurList = append(classOccurList, tmpClasses...)
+				classRecordList = append(classRecordList, tmpClasses...)
 			} else {
 				log.Logger.WithField("teacher_id", teacherId).WithField("class_id", cls.ClassId).Error("get teacher calendar error")
 			}

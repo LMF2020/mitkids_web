@@ -6,27 +6,30 @@ import (
 	"time"
 )
 
-// 针对于每一节课
-// 学生每节课的课堂表: 每次上完课，教师端更新上课状态，并给学生评，该表也可以统计学生是否缺席的情况
-type Lessons struct {
-	BookCode  string    `json:"book_code" form:"book_code" gorm:"primary_key"`   // 单节课的代码
-	StudentId string    `json:"student_id" form:"student_id" gorm:"primary_key"` // 8位学生编号
-	TeacherId string    `json:"teacher_id" form:"teacher_id"`                    // 6位中教编号
+// 学生课堂评分
+type ClassPerformance struct {
+	AccountId string    `json:"account_id" form:"account_id" gorm:"primary_key"` // 8位学生编号
 	ClassId   string    `json:"class_id" form:"class_id" gorm:"primary_key"`     // 6位班级编号
-	Status    uint      `json:"status" form:"status" `                           // 完成状态; 1未上课 2已上课
-	Score     uint      `json:"score" form:"score" `                             // 学生给老师打分;由低到高:1-5分
+	ClassDate string `json:"class_date" form:"class_date" gorm:"primary_key"` 	 // 上课日期
+	TeacherId string    `json:"teacher_id" form:"teacher_id"`                    // 6位中教编号
+	Status    int       `json:"status" form:"status" `                           // 完成状态; 1未上课 2已上课
 	Comment   string    `json:"comment" form:"comment"`                          // 老师给学生评语
+	Option1   string    `json:"option1" form:"option1"`                          // 评分大项1：小项星星的数量以逗号分隔 (2,3,2,2,5)
+	Option2   string    `json:"option2" form:"option2"`                          // 评分大项2
+	Option3   string    `json:"option3" form:"option3"`                          // 评分大项3
+	Option4   string    `json:"option4" form:"option4"`                          // 评分大项4
+	Option5   string    `json:"option5" form:"option5"`                          // 评分大项5
 	CreatedAt time.Time `json:"create_at" form:"create_at"`                      // 创建时间
 	UpdatedAt time.Time `json:"update_at" form:"update_at"`                      // 更新时间
 }
 
 // 定义表名
-func (class *Lessons) TableName() string {
-	return consts.TABLE_LESSONS
+func (class *ClassPerformance) TableName() string {
+	return consts.TABLE_CLASS_PERFORMANCE
 }
 
-// 学生课程表 POJO 类
-type OccurClassPoJo struct {
+// 课表记录
+type ClassRecordItem struct {
 	ClassId         string        `json:"class_id" form:"class_id" `                  // 6位班级编号
 	ClassName       string        `json:"class_name" form:"class_name"`               // 所在班级名称
 	TeacherId       string        `json:"teacher_id" form:"teacher_id"`               // 中教编号

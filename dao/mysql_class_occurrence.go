@@ -11,7 +11,7 @@ import (
 )
 
 // 查询学生最近要上的(N)节课
-func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, occurStatus, n int) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, occurStatus, n int) (classRecordList []model.ClassRecordItem, err error) {
 
 	sql := `SELECT 
 			  coo.class_id,
@@ -48,7 +48,7 @@ func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, oc
 			`
 	sql = fmt.Sprintf(sql, scheduledTimeOrder)
 
-	err = d.DB.Raw(sql, classId, occurStatus, n).Scan(&classOccurList).Error
+	err = d.DB.Raw(sql, classId, occurStatus, n).Scan(&classRecordList).Error
 	return
 }
 
@@ -64,9 +64,9 @@ func (d *Dao) CountClassOccursList(classIdArr []string, occurStatus int) (count 
 }
 
 // 分页查询上课历史
-func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classIdArr []string) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classIdArr []string) (classRecordList []model.ClassRecordItem, err error) {
 	if classIdArr == nil || len(classIdArr) == 0 {
-		classOccurList, err = nil, nil
+		classRecordList, err = nil, nil
 		return
 	}
 	sqlStart := `SELECT 
@@ -107,12 +107,12 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 				LIMIT ? OFFSET ?
 				`
 	sql := fmt.Sprintf("%s%s%s", sqlStart, strings.Join(classIdArr, ","), sqlEnd)
-	err = d.DB.Raw(sql, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classOccurList).Error
+	err = d.DB.Raw(sql, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classRecordList).Error
 	return
 }
 
 // 分页查询上课历史
-func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId string) (classRecordList []model.ClassRecordItem, err error) {
 	sql := `SELECT 
 			  coo.class_id,
 			  c.teacher_id,
@@ -148,12 +148,12 @@ func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId stri
 			ORDER BY coo.schedule_time DESC
 			LIMIT ? OFFSET ?
 			`
-	err = d.DB.Raw(sql, classId, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classOccurList).Error
+	err = d.DB.Raw(sql, classId, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classRecordList).Error
 	return
 }
 
 // 班级课程日历：包含课程是否结束的状态
-func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.ClassRecordItem, err error) {
 	sql := `SELECT 
 			  coo.class_id,
 			  c.teacher_id,

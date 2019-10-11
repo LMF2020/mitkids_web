@@ -110,6 +110,27 @@ func TeacherScheduledClassesQueryHandler(c *gin.Context) {
 	}
 }
 
+// 根据班级ID查询课表
+func TeacherQueryCalendarByClassHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherRole := claims["AccountRole"].(float64)
+
+	if !s.IsRoleTeacher(int(teacherRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查询权限")
+		return
+	}
+	classId := c.PostForm("class_id")
+
+	// 查询指定班级所有的历史课表
+	if result, err := s.PageFinishedOccurrenceByClassIdArray(1, 100, []string {classId}); err == nil {
+		api.Success(c, result)
+		return
+	} else {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+	}
+
+}
+
 // 查询教师上课日历
 func TeacherCalendarQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
@@ -349,5 +370,73 @@ func TeacherViewChildInfoHandler(c *gin.Context) {
 		profile, _ := s.GetProfileByRole(account, consts.AccountRoleChild)
 		api.Success(c, profile)
 	}
+
+}
+
+// 根据 班级ID，上课日期，学生ID 获取学生的评分记录
+func TeacherQueryChildPerformanceHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	role := claims["AccountRole"].(float64)
+	if !s.IsRoleTeacher(int(role)) {
+		api.Fail(c, http.StatusUnauthorized, "没有教师查询权限")
+		return
+	}
+
+	classId := c.PostForm("class_id")
+	studentId := c.PostForm("account_id")
+	classDate := c.PostForm("class_date")
+
+	query := model.ClassPerformance{
+		ClassId:   classId,
+		AccountId: studentId,
+		ClassDate: classDate,
+	}
+
+	if result, err := s.GetPerformance(query); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		api.Success(c, result)
+	}
+
+}
+
+// 新增，或者更新学生评分
+func TeacherUpdateChildPerformanceHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	role := claims["AccountRole"].(float64)
+	if !s.IsRoleTeacher(int(role)) {
+		api.Fail(c, http.StatusUnauthorized, "没有教师操作权限")
+		return
+	}
+	var classPerform model.ClassPerformance
+	var err error
+	if err = c.ShouldBind(&classPerform); err == nil {
+		if err = utils.ValidateParam(classPerform); err == nil {
+			query := model.ClassPerformance{
+				ClassId:   classPerform.ClassId,
+				AccountId: classPerform.AccountId,
+				ClassDate: classPerform.ClassDate,
+			}
+			if exist, err := s.GetPerformance(query); err != nil {
+				api.Fail(c, http.StatusInternalServerError, err.Error())
+				return
+			} else if exist == nil { // 不存在记录，需要新增
+				if err = s.CreatePerformance(&classPerform); err != nil {
+					api.Fail(c, http.StatusInternalServerError, err.Error())
+				}
+				return
+			} else { // 存在记录，需要更新
+				if err = s.UpdatePerformance(&classPerform); err != nil {
+					api.Fail(c, http.StatusInternalServerError, err.Error())
+				}
+				return
+			}
+		}
+	}
+
+	log.Logger.Error(err.Error())
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
 
 }

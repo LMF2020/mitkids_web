@@ -156,6 +156,7 @@ func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId stri
 func (d *Dao) ListCalendarDeatilByTeacher(teacherId, classDate string) (classOccurList []model.ClassRecordItem, err error) {
 	sql := `SELECT 
 			  coo.class_id,
+              coo.occurrence_status as status,
 			  c.teacher_id,
 			  c.fore_teacher_id,
 			  c.book_level,
@@ -171,7 +172,7 @@ func (d *Dao) ListCalendarDeatilByTeacher(teacherId, classDate string) (classOcc
 			  DATE_FORMAT(coo.occurrence_time, '%Y-%m-%d') AS occurrence_time,
 			  c.room_id,
 			  rm.geo_addr,
-			  rm.address 
+			  rm.address
 			FROM
 			  mk_class_occurrence coo 
 			  LEFT JOIN mk_class c 

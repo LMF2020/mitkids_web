@@ -134,6 +134,22 @@ func RoomsBoundsQueryHandler(c *gin.Context) {
 
 // 根据教室查询所有班级
 func ClassesQueryByRoomIdHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	studentId := claims["AccountId"].(string)
+
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleChild(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
+
+	class, err := s.GetJoinedClassByStudent(studentId)
+	var joinedClassId = ""
+	if err != nil {
+		log.Logger.Debug("查询学生加入的班级时出错")
+	}else {
+		joinedClassId = class["class_id"].(string)
+	}
 
 	roomId := c.Param("roomId")
 
@@ -141,13 +157,18 @@ func ClassesQueryByRoomIdHandler(c *gin.Context) {
 		api.Fail(c, http.StatusInternalServerError, "请求内部错误")
 		return
 	} else if classes == nil {
-		api.Success(c, make(map[string]model.Class)) // 没有数据
+		api.Success(c, make(map[string]model.ClassItemForJoin)) // 没有数据
 		return
 	} else {
-		// 报文解析
-		retJson := make(map[string][]model.Class)
-		var LV1, LV2, LV3 []model.Class
+		// 当前教室的所有班级
+		retJson := make(map[string][]model.ClassItemForJoin)
+		var LV1, LV2, LV3 []model.ClassItemForJoin
 		for _, item := range classes {
+
+			if item.ClassId == joinedClassId {   // 判断学生是否加
+				item.HasJoined = true
+			}
+
 			switch item.BookLevel {
 			case consts.BookLevel1:
 				LV1 = append(LV1, item)

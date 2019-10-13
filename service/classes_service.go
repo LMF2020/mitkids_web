@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (s *Service) ListAvailableClassesByRoomId(roomId string) (classes []model.Class, err error) {
+func (s *Service) ListAvailableClassesByRoomId(roomId string) (classes []model.ClassItemForJoin, err error) {
 	return s.dao.ListAvailableClassesByRoomId(roomId)
 }
 

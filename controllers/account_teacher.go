@@ -130,8 +130,51 @@ func TeacherQueryCalendarByClassHandler(c *gin.Context) {
 	}
 }
 
-// 查询教师上课日历
+// 教师日历
 func TeacherCalendarQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if clsList, err := s.ListCalendarByTeacher(int(accountRole), teacherId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+
+		// 适配教师日历UI显示课表
+		var calendar = make([]string,0)
+		if clsList != nil {
+			// 初始化返回列表
+			for _, record := range clsList {
+				calendar = append(calendar, record.OccurrenceTime)
+			}
+		}
+		api.Success(c, calendar)
+	}
+}
+
+// 教师日历详情： 根据教师和日期查询班级信息
+func TeacherCalendarDetailQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+	role := claims["AccountRole"].(float64)
+
+	if !s.IsRoleTeacher(int(role)) {
+		api.Fail(c, http.StatusUnauthorized, "没有教师操作权限")
+		return
+	}
+	classDate := c.PostForm("class_date")
+	if result, err := s.ListCalendarDeatilByTeacher(teacherId, classDate); err != nil {
+		api.Fail(c, http.StatusInternalServerError, "查询班级课表失败")
+		return
+	} else {
+		api.Success(c, result)
+	}
+
+
+}
+
+// 查询教师上课日历 // Old
+func OldAPI_TeacherCalendarQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	teacherId := claims["AccountId"].(string)
 	accountRole := claims["AccountRole"].(float64)

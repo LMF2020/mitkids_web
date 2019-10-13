@@ -18,9 +18,9 @@ type ClassPerformance struct {
 	Option2   string    `json:"option2" form:"option2"`                          // 评分大项2
 	Option3   string    `json:"option3" form:"option3"`                          // 评分大项3
 	Option4   string    `json:"option4" form:"option4"`                          // 评分大项4
-	Option5   string    `json:"option5" form:"option5"`                          // 评分大项5
-	CreatedAt time.Time `json:"create_at" form:"create_at"`                      // 创建时间
-	UpdatedAt time.Time `json:"update_at" form:"update_at"`                      // 更新时间
+	//Option5   string    `json:"option5" form:"option5"`                          // 评分大项5
+	CreatedAt time.Time `json:"created_at" form:"created_at"`                      // 创建时间
+	UpdatedAt time.Time `json:"updated_at" form:"updated_at"`                      // 更新时间
 }
 
 // 定义表名
@@ -41,7 +41,7 @@ type ClassRecordItem struct {
 	BookName        string        `json:"book_name" form:"book_name"`                 // 课本的名称
 	RoomName        string        `json:"room_name" form:"room_name"`                 // 上课教室
 	ScheduleTime    utils.RawTime `json:"schedule_time" form:"schedule_time"`         // 计划上课时间
-	OccurrenceTime  time.Time     `json:"occurrence_time" form:"occurrence_time"`     // 实际上课时间
+	OccurrenceTime  string     	   `json:"occurrence_time" form:"occurrence_time"`     // 实际上课时间 YYYY-MM-DD
 	GeoAddr         string        `json:"geo_addr" form:"geo_addr"`                   // 地图认证的经纬度的地点名称
 	Address         string        `json:"address" form:"address"`
 	BookLink        string        `json:"book_link" form:"book_link"` // 课本预习链接

@@ -70,7 +70,7 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 		return
 	}
 	sqlStart := `SELECT 
-              coo.occurrence_time,
+              DATE_FORMAT(coo.occurrence_time,'%Y-%m-%d') as occurrence_time,
 			  coo.class_id,
 			  c.teacher_id,
 			  c.fore_teacher_id,
@@ -159,6 +159,7 @@ func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.Cla
 			  c.teacher_id,
 			  c.fore_teacher_id,
 			  c.book_level,
+			  c.class_name,
 			  at_1.account_name AS teacher_name,
 			  at_2.account_name AS fore_teacher_name,
 			  rm.name AS room_name,
@@ -167,7 +168,7 @@ func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.Cla
 			  bk.book_link,
 			  coo.occurrence_status AS status,
 			  c.start_time as schedule_time,
-              coo.occurrence_time ,
+			  DATE_FORMAT(coo.occurrence_time,'%Y-%m-%d') AS occurrence_time,
 			  c.room_id,
 			  rm.geo_addr,
 			  rm.address

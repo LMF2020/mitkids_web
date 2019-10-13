@@ -108,3 +108,19 @@ type ApplyClassChild struct {
 	AccountId       string        `json:"account_id" `
 	ChildNumber     string        `json:"child_number" `
 }
+
+type AccountPlan struct{
+	AccountId string `json:"account_id" `
+	PlanId string `json:"plan_id" `
+	PlanCreatedAt time.Time  `json:"plan_created_at" `
+	PlanExpiredAt time.Time  `json:"plan_expired_at" `
+}
+
+type Plan struct {
+	PlanId int `json:"plan_id" `
+	PlanName string `json:"plan_name" `
+	PlanTotalClass int `json:"plan_total_class" `
+	PlanPrice int `json:"plan_price" `
+	PlanValidity int `json:"plan_validity" `
+}
+

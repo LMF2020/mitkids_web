@@ -146,8 +146,8 @@ func ClassesQueryByRoomIdHandler(c *gin.Context) {
 	class, err := s.GetJoinedClassByStudent(studentId)
 	var joinedClassId = ""
 	if err != nil {
-		log.Logger.Debug("查询学生加入的班级时出错")
-	}else {
+		log.Logger.Debug("查询学生所在班级时出错")
+	}else if class != nil {
 		joinedClassId = class["class_id"].(string)
 	}
 

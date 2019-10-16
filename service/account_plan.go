@@ -18,9 +18,7 @@ func (s *Service) ListAccountPlansWithAccountIDs(accountIds []string) (planMap m
 	if err != nil {
 		return nil, err
 	}
-	if plans == nil {
-		return nil, nil
-	}
+
 	planMap = make(map[string]([]model.AccountPlan))
 	for _, planItem := range plans {
 		FullPlan(&planItem)
@@ -38,4 +36,15 @@ func FullPlan(a *model.AccountPlan) {
 	plan := PlanMap[a.PlanCode]
 	a.PlanName = plan.PlanName
 	a.PlanTotalClass = plan.PlanTotalClass
+}
+
+func (s *Service) ListAccountPlansWithAccountID(accountId string) (plans []model.AccountPlan, err error) {
+	plans, err = s.dao.ListAccountPlansWithAccountID(accountId)
+	if err != nil {
+		return nil, err
+	}
+	for _, planItem := range plans {
+		FullPlan(&planItem)
+	}
+	return
 }

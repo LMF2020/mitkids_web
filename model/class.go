@@ -30,10 +30,10 @@ type Class struct {
 	UpdatedAt     time.Time     `json:"update_at" form:"update_at"`                            // 更新时间
 
 	// 从roomid关联过来的json字段
-	GeoAddr   string    `json:"geo_addr" form:"geo_addr" gorm:"-"` 								// 地图认证的经纬度的地点名称
-	Address   string    `json:"address" form:"address" gorm:"-"`                        		// 教师的具体地点(地图标记地址的补充)
-	TeacherName string	`json:"teacher_name" form:"teacher_name" gorm:"-"`     					// 中教姓名
-	ForeTeacherName string	`json:"fore_teacher_name" form:"fore_teacher_name" gorm:"-"`     	// 外教姓名
+	GeoAddr         string `json:"geo_addr" form:"geo_addr" gorm:"-"`                   // 地图认证的经纬度的地点名称
+	Address         string `json:"address" form:"address" gorm:"-"`                     // 教师的具体地点(地图标记地址的补充)
+	TeacherName     string `json:"teacher_name" form:"teacher_name" gorm:"-"`           // 中教姓名
+	ForeTeacherName string `json:"fore_teacher_name" form:"fore_teacher_name" gorm:"-"` // 外教姓名
 
 }
 
@@ -91,6 +91,37 @@ type ChildClass struct {
 	CreatedAt     time.Time     `json:"create_at" form:"create_at"`                       // 创建时间
 	UpdatedAt     time.Time     `json:"update_at" form:"update_at"`                       // 更新时间
 	StudentId     string        `json:"student_id" gorm:"student_id"`
+}
+
+type ClassItemForJoin struct {
+	ClassId       string        `json:"class_id" form:"class_id" gorm:"primary_key"`      // 6位班级编号
+	ClassName     string        `json:"class_name" form:"class_name" validate:"required"` // 6位班级名称
+	ForeTeacherId string        `json:"fore_teacher_id" form:"fore_teacher_id" `          // 6位外教老師编号
+	TeacherId     string        `json:"teacher_id" form:"teacher_id" `                    // 6位中教老師编号
+	RoomId        string        `json:"room_id" form:"room_id" validate:"required"`       // 上课教室 ID
+	BookLevel     uint          `json:"book_level" form:"book_level" `                    // 课程级别
+	Status        uint          `json:"status" form:"status" `                            // 班級是否关闭(1:未开始,2:进行中,3:已结束)
+	ChildNumber   uint          `json:"child_number" form:"child_number" `                // 当前报名人数
+	Capacity      uint          `json:"capacity" form:"capacity" validate:"required"`     // 班級计划人数
+	StartTime     utils.RawTime `json:"start_time" form:"start_time" validate:"required"` // 课程开始时间
+	EndTime       utils.RawTime `json:"end_time" form:"end_time" validate:"required"`     // 课程结束时间
+	Childs        []string      `json:"childs" form:"childs" gorm:"-"`                    // 学生id列表
+	ChildNames    []string      `json:"child_names" form:"_" gorm:"-"`
+	BookFromUnit  uint          `json:"book_from_unit" form:"book_from_unit"  validate:"required" ` // 课程 开始单元
+	BookToUnit    uint          `json:"book_to_unit" form:"book_to_unit"  validate:"required" `     // 课程 结束单元
+	Occurrences   []time.Time   `json:"occurrences" form:"occurrences" gorm:"-" validate:"required" time_format:"2006-01-02"`
+	Weeks         string        `json:"weeks" form:"weeks" `                                   // 每周具体上课天数
+	StartDate     time.Time     `json:"start_date" form:"start_date" time_format:"2006-01-02"` // 课程开始日期
+	CreatedAt     time.Time     `json:"create_at" form:"create_at"`                            // 创建时间
+	UpdatedAt     time.Time     `json:"update_at" form:"update_at"`                            // 更新时间
+	// 从roomid关联过来的json字段
+	GeoAddr         string `json:"geo_addr" form:"geo_addr" gorm:"-"`                   // 地图认证的经纬度的地点名称
+	Address         string `json:"address" form:"address" gorm:"-"`                     // 教师的具体地点(地图标记地址的补充)
+	TeacherName     string `json:"teacher_name" form:"teacher_name" gorm:"-"`           // 中教姓名
+	ForeTeacherName string `json:"fore_teacher_name" form:"fore_teacher_name" gorm:"-"` // 外教姓名
+	//
+	HasJoined bool `json:"has_joined" form:"has_joined"` // 学生是否已经加入
+
 }
 
 // 班級

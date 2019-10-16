@@ -115,6 +115,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.GET("/recent/occurrence", TeacherScheduledClassesQueryHandler)
 		// 教师课表日历（包含教师的所有班级）
 		teacherTokenGroup.GET("/occurrence/calendar", TeacherCalendarQueryHandler)
+		// 教师课表日历详情
+		teacherTokenGroup.POST("/occurrence/calendar/detail", TeacherCalendarDetailQueryHandler)
 		// 教师最近完成的课时(N)
 		teacherTokenGroup.GET("/occurrence/history/list/:n", TeacherFinishedOccurrenceQueryHandler)
 		// 分页查询上课记录

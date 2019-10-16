@@ -152,6 +152,50 @@ func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId stri
 	return
 }
 
+// 查询教师日历详情： 一个教师一天可能在不同的时段有课
+func (d *Dao) ListCalendarDeatilByTeacher(teacherId, classDate string) (classOccurList []model.ClassRecordItem, err error) {
+	sql := `SELECT 
+			  coo.class_id,
+              coo.occurrence_status as status,
+			  c.teacher_id,
+			  c.fore_teacher_id,
+			  c.book_level,
+			  c.class_name,
+			  at_1.account_name AS teacher_name,
+			  at_2.account_name AS fore_teacher_name,
+			  rm.name AS room_name,
+			  coo.book_code,
+			  bk.book_name,
+			  bk.book_link,
+			  coo.occurrence_status AS STATUS,
+			  c.start_time AS schedule_time,
+			  DATE_FORMAT(coo.occurrence_time, '%Y-%m-%d') AS occurrence_time,
+			  c.room_id,
+			  rm.geo_addr,
+			  rm.address
+			FROM
+			  mk_class_occurrence coo 
+			  LEFT JOIN mk_class c 
+				ON coo.class_id = c.class_id 
+			  LEFT JOIN mk_room rm 
+				ON rm.room_id = c.room_id 
+			  LEFT JOIN mk_book bk 
+				ON bk.book_code = coo.book_code 
+			  LEFT JOIN mk_account at_1 
+				ON at_1.account_id = c.teacher_id 
+			  LEFT JOIN mk_account at_2 
+				ON at_2.account_id = c.fore_teacher_id 
+			WHERE (
+				c.teacher_id = ? 
+				OR c.fore_teacher_id = ?
+			  ) 
+			  AND DATE_FORMAT(coo.occurrence_time, '%Y-%m-%d') = ?
+			ORDER BY coo.schedule_time ASC`
+
+	err = d.DB.Raw(sql, teacherId, teacherId, classDate).Scan(&classOccurList).Error
+	return
+}
+
 // 班级课程日历：包含课程是否结束的状态
 func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.ClassRecordItem, err error) {
 	sql := `SELECT 

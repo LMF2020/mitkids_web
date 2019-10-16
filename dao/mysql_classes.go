@@ -23,7 +23,7 @@ func (d *Dao) ListClasses(query model.Class) (classes []model.Class, err error) 
 }
 
 // 根据上课地点和班级状态查询
-func (d *Dao) ListAvailableClassesByRoomId(roomId string) (classes []model.Class, err error) {
+func (d *Dao) ListAvailableClassesByRoomId(roomId string) (classes []model.ClassItemForJoin, err error) {
 
 	sql :=
 		`SELECT 

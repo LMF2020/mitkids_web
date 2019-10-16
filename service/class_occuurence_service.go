@@ -139,6 +139,15 @@ func (s *Service) ListCalendarByChild(studentId string) (classRecordList []model
 	}
 }
 
+// 查询教师日历详情： 一个教师一天可能在不同的时段有课
+func (s *Service) ListCalendarDeatilByTeacher(teacherId, classDate string) (classRecordList []model.ClassRecordItem, err error) {
+	if classRecordList, err = s.dao.ListCalendarDeatilByTeacher(teacherId, classDate); gorm.IsRecordNotFoundError(err) {
+		err = nil
+		return
+	}
+	return
+}
+
 // 查询教师课表日历
 func (s *Service) ListCalendarByTeacher(role int, teacherId string) (classRecordList []model.ClassRecordItem, err error) {
 	var joinedClass []model.Class

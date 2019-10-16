@@ -1,7 +1,7 @@
 #!/bin/bash
 cd /opt/nginxdocker/mulkids-cms-pro
 yarnbash="yarn run build"
-if [ $1 == "all" ]; then
+if [ "$1" == "all" ]; then
   yarnbash="yarn && yarn run build"
 fi
 git pull

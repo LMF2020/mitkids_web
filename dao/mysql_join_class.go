@@ -102,6 +102,18 @@ func (d *Dao) DeleteJoiningClass(studentId, classId string) (err error) {
 	return
 }
 
+// 删除学生约课申请记录
+func (d *Dao) DeleteJoiningClasses(classId string, studentIds []string) (err error) {
+	err = d.DB.Where("student_id in (?) AND class_id = ?", studentIds, classId).Delete(&model.JoinClass{}).Error
+	return
+}
+
+// 删除学生约课申请记录
+func (d *Dao) DeleteJoiningClassesByClassId(classId string) (err error) {
+	err = d.DB.Where("class_id = ?", classId).Delete(&model.JoinClass{}).Error
+	return
+}
+
 const updateSatusSql = "update mk_join_class set `status` = ?,updated_at = now() where student_id = ? AND class_id = ? "
 
 func (d *Dao) UpdateJoinClassStatus(studentId, classId string, status int) error {

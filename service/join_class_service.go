@@ -243,3 +243,13 @@ func (s *Service) PageListApplyClassChild(pageNumber, pageSize, status int, quer
 func (s *Service) CountApplyClassChild(status int, query string) (int, error) {
 	return s.dao.CountApplyClassChild(status, query)
 }
+
+// 删除学生约课申请记录
+func (s *Service) DeleteJoiningClasses(classId string, studentIds []string) (err error) {
+	return s.dao.DeleteJoiningClasses(classId, studentIds)
+}
+
+// 删除学生约课申请记录
+func (s *Service) DeleteJoiningClassesByClassId(classId string) (err error) {
+	return s.dao.DeleteJoiningClassesByClassId(classId)
+}

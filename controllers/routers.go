@@ -84,9 +84,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		// 取消约课申请
 		childTokenGroup.POST("/cancel/join", ChildCancelJoiningClassHandler)
 		// 学生头像上传
-		childTokenGroup.POST("/avatar/upload", AccountPicUpdateHandler)
-		// 学生头像下载
-		childTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
+		//childTokenGroup.POST("/avatar/upload", AccountPicUpdateHandler)
+		//// 学生头像下载
+		//childTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
 		// 我的老师（中教外教）
 		childTokenGroup.POST("/my/teachers", ChildMyTeachersQueryHandler)
 	}
@@ -109,29 +109,36 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.POST("/profile", TeacherAccountInfoHandler)
 		// 更新个人资料
 		teacherTokenGroup.POST("/profile/update", TeacherAccountInfoUpdateHandler)
-
-		// 查询教师所在班级
+		// 查询教师管理的班级列表
 		teacherTokenGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
 		// 查询教师最近安排的课表
 		teacherTokenGroup.GET("/recent/occurrence", TeacherScheduledClassesQueryHandler)
-		// 教师上课日历
+		// 教师课表日历（包含教师的所有班级）
 		teacherTokenGroup.GET("/occurrence/calendar", TeacherCalendarQueryHandler)
+		// 教师课表日历详情
+		teacherTokenGroup.POST("/occurrence/calendar/detail", TeacherCalendarDetailQueryHandler)
 		// 教师最近完成的课时(N)
 		teacherTokenGroup.GET("/occurrence/history/list/:n", TeacherFinishedOccurrenceQueryHandler)
 		// 分页查询上课记录
 		teacherTokenGroup.POST("/occurrence/history/page", TeacherPageQueryFinishedOccurrenceHandler)
 		// 教师头像上传
-		teacherTokenGroup.POST("/avatar/upload", AccountPicUpdateHandler)
-		// 教师头像下载
-		teacherTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
-		// 教师搭档介绍（可能返回多个班级的搭档）
+		//teacherTokenGroup.POST("/avatar/upload", AccountPicUpdateHandler)
+		//// 教师头像下载
+		//teacherTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
+		// 查询搭档（可能返回多个班级的搭档）
 		teacherTokenGroup.GET("/partner/info", TeacherPartnerQueryHandler)
 		// 教师课件列表 (lv1-3)
 		teacherTokenGroup.POST("/book/list", BookListHandler)
-		// 教师分页查询学生列表 (根据班级查询)
+		// 根据班级ID查询班级的学生列表
 		teacherTokenGroup.POST("/class/child/list", TeacherPageListChildByClassHandler)
 		// 教师查看学生资料
 		teacherTokenGroup.POST("/child/profile", TeacherViewChildInfoHandler)
+		// 根据班级ID查询课表日历
+		teacherTokenGroup.POST("/occurrence/byClass", TeacherQueryCalendarByClassHandler)
+		// 根据 班级ID，上课日期，学生ID 获取学生的评分记录
+		teacherTokenGroup.POST("/child/performance", TeacherQueryChildPerformanceHandler)
+		// 更新学生评分记录
+		teacherTokenGroup.POST("/child/performance/update", TeacherUpdateChildPerformanceHandler)
 	}
 
 	/**
@@ -146,6 +153,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/class/list", ListClassByPageAndQuery)
 	adminGroup.POST("/class/get", GetClassAllInfoById)
 	adminGroup.POST("/class/update", UpdateClass)
+	adminGroup.POST("/class/delete", DeleteClass)
 	adminGroup.POST("/class/teacher/update", UpdateClassTeacher)
 	adminGroup.POST("/class/child/status/update", UpdateClassChildStatus)
 	adminGroup.POST("/class/child/list", GetClassChildsByClassId)

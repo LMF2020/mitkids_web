@@ -26,6 +26,10 @@ func upgrade(c *gin.Context) {
 			s := ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'sudo chmod +x /opt/workdoc/buildjs.sh;sudo /opt/workdoc/buildjs.sh'")
 			c.String(200, s+"\n upgrade js成功 至"+ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'cd /opt/nginxdocker/mulkids-cms-pro && git rev-parse HEAD'")) // 没有数据
 		}
+		if c.Query("type") == "jsall" {
+			s := ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'sudo chmod +x /opt/workdoc/buildjs.sh;sudo /opt/workdoc/buildjs.sh all'")
+			c.String(200, s+"\n upgrade js成功 至"+ExecCommand("ssh -i /opt/key -o StrictHostKeyChecking=no  quintin@172.18.0.1 'cd /opt/nginxdocker/mulkids-cms-pro && git rev-parse HEAD'")) // 没有数据
+		}
 
 	} else {
 		api.Fail(c, http.StatusBadRequest, "密码错误")

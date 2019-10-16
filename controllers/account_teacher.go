@@ -110,7 +110,27 @@ func TeacherScheduledClassesQueryHandler(c *gin.Context) {
 	}
 }
 
-// 查询教师上课日历
+// 根据班级ID查询课表
+func TeacherQueryCalendarByClassHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherRole := claims["AccountRole"].(float64)
+
+	if !s.IsRoleTeacher(int(teacherRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查询权限")
+		return
+	}
+	classId := c.PostForm("class_id")
+
+	// 查询指定班级所有的历史课表
+	if result, err := s.PageFinishedOccurrenceByClassIdArray(1, 100, []string{classId}); err == nil {
+		api.Success(c, result)
+		return
+	} else {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+	}
+}
+
+// 教师日历
 func TeacherCalendarQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	teacherId := claims["AccountId"].(string)
@@ -119,7 +139,69 @@ func TeacherCalendarQueryHandler(c *gin.Context) {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	} else {
-		api.Success(c, clsList)
+
+		// 适配教师日历UI显示课表
+		var calendar = make([]string, 0)
+		if clsList != nil {
+			// 初始化返回列表
+			for _, record := range clsList {
+				calendar = append(calendar, record.OccurrenceTime)
+			}
+		}
+		api.Success(c, calendar)
+	}
+}
+
+// 教师日历详情： 根据教师和日期查询班级信息
+func TeacherCalendarDetailQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+	role := claims["AccountRole"].(float64)
+
+	if !s.IsRoleTeacher(int(role)) {
+		api.Fail(c, http.StatusUnauthorized, "没有教师操作权限")
+		return
+	}
+	classDate := c.PostForm("class_date")
+	if result, err := s.ListCalendarDeatilByTeacher(teacherId, classDate); err != nil {
+		api.Fail(c, http.StatusInternalServerError, "查询班级课表失败")
+		return
+	} else {
+		api.Success(c, result)
+	}
+
+}
+
+// 查询教师上课日历 // Old
+func OldAPI_TeacherCalendarQueryHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	teacherId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if clsList, err := s.ListCalendarByTeacher(int(accountRole), teacherId); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+
+		// 适配教师日历UI显示课表
+		var recordMap = make(map[string][]model.ClassRecordItem)
+		if clsList != nil {
+			// 初始化返回列表
+			for _, record := range clsList {
+				// 遍历数组，
+				date := record.OccurrenceTime
+				if dateArr, ok := recordMap[date]; ok {
+					// 把相同日期的记录，归类到日期数组
+					dateArr = append(dateArr, record)
+				} else {
+					// 为日期建立日期数组
+					dateArr = make([]model.ClassRecordItem, 1)
+					dateArr = append(dateArr, record)
+					recordMap[date] = dateArr
+				}
+			}
+		}
+
+		api.Success(c, recordMap)
 	}
 }
 
@@ -280,6 +362,12 @@ func TeacherPageListChildByClassHandler(c *gin.Context) {
 				api.Fail(c, http.StatusInternalServerError, err.Error())
 				return
 			}
+
+			if len(_ids) == 0 {
+				api.Success(c, pageInfo)
+				return
+			}
+
 			//if len(_ids) <= 2 {
 			//	api.Fail(c, http.StatusInternalServerError, "班级人数不能少于两人")
 			//	return
@@ -343,5 +431,77 @@ func TeacherViewChildInfoHandler(c *gin.Context) {
 		profile, _ := s.GetProfileByRole(account, consts.AccountRoleChild)
 		api.Success(c, profile)
 	}
+
+}
+
+// 根据 班级ID，上课日期，学生ID 获取学生的评分记录
+func TeacherQueryChildPerformanceHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	role := claims["AccountRole"].(float64)
+	if !s.IsRoleTeacher(int(role)) {
+		api.Fail(c, http.StatusUnauthorized, "没有教师查询权限")
+		return
+	}
+
+	classId := c.PostForm("class_id")
+	studentId := c.PostForm("account_id")
+	classDate := c.PostForm("class_date")
+
+	query := model.ClassPerformance{
+		ClassId:   classId,
+		AccountId: studentId,
+		ClassDate: classDate,
+	}
+
+	if result, err := s.GetPerformance(query); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		api.Success(c, result)
+	}
+
+}
+
+// 新增，或者更新学生评分
+func TeacherUpdateChildPerformanceHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	role := claims["AccountRole"].(float64)
+	accountId := claims["AccountId"].(string)
+	if !s.IsRoleTeacher(int(role)) {
+		api.Fail(c, http.StatusUnauthorized, "没有教师操作权限")
+		return
+	}
+	var classPerform model.ClassPerformance
+	var err error
+	if err = c.ShouldBind(&classPerform); err == nil {
+		if err = utils.ValidateParam(classPerform); err == nil {
+			classPerform.TeacherId = accountId
+			query := model.ClassPerformance{
+				ClassId:   classPerform.ClassId,
+				AccountId: classPerform.AccountId,
+				ClassDate: classPerform.ClassDate,
+			}
+			if exist, err := s.GetPerformance(query); err != nil {
+				api.Fail(c, http.StatusInternalServerError, err.Error())
+				return
+			} else if exist == nil { // 不存在记录，需要新增
+				if err = s.CreatePerformance(&classPerform); err != nil {
+					api.Fail(c, http.StatusInternalServerError, err.Error())
+				}
+				api.Success(c, "该学生评价已提交")
+				return
+			} else { // 存在记录，需要更新
+				if err = s.UpdatePerformance(&classPerform); err != nil {
+					api.Fail(c, http.StatusInternalServerError, err.Error())
+				}
+				api.Success(c, "该学生评价已更新")
+				return
+			}
+		}
+	}
+
+	log.Logger.Error(err.Error())
+	api.Fail(c, http.StatusBadRequest, err.Error())
+	return
 
 }

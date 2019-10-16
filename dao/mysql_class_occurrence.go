@@ -11,7 +11,7 @@ import (
 )
 
 // 查询学生最近要上的(N)节课
-func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, occurStatus, n int) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, occurStatus, n int) (classRecordList []model.ClassRecordItem, err error) {
 
 	sql := `SELECT 
 			  coo.class_id,
@@ -48,7 +48,7 @@ func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, oc
 			`
 	sql = fmt.Sprintf(sql, scheduledTimeOrder)
 
-	err = d.DB.Raw(sql, classId, occurStatus, n).Scan(&classOccurList).Error
+	err = d.DB.Raw(sql, classId, occurStatus, n).Scan(&classRecordList).Error
 	return
 }
 
@@ -64,12 +64,13 @@ func (d *Dao) CountClassOccursList(classIdArr []string, occurStatus int) (count 
 }
 
 // 分页查询上课历史
-func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classIdArr []string) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classIdArr []string) (classRecordList []model.ClassRecordItem, err error) {
 	if classIdArr == nil || len(classIdArr) == 0 {
-		classOccurList, err = nil, nil
+		classRecordList, err = nil, nil
 		return
 	}
 	sqlStart := `SELECT 
+              DATE_FORMAT(coo.occurrence_time,'%Y-%m-%d') as occurrence_time,
 			  coo.class_id,
 			  c.teacher_id,
 			  c.fore_teacher_id,
@@ -106,12 +107,12 @@ func (d *Dao) PageFinishedOccurrenceByClassIdArray(offset, pageSize int, classId
 				LIMIT ? OFFSET ?
 				`
 	sql := fmt.Sprintf("%s%s%s", sqlStart, strings.Join(classIdArr, ","), sqlEnd)
-	err = d.DB.Raw(sql, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classOccurList).Error
+	err = d.DB.Raw(sql, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classRecordList).Error
 	return
 }
 
 // 分页查询上课历史
-func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId string) (classRecordList []model.ClassRecordItem, err error) {
 	sql := `SELECT 
 			  coo.class_id,
 			  c.teacher_id,
@@ -147,17 +148,62 @@ func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId stri
 			ORDER BY coo.schedule_time DESC
 			LIMIT ? OFFSET ?
 			`
-	err = d.DB.Raw(sql, classId, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classOccurList).Error
+	err = d.DB.Raw(sql, classId, consts.ClassOccurStatusFinished, pageSize, offset).Scan(&classRecordList).Error
+	return
+}
+
+// 查询教师日历详情： 一个教师一天可能在不同的时段有课
+func (d *Dao) ListCalendarDeatilByTeacher(teacherId, classDate string) (classOccurList []model.ClassRecordItem, err error) {
+	sql := `SELECT 
+			  coo.class_id,
+              coo.occurrence_status as status,
+			  c.teacher_id,
+			  c.fore_teacher_id,
+			  c.book_level,
+			  c.class_name,
+			  at_1.account_name AS teacher_name,
+			  at_2.account_name AS fore_teacher_name,
+			  rm.name AS room_name,
+			  coo.book_code,
+			  bk.book_name,
+			  bk.book_link,
+			  coo.occurrence_status AS STATUS,
+			  c.start_time AS schedule_time,
+			  DATE_FORMAT(coo.occurrence_time, '%Y-%m-%d') AS occurrence_time,
+			  c.room_id,
+			  rm.geo_addr,
+			  rm.address
+			FROM
+			  mk_class_occurrence coo 
+			  LEFT JOIN mk_class c 
+				ON coo.class_id = c.class_id 
+			  LEFT JOIN mk_room rm 
+				ON rm.room_id = c.room_id 
+			  LEFT JOIN mk_book bk 
+				ON bk.book_code = coo.book_code 
+			  LEFT JOIN mk_account at_1 
+				ON at_1.account_id = c.teacher_id 
+			  LEFT JOIN mk_account at_2 
+				ON at_2.account_id = c.fore_teacher_id 
+			WHERE (
+				c.teacher_id = ? 
+				OR c.fore_teacher_id = ?
+			  ) 
+			  AND DATE_FORMAT(coo.occurrence_time, '%Y-%m-%d') = ?
+			ORDER BY coo.schedule_time ASC`
+
+	err = d.DB.Raw(sql, teacherId, teacherId, classDate).Scan(&classOccurList).Error
 	return
 }
 
 // 班级课程日历：包含课程是否结束的状态
-func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.OccurClassPoJo, err error) {
+func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.ClassRecordItem, err error) {
 	sql := `SELECT 
 			  coo.class_id,
 			  c.teacher_id,
 			  c.fore_teacher_id,
 			  c.book_level,
+			  c.class_name,
 			  at_1.account_name AS teacher_name,
 			  at_2.account_name AS fore_teacher_name,
 			  rm.name AS room_name,
@@ -166,7 +212,7 @@ func (d *Dao) ListOccurrenceCalendar(classId string) (classOccurList []model.Occ
 			  bk.book_link,
 			  coo.occurrence_status AS status,
 			  c.start_time as schedule_time,
-              coo.occurrence_time ,
+			  DATE_FORMAT(coo.occurrence_time,'%Y-%m-%d') AS occurrence_time,
 			  c.room_id,
 			  rm.geo_addr,
 			  rm.address
@@ -213,7 +259,7 @@ func genAddOccurrenceSql(classId string, cOs *[]model.ClassOccurrence) (sql stri
 
 const GetClassOccurrencesByClassId_sql = "select occurrence_time from mk_class_occurrence where class_id=?"
 
-func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.Time, err error) {
+func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences []time.Time, err error) {
 	//rows, err :=d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?",classId).Select("occurrence_time").Rows()
 	//defer rows.Close()
 	//for rows.Next() {
@@ -224,9 +270,8 @@ func (d *Dao) GetClassOccurrencesByClassId(classId string) (occurrences *[]time.
 	//	}
 	//	occurrences = append(occurrences, o)
 	//}
-	occurrences = new([]time.Time)
 	//d.DB.Raw(GetClassOccurrencesByClassId_sql, classId).Scan(occurrences)
-	err = d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?", classId).Pluck("occurrence_time", occurrences).Error
+	err = d.DB.Table(consts.TABLE_CLASS_OCCURRENCE).Where("class_id = ?", classId).Pluck("occurrence_time", &occurrences).Error
 	return
 }
 
@@ -245,4 +290,11 @@ func (d *Dao) EndClassOccurrClassOccurrencesByDateTimeSql(datetime *time.Time) e
 	date := datetime.Format("2006-01-02 00:00:00")
 	time := datetime.Format("15:04:05")
 	return d.DB.Exec(EndClassOccurrClassOccurrencesByDateTimeSql, date, date, time).Error
+}
+func (d *Dao) GetAllClassOccurrencesByClassId(classId string) (cOs []model.ClassOccurrence, err error) {
+	err = d.DB.Model(&model.ClassOccurrence{}).Where("class_id = ?", classId).Find(&cOs).Error
+	return
+}
+func (d *Dao) DeleteAllClassOccurrencesByClassId(classId string) error {
+	return d.DB.Where("class_id = ?", classId).Delete(&model.ClassOccurrence{}).Error
 }

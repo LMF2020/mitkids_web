@@ -23,7 +23,7 @@ func (d *Dao) ListClasses(query model.Class) (classes []model.Class, err error) 
 }
 
 // 根据上课地点和班级状态查询
-func (d *Dao) ListAvailableClassesByRoomId(roomId string) (classes []model.Class, err error) {
+func (d *Dao) ListAvailableClassesByRoomId(roomId string) (classes []model.ClassItemForJoin, err error) {
 
 	sql :=
 		`SELECT 
@@ -227,7 +227,7 @@ func (d *Dao) CountClassByPageAndQuery(query string, classStatus int) (count int
 }
 func (d *Dao) UpdateClass(class *model.Class) (err error) {
 	class.UpdatedAt = time.Now()
-	return d.DB.Model(class).Updates(class).Error
+	return d.DB.Model(class).Updates(class).Where("class_id = ?", class.ClassId).Update("child_number", class.ChildNumber).Error
 }
 
 const updateChildNumSql = "update mk_class set child_number = child_number+? where class_id =?"
@@ -258,4 +258,8 @@ func (d *Dao) GetClassesByChildIds(ids *[]string) (classes *[]model.ChildClass, 
 	classes = new([]model.ChildClass)
 	err = d.DB.Raw(sql).Scan(classes).Error
 	return
+}
+
+func (d *Dao) DeleteClassById(id string) error {
+	return d.DB.Where("class_id = ?", id).Delete(&model.Class{}).Error
 }

@@ -26,8 +26,8 @@ type AccountInfo struct {
 	City          int       `json:"city" form:"city"`         // 城市代码
 	District      int       `json:"district" form:"district"` // 区县代码
 	Address       string    `json:"address" form:"address"`
-	CreatedAt     time.Time `json:"create_at" form:"create_at"`
-	UpdatedAt     time.Time `json:"update_at" form:"update_at"`
+	CreatedAt     time.Time `json:"created_at" form:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at" form:"updated_at"`
 	Code          string    `json:"code" form:"code" gorm:"-"` // 验证码, 数据库忽略该字段
 	// 扩展信息
 	School string `json:"school" form:"school"` // 学校

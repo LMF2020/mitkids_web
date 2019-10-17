@@ -110,7 +110,7 @@ type ApplyClassChild struct {
 }
 
 type AccountPlan struct {
-	PlanId         string    `json:"plan_id" `
+	PlanId         int       `json:"plan_id" `
 	AccountId      string    `json:"account_id" `
 	PlanCode       int       `json:"plan_code" `
 	PlanCreatedAt  time.Time `json:"plan_created_at" `

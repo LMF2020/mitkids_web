@@ -1,17 +1,10 @@
 package service
 
 import (
-	"mitkid_web/consts"
+	"mitkid_web/consts/planConsts"
 	"mitkid_web/model"
+	"time"
 )
-
-var PlanMap = map[int]model.Plan{
-	consts.FREE_TRIAL_PLAN:    model.Plan{PlanCode: consts.FREE_TRIAL_PLAN, PlanName: "试听课套餐", PlanTotalClass: 1, PlanPrice: 0, PlanValidity: 96},
-	consts.THREE_MONTHS_PLAN:  model.Plan{PlanCode: consts.THREE_MONTHS_PLAN, PlanName: "3个月套餐(国际双师课)", PlanTotalClass: 24, PlanPrice: 4288, PlanValidity: 5},
-	consts.SIX_MONTHS_PLAN:    model.Plan{PlanCode: consts.SIX_MONTHS_PLAN, PlanName: "6个月套餐(国际双师课)", PlanTotalClass: 48, PlanPrice: 9288, PlanValidity: 9},
-	consts.NINE_MONTHS_PLAN:   model.Plan{PlanCode: consts.NINE_MONTHS_PLAN, PlanName: "9个月套餐(国际双师课)", PlanTotalClass: 72, PlanPrice: 12588, PlanValidity: 12},
-	consts.TWELVE_MONTHS_PLAN: model.Plan{PlanCode: consts.TWELVE_MONTHS_PLAN, PlanName: "12个月套餐(国际双师课)", PlanTotalClass: 96, PlanPrice: 17288, PlanValidity: 15},
-}
 
 func (s *Service) ListAccountPlansWithAccountIDs(accountIds []string) (planMap map[string]([]model.AccountPlan), err error) {
 	plans, err := s.dao.ListAccountPlansWithAccountIDs(accountIds)
@@ -33,7 +26,7 @@ func (s *Service) ListAccountPlansWithAccountIDs(accountIds []string) (planMap m
 	return
 }
 func FullPlan(a *model.AccountPlan) {
-	plan := PlanMap[a.PlanCode]
+	plan := planConsts.PlanMap[a.PlanCode]
 	a.PlanName = plan.PlanName
 	a.PlanTotalClass = plan.PlanTotalClass
 }
@@ -43,8 +36,25 @@ func (s *Service) ListAccountPlansWithAccountID(accountId string) (plans []model
 	if err != nil {
 		return nil, err
 	}
-	for _, planItem := range plans {
-		FullPlan(&planItem)
+	for i, _ := range plans {
+		FullPlan(&plans[i])
 	}
 	return
+}
+
+func (s *Service) AddUserPlan(id string, p *model.Plan) (err error) {
+	ap := &model.AccountPlan{
+		AccountId:     id,
+		PlanCode:      p.PlanCode,
+		PlanCreatedAt: time.Now(),
+		PlanExpiredAt: time.Now().AddDate(0, p.PlanValidity, 0),
+	}
+	return s.dao.AddUserPlan(ap)
+}
+
+func (s *Service) GetPlanByPlanId(pId int) (ap *model.AccountPlan, err error) {
+	return s.dao.GetPlanByPlanId(pId)
+}
+func (s *Service) DeletePlanByPlanId(pId int) (err error) {
+	return s.dao.DeletePlanByPlanId(pId)
 }

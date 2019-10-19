@@ -147,7 +147,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	管理员接口
 	*/
 	adminGroup := authGroup.Group("/admin")
-	//list child
+	adminGroup.POST("/contact/add", AddContactHandler)
+	adminGroup.POST("/contact/update", UpdateContactHandler)
+	adminGroup.POST("/contact/list", ListContactHandler)
 	adminGroup.POST("/child/list", ListChildByPage)
 	adminGroup.POST("/noinclass/child/list", ListChildNotJoinedByPage) // joined
 	adminGroup.POST("/inclass/child/list", ListChildJoinedByPage)      // notjoined

@@ -9,4 +9,5 @@ const (
 	TABLE_MK_ROOM           = "mk_room"
 	TABLE_BOOK              = "mk_book"
 	TABLE_ACCOUNT_PLAN      = "mk_account_plan"
+	TABLE_CONTACT			= "mk_contact"
 )

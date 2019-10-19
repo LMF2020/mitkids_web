@@ -69,11 +69,11 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childTokenGroup.GET("/class/byroom/:roomId", ClassesQueryByRoomIdHandler)
 		// 查询学生所在班级信息
 		childTokenGroup.GET("/class/info", ChildClassInfoQueryByAccountIdHandler)
-		// 查询近期安排的课表
+		// 查询近期未完成课表
 		childTokenGroup.GET("/recent/occurrence", ChildScheduledClassesQueryHandler)
-		// 查询最近完成的(N)节课
+		// 查询历史已完成课表
 		childTokenGroup.GET("/occurrence/history/list/:n", ChildFinishedOccurrenceQueryHandler)
-		// 分页查询上课记录
+		// 分页查询历史已完成课表
 		childTokenGroup.POST("/occurrence/history/page", ChildPageQueryFinishedOccurrenceHandler)
 		// 查询学生上课日历
 		childTokenGroup.GET("/occurrence/calendar", ChildCalendarQueryHandler)
@@ -89,6 +89,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		//childTokenGroup.GET("/avatar", UserAvatarDownloadHandler)
 		// 我的老师（中教外教）
 		childTokenGroup.POST("/my/teachers", ChildMyTeachersQueryHandler)
+		// 查询学生评语
+		childTokenGroup.POST("/performance/byClassAndDate", ChildQueryPerformanceHandler)
 	}
 
 	/**
@@ -111,15 +113,15 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.POST("/profile/update", TeacherAccountInfoUpdateHandler)
 		// 查询教师管理的班级列表
 		teacherTokenGroup.GET("/class/info", TeacherClassInfoQueryByAccountIdHandler)
-		// 查询教师最近安排的课表
+		// 查询教师近期未完成课表
 		teacherTokenGroup.GET("/recent/occurrence", TeacherScheduledClassesQueryHandler)
 		// 教师课表日历（包含教师的所有班级）
 		teacherTokenGroup.GET("/occurrence/calendar", TeacherCalendarQueryHandler)
 		// 教师课表日历详情
 		teacherTokenGroup.POST("/occurrence/calendar/detail", TeacherCalendarDetailQueryHandler)
-		// 教师最近完成的课时(N)
+		// 查询教师历史已完成课表
 		teacherTokenGroup.GET("/occurrence/history/list/:n", TeacherFinishedOccurrenceQueryHandler)
-		// 分页查询上课记录
+		// 分页查询教师历史课表
 		teacherTokenGroup.POST("/occurrence/history/page", TeacherPageQueryFinishedOccurrenceHandler)
 		// 教师头像上传
 		//teacherTokenGroup.POST("/avatar/upload", AccountPicUpdateHandler)

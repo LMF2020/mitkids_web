@@ -220,12 +220,12 @@ func ChildScheduledClassesQueryHandler(c *gin.Context) {
 	}
 }
 
-// 学生最近的上课记录(完成N课时)
+// 查询历史已完成课表，参数给定查询的数量n
 func ChildFinishedOccurrenceQueryHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	studentId := claims["AccountId"].(string)
 
-	pageSize := c.Param("n") // 查询历史多少节课
+	pageSize := c.Param("n") // 拟查询数量
 	size, err := strconv.Atoi(pageSize)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, "参数错误:n")
@@ -244,7 +244,7 @@ func ChildFinishedOccurrenceQueryHandler(c *gin.Context) {
 		return
 	}
 
-	// 查询第一页，5条记录
+	// 查询第一页，n条记录
 	if result, err2 := s.PageFinishedOccurrenceByClassId(1, size, classId); err2 == nil {
 		api.Success(c, result)
 		return
@@ -417,4 +417,31 @@ func ChildMyTeachersQueryHandler(c *gin.Context) {
 		api.Success(c, res)
 	}
 
+}
+
+// 学生端 - 根据班级和上课时间查询教师给我的评语
+func ChildQueryPerformanceHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	studentId := claims["AccountId"].(string)
+	accountRole := claims["AccountRole"].(float64)
+	if !s.IsRoleChild(int(accountRole)) {
+		api.Fail(c, http.StatusUnauthorized, "没有查看权限")
+		return
+	}
+
+	classId := c.PostForm("class_id")
+	classDate := c.PostForm("class_date")
+
+	query := model.ClassPerformance{
+		ClassId:   classId,
+		AccountId: studentId,
+		ClassDate: classDate,
+	}
+
+	if result, err := s.GetPerformance(query); err != nil {
+		api.Fail(c, http.StatusInternalServerError, err.Error())
+		return
+	} else {
+		api.Success(c, result)
+	}
 }

@@ -127,7 +127,7 @@ func (d *Dao) PageFinishedOccurrenceByClassId(offset, pageSize int, classId stri
 			  bk.book_link,
 			  coo.occurrence_status AS STATUS,
 			  c.start_time as schedule_time,
-			  coo.occurrence_time,
+			  DATE_FORMAT(coo.occurrence_time,'%Y-%m-%d') as occurrence_time,
 			  rm.geo_addr,
 			  rm.address
 			  

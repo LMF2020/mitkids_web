@@ -6,7 +6,7 @@ import (
 )
 
 type Contact struct {
-	PhoneNumber string    `json:"phone_number" form:"phone_number" validate:"required"`
+	PhoneNumber string    `json:"phone_number" form:"phone_number" validate:"required" gorm:"primary_key"`
 	UserName    string    `json:"user_name" form:"user_name"`
 	Email       string    `json:"email" form:"email" validate:"omitempty,email"`
 	Province    int       `json:"province" form:"province"` // 省份代码

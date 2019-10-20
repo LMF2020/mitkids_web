@@ -23,7 +23,13 @@ func (s *Service) UpdateContact(contact *model.Contact) (err error) {
 	return
 }
 
-func (s *Service) ListContacts(contact *model.Contact) (result []model.Contact, err error) {
-	result, err = s.dao.ListContact(*contact)
+func (s *Service) PageListContacts(contact *model.Contact, pageNumber, pageSize int) (result []model.Contact, err error) {
+	offset := (pageNumber - 1) * pageSize
+	result, err = s.dao.PageListContact(*contact, offset, pageSize)
+	return
+}
+
+func (s *Service) TotalContact(contact *model.Contact) (count int, err error) {
+	count, err = s.dao.TotalContact(*contact)
 	return
 }

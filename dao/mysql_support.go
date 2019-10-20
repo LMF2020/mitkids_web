@@ -3,6 +3,7 @@ package dao
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
+	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
 )
@@ -32,11 +33,17 @@ func (d *Dao) GetContact(query model.Contact) (result *model.Contact, err error)
 	return
 }
 
-func (d *Dao) ListContact(query model.Contact) (result []model.Contact, err error) {
+func (d *Dao) PageListContact(query model.Contact, offset, limit int) (result []model.Contact, err error) {
 	result = []model.Contact{}
-	if err = d.DB.Where(query).Find(&result).Error; err == gorm.ErrRecordNotFound {
+	if err = d.DB.Where(query).Offset(offset).Limit(limit).Find(&result).Error; err == gorm.ErrRecordNotFound {
 		err = nil
 		result = nil
 	}
 	return
 }
+
+func (d *Dao) TotalContact(query model.Contact) (count int, err error) {
+	err = d.DB.Table(consts.TABLE_CONTACT).Where(query).Count(&count).Error
+	return
+}
+

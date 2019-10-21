@@ -321,6 +321,7 @@ func ChildApplyJoiningClassHandler(c *gin.Context) {
 	ownerId := claims["AccountId"].(string)
 	studentId := c.PostForm("student_id")
 	classId := c.PostForm("class_id")
+	//planId := c.PostForm("plan_id")
 
 	if studentId == "" || classId == "" {
 		api.Fail(c, http.StatusBadRequest, "参数不合法")

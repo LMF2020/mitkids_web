@@ -91,6 +91,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		childTokenGroup.POST("/my/teachers", ChildMyTeachersQueryHandler)
 		// 查询学生评语
 		childTokenGroup.POST("/performance/byClassAndDate", ChildQueryPerformanceHandler)
+		childTokenGroup.POST("/plan/list", ChildListChildPlanById)
+
 	}
 
 	/**

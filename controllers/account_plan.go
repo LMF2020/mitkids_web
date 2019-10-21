@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts/planConsts"
 	"mitkid_web/controllers/api"
@@ -9,6 +10,15 @@ import (
 
 func ListChildPlanById(c *gin.Context) {
 	accountId := c.PostForm("account_id")
+	listChildPlanByAccountId(accountId, c)
+}
+func ChildListChildPlanById(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	accountId := claims["AccountId"].(string)
+	listChildPlanByAccountId(accountId, c)
+}
+
+func listChildPlanByAccountId(accountId string, c *gin.Context) {
 	account, err := s.GetAccountById(accountId)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())

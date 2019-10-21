@@ -38,3 +38,11 @@ func (d *Dao) GetPlanByPlanId(pId int) (ap *model.AccountPlan, err error) {
 func (d *Dao) DeletePlanByPlanId(pId int) (err error) {
 	return d.DB.Delete(&model.AccountPlan{}).Where("plan_id = ?", pId).Error
 }
+
+func (d *Dao) ListPlanByPlanIds(pIds []int) (plans []model.AccountPlan, err error) {
+	if err = d.DB.Where("plan_id in (?)", pIds).Find(&plans).Error; err == gorm.ErrRecordNotFound {
+		err = nil
+		plans = nil
+	}
+	return
+}

@@ -58,3 +58,7 @@ func (s *Service) GetPlanByPlanId(pId int) (ap *model.AccountPlan, err error) {
 func (s *Service) DeletePlanByPlanId(pId int) (err error) {
 	return s.dao.DeletePlanByPlanId(pId)
 }
+
+func (s *Service) ListPlanByPlanIds(pIds []int) (aps []model.AccountPlan, err error) {
+	return s.dao.ListPlanByPlanIds(pIds)
+}

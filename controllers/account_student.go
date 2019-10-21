@@ -316,12 +316,61 @@ func ChildCalendarQueryHandler(c *gin.Context) {
 }
 
 // 申请加入班级
+type ApplyJoinForm struct {
+	StudentId     string `form:"student_id"`
+	ClassId       string `form:"class_id"`
+	PlanIds       []int  `form:"plan_ids"`
+	PlanUsageDays []int  `form:"plan_usage_days"`
+}
+
 func ChildApplyJoiningClassHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
 	ownerId := claims["AccountId"].(string)
-	studentId := c.PostForm("student_id")
-	classId := c.PostForm("class_id")
-	//planId := c.PostForm("plan_id")
+	form := &ApplyJoinForm{}
+	if err := c.ShouldBind(form); err != nil {
+		api.Fail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	studentId, classId := form.StudentId, form.ClassId
+	if false {
+		planIds, planUsageDays := form.PlanIds, form.PlanUsageDays
+		if len(planIds) == 0 || len(planUsageDays) == 0 {
+			api.Fail(c, http.StatusBadRequest, "plan_ids和plan_usage_days为必填")
+		}
+
+		if len(planIds) != len(planUsageDays) {
+			api.Fail(c, http.StatusBadRequest, "plan_ids和plan_usage_days数量不拼配")
+		}
+		plans, err := s.ListPlanByPlanIds(planIds)
+		if err != nil {
+			api.Fail(c, http.StatusBadRequest, err)
+			return
+		}
+		formMap := map[int]int{}
+		for i, _ := range planIds {
+			formMap[planIds[i]] = planUsageDays[i]
+		}
+		plansLen := len(plans)
+		if len(form.PlanIds) != plansLen {
+			for _, planItem := range plans {
+				if _, ok := formMap[planItem.PlanId]; ok {
+					delete(formMap, planItem.PlanId)
+				}
+			}
+			NonexistPlans := make([]int, 0, 0)
+			for k, _ := range formMap {
+				NonexistPlans = append(NonexistPlans, k)
+			}
+			api.Failf(c, http.StatusBadRequest, "plan_ids:%v 不存在", NonexistPlans)
+			return
+		}
+		for _, planItem := range plans {
+			if _, ok := formMap[planItem.PlanId]; ok {
+				//todo check plan time remaining
+			}
+		}
+
+	}
 
 	if studentId == "" || classId == "" {
 		api.Fail(c, http.StatusBadRequest, "参数不合法")

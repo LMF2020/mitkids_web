@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
@@ -317,10 +318,9 @@ func ChildCalendarQueryHandler(c *gin.Context) {
 
 // 申请加入班级
 type ApplyJoinForm struct {
-	StudentId     string `form:"student_id"`
-	ClassId       string `form:"class_id"`
-	PlanIds       []int  `form:"plan_ids"`
-	PlanUsageDays []int  `form:"plan_usage_days"`
+	StudentId string `form:"student_id"`
+	ClassId   string `form:"class_id"`
+	Plans     string `form:"plans"`
 }
 
 func ChildApplyJoiningClassHandler(c *gin.Context) {
@@ -332,45 +332,6 @@ func ChildApplyJoiningClassHandler(c *gin.Context) {
 		return
 	}
 	studentId, classId := form.StudentId, form.ClassId
-	if false {
-		planIds, planUsageDays := form.PlanIds, form.PlanUsageDays
-		if len(planIds) == 0 || len(planUsageDays) == 0 {
-			api.Fail(c, http.StatusBadRequest, "plan_ids和plan_usage_days为必填")
-		}
-
-		if len(planIds) != len(planUsageDays) {
-			api.Fail(c, http.StatusBadRequest, "plan_ids和plan_usage_days数量不拼配")
-		}
-		plans, err := s.ListPlanByPlanIds(planIds)
-		if err != nil {
-			api.Fail(c, http.StatusBadRequest, err)
-			return
-		}
-		formMap := map[int]int{}
-		for i, _ := range planIds {
-			formMap[planIds[i]] = planUsageDays[i]
-		}
-		plansLen := len(plans)
-		if len(form.PlanIds) != plansLen {
-			for _, planItem := range plans {
-				if _, ok := formMap[planItem.PlanId]; ok {
-					delete(formMap, planItem.PlanId)
-				}
-			}
-			NonexistPlans := make([]int, 0, 0)
-			for k, _ := range formMap {
-				NonexistPlans = append(NonexistPlans, k)
-			}
-			api.Failf(c, http.StatusBadRequest, "plan_ids:%v 不存在", NonexistPlans)
-			return
-		}
-		for _, planItem := range plans {
-			if _, ok := formMap[planItem.PlanId]; ok {
-				//todo check plan time remaining
-			}
-		}
-
-	}
 
 	if studentId == "" || classId == "" {
 		api.Fail(c, http.StatusBadRequest, "参数不合法")
@@ -381,8 +342,17 @@ func ChildApplyJoiningClassHandler(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, "账号不一致")
 		return
 	}
+	if form.Plans == "" {
+		api.Fail(c, http.StatusBadRequest, "plans为必填")
+		return
+	}
+	plansMap := make(map[int]int)
+	if err := json.Unmarshal([]byte(form.Plans), &plansMap); err == nil {
+		api.Fail(c, http.StatusBadRequest, "plans不符合规范")
+		return
+	}
 
-	if err := s.ApplyJoiningClass(studentId, classId); err != nil {
+	if err := s.ApplyJoiningClass(studentId, classId, c, plansMap); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	}

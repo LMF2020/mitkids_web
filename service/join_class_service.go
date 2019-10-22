@@ -2,9 +2,12 @@ package service
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
+	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
+	"net/http"
 )
 
 func (s *Service) AddChildToClass(id string, childId string) (err error) {
@@ -37,7 +40,7 @@ func (s *Service) AddChildsToClass(id string, childIds []string) (err error) {
 */
 
 // 申请加入班级
-func (s *Service) ApplyJoiningClass(childId, classId string) error {
+func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, plansMap map[int]int) error {
 	c, err := s.dao.GetClassById(classId)
 	if err != nil {
 		return err
@@ -66,19 +69,73 @@ func (s *Service) ApplyJoiningClass(childId, classId string) error {
 	// 处理失败的case,允许继续申请
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassFail)
 	if joinCls != nil && err == nil {
-		// 修改申请审核状态 失败 -> 待审核
-		err = s.dao.UpdateJoinClassStatus(childId, classId, consts.JoinClassInProgress)
+		err = s.addOrUpdateChildToClass(childId, classId, ctx, plansMap, false)
 		return err
 	}
-
 	// 插入申请记录
-	err = s.dao.AddChildToClass(classId, childId, consts.JoinClassInProgress)
+	err = s.addOrUpdateChildToClass(childId, classId, ctx, plansMap, true)
 	if err != nil {
 		return err
 	}
-
 	log.Logger.WithField("class id", classId).WithField("child id", childId).Info("申请加入班级")
+	return nil
+}
 
+func (s *Service) addOrUpdateChildToClass(childId, classId string, ctx *gin.Context, plansMap map[int]int, justAdd bool) (err error) {
+	s.dao.DB.Begin()
+	if err := s.checkAndUpdatePlanClassUsed(ctx, plansMap); err != nil {
+		s.dao.DB.Rollback()
+		return err
+	}
+	if justAdd {
+		err = s.dao.AddChildToClass(classId, childId, consts.JoinClassInProgress)
+	} else {
+		err = s.dao.UpdateJoinClassStatus(childId, classId, consts.JoinClassInProgress)
+	}
+	if err != nil {
+		s.dao.DB.Rollback()
+	}
+	s.dao.DB.Commit()
+	return err
+}
+
+func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]int) error {
+	planIds := make([]int, len(plansMap))
+	i := 0
+	for k, _ := range plansMap {
+		planIds[i] = k
+		i++
+	}
+	plans, err := s.ListPlanByPlanIds(planIds)
+	if err != nil {
+		api.Fail(c, http.StatusBadRequest, err)
+		return err
+	}
+	if len(planIds) != len(plans) {
+		for _, planItem := range plans {
+			if _, ok := plansMap[planItem.PlanId]; ok {
+				delete(plansMap, planItem.PlanId)
+			}
+		}
+		NonexistPlans := make([]int, 0, 0)
+		for k, _ := range plansMap {
+			NonexistPlans = append(NonexistPlans, k)
+		}
+		api.Failf(c, http.StatusBadRequest, "plan_ids:%v 不存在", NonexistPlans)
+		return err
+	}
+	for _, planItem := range plans {
+		if plansMap[planItem.PlanId]+planItem.UsedClass >= planItem.PlanTotalClass {
+			api.Failf(c, http.StatusBadRequest, "plans:%s一共有%d课时,已经使用%d课时,无法再分配%d", planItem.PlanId, planItem.PlanTotalClass, planItem.UsedClass, plansMap[planItem.PlanId])
+			return err
+		}
+	}
+	for _, planItem := range plans {
+		if err = s.UpdatePlanUsedClass(planItem.PlanId, plansMap[planItem.PlanId]); err != nil {
+			return err
+		}
+
+	}
 	return nil
 }
 

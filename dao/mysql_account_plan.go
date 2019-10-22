@@ -46,3 +46,7 @@ func (d *Dao) ListPlanByPlanIds(pIds []int) (plans []model.AccountPlan, err erro
 	}
 	return
 }
+
+func (d *Dao) UpdatePlanUsedClass(pId, uc int) error {
+	return d.DB.Model(&model.AccountPlan{}).Where("plan_id = ?", pId).Update("used_class", gorm.Expr("used_class + ?", uc)).Error
+}

@@ -58,7 +58,7 @@ func AddPlanForChild(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, "学生账号不存在")
 		return
 	}
-	plan, ok := planConsts.PlanMap[parms.PlanCode]
+	plan, ok := planConsts.PLAN_MAP[parms.PlanCode]
 	if !ok {
 		api.Fail(c, http.StatusBadRequest, "")
 		return

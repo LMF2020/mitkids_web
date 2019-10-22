@@ -26,7 +26,7 @@ func (s *Service) ListAccountPlansWithAccountIDs(accountIds []string) (planMap m
 	return
 }
 func FullPlan(a *model.AccountPlan) {
-	plan := planConsts.PlanMap[a.PlanCode]
+	plan := planConsts.PLAN_MAP[a.PlanCode]
 	a.PlanName = plan.PlanName
 	a.PlanTotalClass = plan.PlanTotalClass
 }
@@ -61,4 +61,7 @@ func (s *Service) DeletePlanByPlanId(pId int) (err error) {
 
 func (s *Service) ListPlanByPlanIds(pIds []int) (aps []model.AccountPlan, err error) {
 	return s.dao.ListPlanByPlanIds(pIds)
+}
+func (s *Service) UpdatePlanUsedClass(pId, uc int) error {
+
 }

@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-
 // 账号
 type AccountInfo struct {
 	// 中教编号:6位, 外教编号6位, 学生编号:8位
@@ -118,6 +117,7 @@ type AccountPlan struct {
 	PlanExpiredAt  time.Time `json:"plan_expired_at" `
 	PlanName       string    `json:"plan_name" gorm:"-"`
 	PlanTotalClass int       `json:"plan_total_class" gorm:"-" `
+	UsedClass      int       `json:"used_class" `
 	//PlanPrice      int    `json:"plan_price" `
 	//PlanValidity   int    `json:"plan_validity" `
 

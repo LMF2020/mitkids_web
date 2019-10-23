@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"mitkid_web/model"
 )
@@ -49,4 +50,15 @@ func (d *Dao) ListPlanByPlanIds(pIds []int) (plans []model.AccountPlan, err erro
 
 func (d *Dao) UpdatePlanUsedClass(pId, uc int) error {
 	return d.DB.Model(&model.AccountPlan{}).Where("plan_id = ?", pId).Update("used_class", gorm.Expr("used_class + ?", uc)).Error
+}
+
+const updatePlanUsedClassSql = `update mk_account_plan set used_class = used_class + %d WHERE account_id = '%s' and plan_id= %d;
+`
+
+func (d *Dao) BatchUpdatePlanUsedClass(accountId string, planMap map[int]int) error {
+	sql := ""
+	for k, v := range planMap {
+		sql += fmt.Sprintf(updatePlanUsedClassSql, v, accountId, k)
+	}
+	return d.DB.Exec(sql).Error
 }

@@ -83,7 +83,7 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, p
 
 func (s *Service) addOrUpdateChildToClass(childId, classId string, ctx *gin.Context, plansMap map[int]int, justAdd bool) (err error) {
 	s.dao.DB.Begin()
-	if err := s.checkAndUpdatePlanClassUsed(ctx, plansMap); err != nil {
+	if err := s.checkAndUpdatePlanClassUsed(ctx, plansMap, childId); err != nil {
 		s.dao.DB.Rollback()
 		return err
 	}
@@ -99,7 +99,7 @@ func (s *Service) addOrUpdateChildToClass(childId, classId string, ctx *gin.Cont
 	return err
 }
 
-func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]int) error {
+func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]int, accountId string) error {
 	planIds := make([]int, len(plansMap))
 	i := 0
 	for k, _ := range plansMap {
@@ -130,11 +130,8 @@ func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]i
 			return err
 		}
 	}
-	for _, planItem := range plans {
-		if err = s.UpdatePlanUsedClass(planItem.PlanId, plansMap[planItem.PlanId]); err != nil {
-			return err
-		}
-
+	if err := s.BatchUpdatePlanUsedClass(accountId, plansMap); err != nil {
+		return err
 	}
 	return nil
 }

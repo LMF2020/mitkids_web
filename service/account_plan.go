@@ -62,6 +62,6 @@ func (s *Service) DeletePlanByPlanId(pId int) (err error) {
 func (s *Service) ListPlanByPlanIds(pIds []int) (aps []model.AccountPlan, err error) {
 	return s.dao.ListPlanByPlanIds(pIds)
 }
-func (s *Service) UpdatePlanUsedClass(pId, uc int) error {
-
+func (s *Service) BatchUpdatePlanUsedClass(accountId string, planMap map[int]int) error {
+	return s.dao.BatchUpdatePlanUsedClass(accountId, planMap)
 }

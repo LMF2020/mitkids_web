@@ -7,10 +7,9 @@ services:
     build: .
     restart: always
     volumes:
-      - /opt/key:/opt/key
-      - /opt/workdoc:/app/mulkids
-      - /opt/logs:/go-docker/logs
-      - /opt/pkg/cache:/go/pkg/mod/cache
+      - ./:/app/mulkids
+      - ./logs:/go-docker/logs
+      - ./gocache:/go/pkg/mod/cache
     ports:
       - 8080:8080
   memcached:
@@ -27,7 +26,7 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
-      - /opt/mysql_data:/var/lib/mysql
+      - ./mysql_data:/var/lib/mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ZoOMus123

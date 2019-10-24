@@ -492,6 +492,10 @@ func ChildQueryPerformanceHandler(c *gin.Context) {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	} else {
+		if result == nil {
+			api.Success(c, model.ClassPerformance{})
+			return
+		}
 		api.Success(c, result)
 	}
 }

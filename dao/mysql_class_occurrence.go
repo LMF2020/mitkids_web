@@ -53,8 +53,12 @@ func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, oc
 }
 
 //
-func (d *Dao) CountClassOccurs(classId string, occurStatus int) (count int, err error) {
+func (d *Dao) CountClassOccursWithStatus(classId string, occurStatus int) (count int, err error) {
 	err = d.DB.Model(&model.ClassOccurrence{}).Where("class_id = ? and occurrence_status = ?", classId, occurStatus).Count(&count).Error
+	return
+}
+func (d *Dao) CountClassOccurs(classId string) (count int, err error) {
+	err = d.DB.Model(&model.ClassOccurrence{}).Where("class_id = ? ", classId).Count(&count).Error
 	return
 }
 

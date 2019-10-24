@@ -3,6 +3,7 @@ package dao
 import (
 	"errors"
 	"fmt"
+	"mitkid_web/consts"
 )
 
 func (d *Dao) BatchCreateClassPlanS(cid string, planMap map[int]int) error {
@@ -16,4 +17,8 @@ func (d *Dao) BatchCreateClassPlanS(cid string, planMap map[int]int) error {
 	}
 	sql = sql[0:len(sql)-1] + ";"
 	return d.DB.Exec(sql).Error
+}
+
+func (d *Dao) deleteClassPlansByClassId(cid string) error {
+	return d.DB.Table(consts.TABLE_CLASS_PLAN).Delete("class_id = ?", cid).Error
 }

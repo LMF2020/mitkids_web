@@ -203,3 +203,7 @@ func (s *Service) GetAllClassOccurrencesByClassId(classId string) (cOs []model.C
 func (s *Service) DeleteAllClassOccurrencesByClassId(classId string) error {
 	return s.dao.DeleteAllClassOccurrencesByClassId(classId)
 }
+
+func (s *Service) CountClassOccurs(classId string) (count int, err error) {
+	return s.dao.CountClassOccurs(classId)
+}

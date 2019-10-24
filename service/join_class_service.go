@@ -99,12 +99,23 @@ func (s *Service) addOrUpdateChildToClass(childId, classId string, ctx *gin.Cont
 	return err
 }
 
-func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]int, accountId, classId string) error {
+func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]int, accountId, classId string) (err error) {
 	planIds := make([]int, len(plansMap))
 	i := 0
-	for k, _ := range plansMap {
+	countUserClass := 0
+	for k, v := range plansMap {
 		planIds[i] = k
+		countUserClass += v
 		i++
+	}
+	var countOC int = 0
+	if countOC, err = s.CountClassOccurs(classId); err != nil {
+		api.Fail(c, http.StatusBadRequest, err)
+		return err
+	}
+	if countUserClass != countOC {
+		api.Fail(c, http.StatusBadRequest, "plan 数量和班级课时不符合")
+		return err
 	}
 	plans, err := s.ListPlanByPlanIds(planIds)
 	if err != nil {
@@ -167,9 +178,13 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
 	if joinCls != nil && err == nil {
+		tx := s.dao.DB.Begin()
 		if err = s.dao.DeleteJoiningClass(childId, joinCls.ClassId); err != nil {
+			tx.Rollback()
 			return errors.New("撤销失败")
 		}
+		//todo 删除 预约占用的plan
+
 	}
 	return nil
 }

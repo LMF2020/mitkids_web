@@ -22,7 +22,7 @@ func New(c *conf.Config) (d *Dao) {
 }
 
 func newMysql(c *conf.DB) (db *gorm.DB) {
-	dbUrl := fmt.Sprintf("%s:%s@(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local&allowMultiQueries=true", c.UserName, c.Password, c.Host, c.Port, c.Schema)
+	dbUrl := fmt.Sprintf("%s:%s@(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local", c.UserName, c.Password, c.Host, c.Port, c.Schema)
 	db, err := gorm.Open("mysql", dbUrl)
 	if err != nil {
 		Log.Logger.Errorf("db dsn(%s) error: %v", dbUrl, err)

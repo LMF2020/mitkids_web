@@ -30,6 +30,15 @@ func FullPlan(a *model.AccountPlan) {
 	a.PlanName = plan.PlanName
 	a.PlanTotalClass = plan.PlanTotalClass
 }
+func FullPlanList(list []model.AccountPlan) {
+	for i, _ := range list {
+		a := &list[i]
+		plan := planConsts.PLAN_MAP[a.PlanCode]
+		a.PlanName = plan.PlanName
+		a.PlanTotalClass = plan.PlanTotalClass
+	}
+
+}
 
 func (s *Service) ListAccountPlansWithAccountID(accountId string) (plans []model.AccountPlan, err error) {
 	plans, err = s.dao.ListAccountPlansWithAccountID(accountId)
@@ -60,8 +69,15 @@ func (s *Service) DeletePlanByPlanId(pId int) (err error) {
 }
 
 func (s *Service) ListPlanByPlanIds(pIds []int) (aps []model.AccountPlan, err error) {
-	return s.dao.ListPlanByPlanIds(pIds)
+	aps, err = s.dao.ListPlanByPlanIds(pIds)
+	FullPlanList(aps)
+	return aps, err
 }
-func (s *Service) BatchUpdatePlanUsedClass(accountId string, planMap map[int]int) error {
-	return s.dao.BatchUpdatePlanUsedClass(accountId, planMap)
+func (s *Service) BatchUpdatePlanUsedClass(accountId string, planMap map[int]int) (err error) {
+	for k, v := range planMap {
+		if err = s.dao.BatchUpdatePlanUsedClass(accountId, k, v); err != nil {
+			return err
+		}
+	}
+	return nil
 }

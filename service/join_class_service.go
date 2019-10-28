@@ -2,12 +2,11 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
-	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
-	"net/http"
 )
 
 func (s *Service) AddChildToClass(id string, childId string) (err error) {
@@ -69,11 +68,11 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, p
 	// 处理失败的case,允许继续申请
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassFail)
 	if joinCls != nil && err == nil {
-		err = s.addOrUpdateChildToClass(childId, classId, ctx, plansMap, false)
+		err = s.addOrUpdateChildToClass(childId, classId, plansMap, false)
 		return err
 	}
 	// 插入申请记录
-	err = s.addOrUpdateChildToClass(childId, classId, ctx, plansMap, true)
+	err = s.addOrUpdateChildToClass(childId, classId, plansMap, true)
 	if err != nil {
 		return err
 	}
@@ -81,10 +80,8 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, p
 	return nil
 }
 
-func (s *Service) addOrUpdateChildToClass(childId, classId string, ctx *gin.Context, plansMap map[int]int, justAdd bool) (err error) {
-	s.dao.DB.Begin()
-	if err := s.checkAndUpdatePlanClassUsed(ctx, plansMap, childId, classId); err != nil {
-		s.dao.DB.Rollback()
+func (s *Service) addOrUpdateChildToClass(childId, classId string, plansMap map[int]int, justAdd bool) (err error) {
+	if err := s.checkAndUpdatePlanClassUsed(plansMap, childId, classId); err != nil {
 		return err
 	}
 	if justAdd {
@@ -92,14 +89,10 @@ func (s *Service) addOrUpdateChildToClass(childId, classId string, ctx *gin.Cont
 	} else {
 		err = s.dao.UpdateJoinClassStatus(childId, classId, consts.JoinClassInProgress)
 	}
-	if err != nil {
-		s.dao.DB.Rollback()
-	}
-	s.dao.DB.Commit()
 	return err
 }
 
-func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]int, accountId, classId string) (err error) {
+func (s *Service) checkAndUpdatePlanClassUsed(plansMap map[int]int, accountId, classId string) (err error) {
 	planIds := make([]int, len(plansMap))
 	i := 0
 	countUserClass := 0
@@ -110,16 +103,14 @@ func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]i
 	}
 	var countOC int = 0
 	if countOC, err = s.CountClassOccurs(classId); err != nil {
-		api.Fail(c, http.StatusBadRequest, err)
 		return err
 	}
 	if countUserClass != countOC {
-		api.Fail(c, http.StatusBadRequest, "plan 数量和班级课时不符合")
-		return err
+		return errors.New("plan 数量和班级课时不符合")
 	}
 	plans, err := s.ListPlanByPlanIds(planIds)
 	if err != nil {
-		api.Fail(c, http.StatusBadRequest, err)
+		//api.Fail(c, http.StatusBadRequest, err)
 		return err
 	}
 	if len(planIds) != len(plans) {
@@ -132,13 +123,12 @@ func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]i
 		for k, _ := range plansMap {
 			NonexistPlans = append(NonexistPlans, k)
 		}
-		api.Failf(c, http.StatusBadRequest, "plan_ids:%v 不存在", NonexistPlans)
-		return err
+		return errors.New(fmt.Sprintf("plan_ids:%v 不存在", NonexistPlans))
 	}
 	for _, planItem := range plans {
-		if plansMap[planItem.PlanId]+planItem.UsedClass >= planItem.PlanTotalClass {
-			api.Failf(c, http.StatusBadRequest, "plans:%s一共有%d课时,已经使用%d课时,无法再分配%d", planItem.PlanId, planItem.PlanTotalClass, planItem.UsedClass, plansMap[planItem.PlanId])
-			return err
+		if plansMap[planItem.PlanId]+planItem.UsedClass > planItem.PlanTotalClass {
+			//api.Failf(c, http.StatusBadRequest, )
+			return errors.New(fmt.Sprintf("plans:%d一共有%d课时,已经使用%d课时,无法再分配%d", planItem.PlanId, planItem.PlanTotalClass, planItem.UsedClass, plansMap[planItem.PlanId]))
 		}
 	}
 	if err := s.BatchUpdatePlanUsedClass(accountId, plansMap); err != nil {
@@ -178,31 +168,24 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
 	if joinCls != nil && err == nil {
-		tx := s.dao.DB.Begin()
-		if err = s.dao.DeleteJoiningClass(childId, joinCls.ClassId); err != nil {
-			tx.Rollback()
-			return errors.New("撤销失败")
-		}
 		//删除 预约占用的plan
 		var classPlans []model.ClassPlan
 		if classPlans, err = s.ListClassPlansByClassIdAndAccountId(classId, childId); err != nil {
-			tx.Rollback()
 			return errors.New("撤销失败")
 		}
 		planMap := make(map[int]int)
-		for i, plan := range classPlans {
-			planMap[i] = -plan.UsedClass
+		for _, plan := range classPlans {
+			planMap[plan.PlanId] = -plan.UsedClass
 		}
 		if err := s.BatchUpdatePlanUsedClass(childId, planMap); err != nil {
-			tx.Rollback()
 			return errors.New("撤销失败")
 		}
 		if err := s.DeleteClassPlansByClassIdAndAccountId(classId, childId); err != nil {
-			tx.Rollback()
 			return errors.New("撤销失败")
 		}
-		tx.Commit()
-
+		if err = s.dao.DeleteJoiningClass(childId, joinCls.ClassId); err != nil {
+			return errors.New("撤销失败")
+		}
 	}
 	return nil
 }

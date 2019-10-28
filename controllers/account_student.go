@@ -347,7 +347,7 @@ func ChildApplyJoiningClassHandler(c *gin.Context) {
 		return
 	}
 	plansMap := make(map[int]int)
-	if err := json.Unmarshal([]byte(form.Plans), &plansMap); err == nil {
+	if err := json.Unmarshal([]byte(form.Plans), &plansMap); err != nil {
 		api.Fail(c, http.StatusBadRequest, "plans不符合规范")
 		return
 	}

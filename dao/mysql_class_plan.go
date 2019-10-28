@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"mitkid_web/consts"
 	"mitkid_web/model"
 )
 
@@ -22,10 +21,10 @@ func (d *Dao) BatchCreateClassPlanS(aid, cid string, planMap map[int]int) error 
 }
 
 func (d *Dao) DeleteClassPlansByClassIdAndAccountId(cid, aid string) error {
-	return d.DB.Table(consts.TABLE_CLASS_PLAN).Delete("class_id = ? and account_id= ?", cid, aid).Error
+	return d.DB.Where("class_id = ? and account_id= ?", cid, aid).Delete(&model.ClassPlan{}).Error
 }
 func (d *Dao) ListClassPlansByClassIdAndAccountId(cid, aid string) (list []model.ClassPlan, err error) {
-	if err = d.DB.Find(&list).Where("class_id = ? and account_id= ?", cid, aid).Error; gorm.IsRecordNotFoundError(err) {
+	if err = d.DB.Where("class_id = ? and account_id= ?", cid, aid).Find(&list).Error; gorm.IsRecordNotFoundError(err) {
 		return nil, nil
 	}
 	return list, err

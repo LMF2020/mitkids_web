@@ -12,5 +12,5 @@ type ClassPlan struct {
 
 // 定义表名
 func (ClassPlan *ClassPlan) TableName() string {
-	return consts.TABLE_ACCOUNT
+	return consts.TABLE_CLASS_PLAN
 }

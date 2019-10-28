@@ -144,7 +144,7 @@ func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]i
 	if err := s.BatchUpdatePlanUsedClass(accountId, plansMap); err != nil {
 		return err
 	}
-	if err := s.BatchCreateClassPlanS(classId, plansMap); err != nil {
+	if err := s.BatchCreateClassPlanS(accountId, classId, plansMap); err != nil {
 		return err
 	}
 
@@ -183,7 +183,25 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 			tx.Rollback()
 			return errors.New("撤销失败")
 		}
-		//todo 删除 预约占用的plan
+		//删除 预约占用的plan
+		var classPlans []model.ClassPlan
+		if classPlans, err = s.ListClassPlansByClassIdAndAccountId(classId, childId); err != nil {
+			tx.Rollback()
+			return errors.New("撤销失败")
+		}
+		planMap := make(map[int]int)
+		for i, plan := range classPlans {
+			planMap[i] = -plan.UsedClass
+		}
+		if err := s.BatchUpdatePlanUsedClass(childId, planMap); err != nil {
+			tx.Rollback()
+			return errors.New("撤销失败")
+		}
+		if err := s.DeleteClassPlansByClassIdAndAccountId(classId, childId); err != nil {
+			tx.Rollback()
+			return errors.New("撤销失败")
+		}
+		tx.Commit()
 
 	}
 	return nil

@@ -20,3 +20,7 @@ cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-tea/dist /opt/nginxdocker/muitki
 cd ..
 cd muitkid-portal/ && yarn run build
 cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-portal/dist /opt/nginxdocker/muitkid-web-app/muitkid-portal
+
+cd ..
+cd muitkid-portal-wh/ && yarn run build
+cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-portal-wh/dist /opt/nginxdocker/muitkid-web-app/muitkid-portal-wh

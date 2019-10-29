@@ -462,6 +462,10 @@ func ChildQueryPerformanceHandler(c *gin.Context) {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	} else {
+		if result == nil { // 默认已参加课程
+			api.Success(c, model.ClassPerformance{Status: consts.STATUS_CHILD_CLASS_ATTENDED})
+			return
+		}
 		api.Success(c, result)
 	}
 }

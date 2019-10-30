@@ -294,8 +294,10 @@ func (s *Service) RefuseJoiningClass(classId, childId string) (err error) {
 		return
 	}
 	if join.Status == consts.JoinClassFail {
-		return
+		return errors.New("约课申请已经被拒绝过")
 	}
+
+	//todo 删除plan 占用
 	err = s.UpdateJoinClassStatus(childId, classId, consts.JoinClassFail)
 	if err != nil {
 		return

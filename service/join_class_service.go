@@ -247,12 +247,26 @@ func (s *Service) ApproveJoiningClass(classId, childId string) (err error) {
 		return
 	}
 	if join.Status == consts.JoinClassSuccess {
-		return
+		return errors.New("约课申请已经被批准过")
 	}
 	if c.ChildNumber == c.Capacity || c.ChildNumber > c.Capacity {
 		return errors.New("班级学生数量已满")
 	}
-
+	plans, err := s.ListClassPlansByClassIdAndAccountId(classId, childId)
+	if err != nil {
+		return
+	}
+	count := 0
+	for _, plan := range plans {
+		count += plan.UsedClass
+	}
+	countCo, err := s.CountClassOccurs(classId)
+	if err != nil {
+		return
+	}
+	if countCo != count {
+		return errors.New("批准失败，学生约课后,课程数量有变更，建议学生重新约课")
+	}
 	err = s.UpdateJoinClassStatus(childId, classId, consts.JoinClassSuccess)
 	if err != nil {
 		return

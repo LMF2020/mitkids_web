@@ -16,7 +16,7 @@ func (s *Service) ListAccountPlansWithAccountIDs(accountIds []string) (planMap m
 	for _, planItem := range plans {
 		FullPlan(&planItem)
 		if listc, ok := planMap[planItem.AccountId]; ok {
-			listc = append(listc, planItem)
+			planMap[planItem.AccountId] = append(planMap[planItem.AccountId], planItem)
 		} else {
 			listc = make([]model.AccountPlan, 0)
 			listc = append(listc, planItem)

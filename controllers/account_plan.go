@@ -6,6 +6,7 @@ import (
 	"mitkid_web/consts/planConsts"
 	"mitkid_web/controllers/api"
 	"net/http"
+	"time"
 )
 
 func ListChildPlanById(c *gin.Context) {
@@ -38,9 +39,10 @@ func listChildPlanByAccountId(accountId string, c *gin.Context) {
 }
 
 type AccountAndPlan struct {
-	AccountId string `form:"account_id"`
-	PlanCode  int    `form:"plan_code"`
-	PlanId    int    `form:"plan_id"`
+	AccountId string    `form:"account_id"`
+	PlanCode  int       `form:"plan_code"`
+	PlanId    int       `form:"plan_id"`
+	StartTime time.Time `form:"start_time"  time_format:"2006-01-02"`
 }
 
 func AddPlanForChild(c *gin.Context) {
@@ -63,7 +65,17 @@ func AddPlanForChild(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, "")
 		return
 	}
-	if err = s.AddUserPlan(parms.AccountId, &plan); err != nil {
+	if c.PostForm("start_time") == "" {
+		api.Fail(c, http.StatusBadRequest, "套餐的开始时间为必填参数")
+		return
+	}
+	now := time.Now()
+	if c.PostForm("start_time") != now.Format("2006-01-02") && parms.StartTime.Before(now) {
+		api.Fail(c, http.StatusBadRequest, "套餐的开始时间不能在当前时间之前")
+		return
+	}
+
+	if err = s.AddUserPlan(parms.AccountId, &plan, parms.StartTime); err != nil {
 		api.Fail(c, http.StatusBadRequest, "添加plan失败")
 		return
 	}

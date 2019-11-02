@@ -51,12 +51,12 @@ func (s *Service) ListAccountPlansWithAccountID(accountId string) (plans []model
 	return
 }
 
-func (s *Service) AddUserPlan(id string, p *model.Plan) (err error) {
+func (s *Service) AddUserPlan(id string, p *model.Plan, planCreatedAt time.Time) (err error) {
 	ap := &model.AccountPlan{
 		AccountId:     id,
 		PlanCode:      p.PlanCode,
-		PlanCreatedAt: time.Now(),
-		PlanExpiredAt: time.Now().AddDate(0, p.PlanValidity, 0),
+		PlanCreatedAt: planCreatedAt,
+		PlanExpiredAt: planCreatedAt.AddDate(0, p.PlanValidity, 0),
 	}
 	return s.dao.AddUserPlan(ap)
 }

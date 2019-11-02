@@ -299,7 +299,7 @@ const countChildInClassWithQuerySql = `SELECT
 
 func (d *Dao) CountChildInClassWithQuery(query string) (count int, err error) {
 	if query == "" {
-		err = d.DB.Raw(countChildInClassSql).Scan(&count).Error
+		err = d.DB.Raw(countChildInClassSql).Count(&count).Error
 		return
 	}
 	query = "%" + query + "%"

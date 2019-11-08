@@ -22,8 +22,8 @@ func NewJwtAuthMiddleware(service *service.Service) *jwt.GinJWTMiddleware {
 	return &jwt.GinJWTMiddleware{
 		Realm:      consts.JWT_VENDOR,
 		Key:        []byte(consts.JWT_SECRETS),
-		Timeout:    time.Hour,
-		MaxRefresh: time.Hour,
+		Timeout:    24 * time.Hour,
+		MaxRefresh: 24 * time.Hour,
 		// data returned from Authenticator func
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 

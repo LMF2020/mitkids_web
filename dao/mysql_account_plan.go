@@ -24,7 +24,7 @@ func (d *Dao) ListAccountPlansWithAccountID(accountId string) (plans []model.Acc
 }
 
 func (d *Dao) AddUserPlan(ap *model.AccountPlan) (err error) {
-	return d.DB.Create(ap).Error
+	return d.DB.Omit("plan_expired_at", "active_time").Create(ap).Error
 }
 
 func (d *Dao) GetPlanByPlanId(pId int) (ap *model.AccountPlan, err error) {

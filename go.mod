@@ -38,4 +38,5 @@ require (
 	google.golang.org/appengine v1.6.0 // indirect
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0
 	gopkg.in/go-playground/validator.v9 v9.29.0
+	gopkg.in/guregu/null.v3 v3.4.0
 )

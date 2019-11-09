@@ -1,6 +1,7 @@
 package service
 
 import (
+	"mitkid_web/consts"
 	"mitkid_web/consts/planConsts"
 	"mitkid_web/model"
 	"time"
@@ -51,12 +52,13 @@ func (s *Service) ListAccountPlansWithAccountID(accountId string) (plans []model
 	return
 }
 
-func (s *Service) AddUserPlan(id string, p *model.Plan, planCreatedAt time.Time) (err error) {
+func (s *Service) AddUserPlan(id string, p *model.Plan) (err error) {
+	planCreatedAt := time.Now()
 	ap := &model.AccountPlan{
 		AccountId:     id,
 		PlanCode:      p.PlanCode,
 		PlanCreatedAt: planCreatedAt,
-		PlanExpiredAt: planCreatedAt.AddDate(0, p.PlanValidity, 0),
+		Status:        consts.PLAN_NOACTIVE_STATUS,
 	}
 	return s.dao.AddUserPlan(ap)
 }

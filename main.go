@@ -34,7 +34,7 @@ func main() {
 	log.Logger.Info("web server started...")
 
 	if err := http.ListenAndServe(":8080", r); err != nil {
-		log.Logger.Panic("fail to start web server")
+		log.Logger.Panic("fail to start web server", err)
 	}
 
 	// HTTPS 支持

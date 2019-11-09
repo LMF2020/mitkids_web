@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
 	"mitkid_web/model"
@@ -39,7 +38,7 @@ func (s *Service) AddChildsToClass(id string, childIds []string) (err error) {
 */
 
 // 申请加入班级
-func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, plansMap map[int]int) error {
+func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context) error {
 	c, err := s.dao.GetClassById(classId)
 	if err != nil {
 		return err
@@ -68,11 +67,11 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, p
 	// 处理失败的case,允许继续申请
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassFail)
 	if joinCls != nil && err == nil {
-		err = s.addOrUpdateChildToClass(childId, classId, plansMap, false)
+		err = s.addOrUpdateChildToClass(childId, classId, false)
 		return err
 	}
 	// 插入申请记录
-	err = s.addOrUpdateChildToClass(childId, classId, plansMap, true)
+	err = s.addOrUpdateChildToClass(childId, classId, true)
 	if err != nil {
 		return err
 	}
@@ -80,65 +79,13 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, p
 	return nil
 }
 
-func (s *Service) addOrUpdateChildToClass(childId, classId string, plansMap map[int]int, justAdd bool) (err error) {
-	if err := s.checkAndUpdatePlanClassUsed(plansMap, childId, classId); err != nil {
-		return err
-	}
+func (s *Service) addOrUpdateChildToClass(childId, classId string, justAdd bool) (err error) {
 	if justAdd {
 		err = s.dao.AddChildToClass(classId, childId, consts.JoinClassInProgress)
 	} else {
 		err = s.dao.UpdateJoinClassStatus(childId, classId, consts.JoinClassInProgress)
 	}
 	return err
-}
-
-func (s *Service) checkAndUpdatePlanClassUsed(plansMap map[int]int, accountId, classId string) (err error) {
-	planIds := make([]int, len(plansMap))
-	i := 0
-	countUserClass := 0
-	for k, v := range plansMap {
-		planIds[i] = k
-		countUserClass += v
-		i++
-	}
-	var countOC int = 0
-	if countOC, err = s.CountClassOccurs(classId); err != nil {
-		return err
-	}
-	if countUserClass != countOC {
-		return errors.New("plan 数量和班级课时不符合")
-	}
-	plans, err := s.ListPlanByPlanIds(planIds)
-	if err != nil {
-		//api.Fail(c, http.StatusBadRequest, err)
-		return err
-	}
-	if len(planIds) != len(plans) {
-		for _, planItem := range plans {
-			if _, ok := plansMap[planItem.PlanId]; ok {
-				delete(plansMap, planItem.PlanId)
-			}
-		}
-		NonexistPlans := make([]int, 0, 0)
-		for k, _ := range plansMap {
-			NonexistPlans = append(NonexistPlans, k)
-		}
-		return errors.New(fmt.Sprintf("plan_ids:%v 不存在", NonexistPlans))
-	}
-	for _, planItem := range plans {
-		if plansMap[planItem.PlanId]+planItem.UsedClass > planItem.PlanTotalClass {
-			//api.Failf(c, http.StatusBadRequest, )
-			return errors.New(fmt.Sprintf("plans:%d一共有%d课时,已经使用%d课时,无法再分配%d", planItem.PlanId, planItem.PlanTotalClass, planItem.UsedClass, plansMap[planItem.PlanId]))
-		}
-	}
-	if err := s.BatchUpdatePlanUsedClass(accountId, plansMap); err != nil {
-		return err
-	}
-	if err := s.BatchCreateClassPlanS(accountId, classId, plansMap); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // 撤销申请加入班级
@@ -168,21 +115,7 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
 	if joinCls != nil && err == nil {
-		//删除 预约占用的plan
-		var classPlans []model.ClassPlan
-		if classPlans, err = s.ListClassPlansByClassIdAndAccountId(classId, childId); err != nil {
-			return errors.New("撤销失败")
-		}
-		planMap := make(map[int]int)
-		for _, plan := range classPlans {
-			planMap[plan.PlanId] = -plan.UsedClass
-		}
-		if err := s.BatchUpdatePlanUsedClass(childId, planMap); err != nil {
-			return errors.New("撤销失败")
-		}
-		if err := s.DeleteClassPlansByClassIdAndAccountId(classId, childId); err != nil {
-			return errors.New("撤销失败")
-		}
+
 		if err = s.dao.DeleteJoiningClass(childId, joinCls.ClassId); err != nil {
 			return errors.New("撤销失败")
 		}
@@ -252,21 +185,7 @@ func (s *Service) ApproveJoiningClass(classId, childId string) (err error) {
 	if c.ChildNumber == c.Capacity || c.ChildNumber > c.Capacity {
 		return errors.New("班级学生数量已满")
 	}
-	plans, err := s.ListClassPlansByClassIdAndAccountId(classId, childId)
-	if err != nil {
-		return
-	}
-	count := 0
-	for _, plan := range plans {
-		count += plan.UsedClass
-	}
-	countCo, err := s.CountClassOccurs(classId)
-	if err != nil {
-		return
-	}
-	if countCo != count {
-		return errors.New("批准失败，学生约课后,课程数量有变更，建议学生重新约课")
-	}
+
 	err = s.UpdateJoinClassStatus(childId, classId, consts.JoinClassSuccess)
 	if err != nil {
 		return

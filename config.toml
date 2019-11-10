@@ -12,3 +12,4 @@
 
 [job]
     EndClassOccurrClassOccurrencesCron="0 */1 * * *"
+    DeductUserPlanAfterClass="0 */1 * * *"

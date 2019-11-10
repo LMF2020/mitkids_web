@@ -83,3 +83,23 @@ func (s *Service) BatchUpdatePlanUsedClass(accountId string, planMap map[int]int
 	}
 	return nil
 }
+
+func (s *Service) ListValidAccountPlansWithAccountIDs(accountIds []string) (plans []model.AccountPlan, err error) {
+	plans, err = s.dao.ListValidAccountPlansWithAccountIDs(accountIds)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//planMap = make(map[string]([]model.AccountPlan))
+	//for _, planItem := range plans {
+	//	FullPlan(&planItem)
+	//	if listc, ok := planMap[planItem.AccountId]; ok {
+	//		planMap[planItem.AccountId] = append(planMap[planItem.AccountId], planItem)
+	//	} else {
+	//		listc = make([]model.AccountPlan, 0)
+	//		listc = append(listc, planItem)
+	//		planMap[planItem.AccountId] = listc
+	//	}
+	//}
+	return
+}

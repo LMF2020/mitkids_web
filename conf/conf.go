@@ -43,4 +43,5 @@ type Log struct {
 }
 type Job struct {
 	EndClassOccurrClassOccurrencesCron string
+	DeductUserPlanAfterClass           string
 }

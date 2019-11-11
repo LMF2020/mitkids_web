@@ -9,6 +9,7 @@ import (
 	"mitkid_web/job"
 	"mitkid_web/service"
 	"mitkid_web/utils/cache"
+	"mitkid_web/utils/cloudFileUtils"
 	"mitkid_web/utils/log"
 	"net/http"
 )
@@ -22,6 +23,7 @@ func main() {
 	if err := conf.Init(); err != nil {
 		fmt.Errorf(err.Error())
 	}
+	cloudFileUtils.Init(conf.Conf)
 	log.Init(conf.Conf)
 	// 初始化memcachedClient
 	cache.NewCacheClient(conf.Conf)

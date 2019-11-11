@@ -33,7 +33,7 @@ require (
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/tidwall/pretty v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5 // indirect
-	golang.org/x/net v0.0.0-20190603091049-60506f45cf65 // indirect
+	golang.org/x/net v0.0.0-20190603091049-60506f45cf65
 	golang.org/x/sys v0.0.0-20190602015325-4c4f7f33c9ed // indirect
 	google.golang.org/appengine v1.6.0 // indirect
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0

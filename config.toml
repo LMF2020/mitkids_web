@@ -1,3 +1,6 @@
+WebCacheDir="./webcache"
+ClassFilePrefix="/class_file"
+
 [db]
     host="106.54.31.127"
     username="root"
@@ -13,3 +16,7 @@
 [job]
     EndClassOccurrClassOccurrencesCron="0 */1 * * *"
     DeductUserPlanAfterClass="0 */1 * * *"
+[soc]
+    url=""
+    SecretID=""
+    SecretKey=""

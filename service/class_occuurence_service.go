@@ -237,6 +237,9 @@ func (s *Service) deductUserPlanAfterClassJob(datetime *time.Time) {
 			if len(needActive) != 0 {
 				s.ActivePlanByChildIds(needActive)
 			}
+			if len(activeMap) != 0 {
+				s.deductActivePlanRemainingClass(activeMap)
+			}
 		}
 	}
 }

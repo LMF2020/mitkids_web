@@ -63,5 +63,5 @@ func (s *Service) ListPlanByPlanIds(pIds []int) (aps []model.AccountPlan, err er
 	return s.dao.ListPlanByPlanIds(pIds)
 }
 func (s *Service) UpdatePlanUsedClass(pId, uc int) error {
-
+	return nil
 }

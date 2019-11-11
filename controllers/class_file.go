@@ -25,6 +25,9 @@ func ListClassFile(c *gin.Context) {
 		return
 	}
 	list = list[1:len(list)]
+	for i, _ := range list {
+		list[i] = strings.Replace(list[i], prefix, "", 1)
+	}
 	api.Success(c, list)
 	return
 }

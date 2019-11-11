@@ -93,5 +93,5 @@ func (d *Dao) ActiveExpirePlanByChildIds(planIds []int) error {
 	return d.DB.Raw(ActiveExpirePlanSql, planIds, consts.PLAN_NOACTIVE_STATUS).Error
 }
 func (d *Dao) DeductActivePlanRemainingClass(planIds []int) error {
-	return d.DB.Table(consts.TABLE_ACCOUNT_PLAN).Update("remaining_class", gorm.Expr("remaining_class - 1")).Error
+	return d.DB.Table(consts.TABLE_ACCOUNT_PLAN).Where("plan_id in (?)", planIds).Update("remaining_class", gorm.Expr("remaining_class - 1")).Error
 }

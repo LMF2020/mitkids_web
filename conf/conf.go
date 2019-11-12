@@ -21,10 +21,13 @@ func Init() (err error) {
 }
 
 type Config struct {
-	DB        *DB
-	Log       *Log
-	Memcached *CacheHost
-	Job       *Job
+	DB              *DB
+	Log             *Log
+	Memcached       *CacheHost
+	Job             *Job
+	WebCacheDir     string
+	ClassFilePrefix string
+	Soc             *Soc
 }
 
 type DB struct {
@@ -43,4 +46,10 @@ type Log struct {
 }
 type Job struct {
 	EndClassOccurrClassOccurrencesCron string
+	DeductUserPlanAfterClass           string
+}
+type Soc struct {
+	Url       string
+	SecretID  string
+	SecretKey string
 }

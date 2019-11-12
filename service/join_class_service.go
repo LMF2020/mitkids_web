@@ -4,10 +4,8 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
-	"mitkid_web/controllers/api"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
-	"net/http"
 )
 
 func (s *Service) AddChildToClass(id string, childId string) (err error) {
@@ -40,7 +38,7 @@ func (s *Service) AddChildsToClass(id string, childIds []string) (err error) {
 */
 
 // 申请加入班级
-func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, plansMap map[int]int) error {
+func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context) error {
 	c, err := s.dao.GetClassById(classId)
 	if err != nil {
 		return err
@@ -69,11 +67,11 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, p
 	// 处理失败的case,允许继续申请
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassFail)
 	if joinCls != nil && err == nil {
-		err = s.addOrUpdateChildToClass(childId, classId, ctx, plansMap, false)
+		err = s.addOrUpdateChildToClass(childId, classId, false)
 		return err
 	}
 	// 插入申请记录
-	err = s.addOrUpdateChildToClass(childId, classId, ctx, plansMap, true)
+	err = s.addOrUpdateChildToClass(childId, classId, true)
 	if err != nil {
 		return err
 	}
@@ -81,62 +79,13 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context, p
 	return nil
 }
 
-func (s *Service) addOrUpdateChildToClass(childId, classId string, ctx *gin.Context, plansMap map[int]int, justAdd bool) (err error) {
-	s.dao.DB.Begin()
-	if err := s.checkAndUpdatePlanClassUsed(ctx, plansMap); err != nil {
-		s.dao.DB.Rollback()
-		return err
-	}
+func (s *Service) addOrUpdateChildToClass(childId, classId string, justAdd bool) (err error) {
 	if justAdd {
 		err = s.dao.AddChildToClass(classId, childId, consts.JoinClassInProgress)
 	} else {
 		err = s.dao.UpdateJoinClassStatus(childId, classId, consts.JoinClassInProgress)
 	}
-	if err != nil {
-		s.dao.DB.Rollback()
-	}
-	s.dao.DB.Commit()
 	return err
-}
-
-func (s *Service) checkAndUpdatePlanClassUsed(c *gin.Context, plansMap map[int]int) error {
-	planIds := make([]int, len(plansMap))
-	i := 0
-	for k, _ := range plansMap {
-		planIds[i] = k
-		i++
-	}
-	plans, err := s.ListPlanByPlanIds(planIds)
-	if err != nil {
-		api.Fail(c, http.StatusBadRequest, err)
-		return err
-	}
-	if len(planIds) != len(plans) {
-		for _, planItem := range plans {
-			if _, ok := plansMap[planItem.PlanId]; ok {
-				delete(plansMap, planItem.PlanId)
-			}
-		}
-		NonexistPlans := make([]int, 0, 0)
-		for k, _ := range plansMap {
-			NonexistPlans = append(NonexistPlans, k)
-		}
-		api.Failf(c, http.StatusBadRequest, "plan_ids:%v 不存在", NonexistPlans)
-		return err
-	}
-	for _, planItem := range plans {
-		if plansMap[planItem.PlanId]+planItem.UsedClass >= planItem.PlanTotalClass {
-			api.Failf(c, http.StatusBadRequest, "plans:%s一共有%d课时,已经使用%d课时,无法再分配%d", planItem.PlanId, planItem.PlanTotalClass, planItem.UsedClass, plansMap[planItem.PlanId])
-			return err
-		}
-	}
-	for _, planItem := range plans {
-		if err = s.UpdatePlanUsedClass(planItem.PlanId, plansMap[planItem.PlanId]); err != nil {
-			return err
-		}
-
-	}
-	return nil
 }
 
 // 撤销申请加入班级
@@ -166,6 +115,7 @@ func (s *Service) CancelJoiningClass(childId, classId string) (err error) {
 
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassInProgress)
 	if joinCls != nil && err == nil {
+
 		if err = s.dao.DeleteJoiningClass(childId, joinCls.ClassId); err != nil {
 			return errors.New("撤销失败")
 		}
@@ -230,7 +180,7 @@ func (s *Service) ApproveJoiningClass(classId, childId string) (err error) {
 		return
 	}
 	if join.Status == consts.JoinClassSuccess {
-		return
+		return errors.New("约课申请已经被批准过")
 	}
 	if c.ChildNumber == c.Capacity || c.ChildNumber > c.Capacity {
 		return errors.New("班级学生数量已满")
@@ -263,8 +213,10 @@ func (s *Service) RefuseJoiningClass(classId, childId string) (err error) {
 		return
 	}
 	if join.Status == consts.JoinClassFail {
-		return
+		return errors.New("约课申请已经被拒绝过")
 	}
+
+	//todo 删除plan 占用
 	err = s.UpdateJoinClassStatus(childId, classId, consts.JoinClassFail)
 	if err != nil {
 		return

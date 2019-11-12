@@ -42,3 +42,8 @@ func UploadFile(file multipart.File, fileName, tofileDirPath string) (filePath s
 	}
 	return
 }
+
+func IsExist(f string) bool {
+	_, err := os.Stat(f)
+	return err == nil || os.IsExist(err)
+}

@@ -193,13 +193,99 @@ func (s *Service) AddOccurrences(class *model.Class, bookCodes *[]string) (err e
 func (s *Service) GetClassOccurrencesByClassId(classId string) (occurrences []time.Time, err error) {
 	return s.dao.GetClassOccurrencesByClassId(classId)
 }
-func (s *Service) EndClassOccurrClassOccurrencesByDateTimeSql(datetime *time.Time) error {
-	return s.dao.EndClassOccurrClassOccurrencesByDateTimeSql(datetime)
+func (s *Service) EndClassOccurrClassOccurrencesByDateTime(datetime *time.Time) error {
+	s.deductUserPlanAfterClassJob(datetime)
+	return s.dao.EndClassOccurrClassOccurrencesByDateTime(datetime)
 }
+
+func (s *Service) deductUserPlanAfterClassJob(datetime *time.Time) {
+	log.Logger.Info("job run DeductUserPlanAfterClassJob")
+	classIds, err := s.dao.ListNeedEndClassOccurrClassOccurrences(datetime)
+	if err != nil {
+		log.Logger.Error("job run DeductUserPlanAfterClassJob error: %s", err.Error())
+	}
+	for _, id := range classIds {
+		childIds, err := s.ListClassChildIdsByClassId(id)
+		if err != nil {
+			log.Logger.Error("job run DeductUserPlanAfterClassJob error classid :%s: %s", id, err.Error())
+			continue
+		}
+		if len(childIds) != 0 {
+			plans, err := s.ListValidAccountPlansWithAccountIDs(childIds)
+			if err != nil {
+				log.Logger.Error("job run DeductUserPlanAfterClassJob error classid :%s: %s", id, err.Error())
+				continue
+			}
+			needActive := make(map[string]model.AccountPlan)
+			activeMap := make(map[string]model.AccountPlan)
+			//expireMap :=  make(map[string]model.AccountPlan)
+			for _, plan := range plans {
+				if plan.Status != consts.PLAN_ACTIVE_STATUS {
+					if _, ok := needActive[plan.AccountId]; !ok {
+						needActive[plan.AccountId] = plan
+					}
+				}
+				if plan.Status == consts.PLAN_ACTIVE_STATUS && plan.RemainingClass != 0 {
+					delete(needActive, plan.AccountId)
+					activeMap[plan.AccountId] = plan
+				} else {
+					if _, ok := needActive[plan.AccountId]; !ok {
+						needActive[plan.AccountId] = plan
+					}
+				}
+			}
+			if len(needActive) != 0 {
+				s.ActivePlanByChildIds(needActive)
+			}
+			if len(activeMap) != 0 {
+				s.deductActivePlanRemainingClass(activeMap)
+			}
+		}
+	}
+}
+
+func (s *Service) ActivePlanByChildIds(needActive map[string]model.AccountPlan) {
+	needActiveCount := len(needActive)
+	needActiveArr := make([]string, needActiveCount, needActiveCount)
+	planIds := make([]int, needActiveCount, needActiveCount)
+	i := 0
+	for key, value := range needActive {
+		needActiveArr[i] = key
+		planIds[i] = value.PlanId
+		i++
+	}
+	err := s.dao.DeActiveExpirePlanByChildIds(needActiveArr)
+	if err != nil {
+		log.Logger.Error("DeActiveExpirePlanByChildIds error:%s", err.Error())
+	}
+	err = s.dao.ActiveExpirePlanByChildIds(planIds)
+	if err != nil {
+		log.Logger.Error("DeActiveExpirePlanByChildIds error:%s", err.Error())
+	}
+}
+func (s *Service) deductActivePlanRemainingClass(activeMap map[string]model.AccountPlan) {
+	activeCount := len(activeMap)
+	planIds := make([]int, activeCount, activeCount)
+	i := 0
+	for _, value := range activeMap {
+		planIds[i] = value.PlanId
+		i++
+	}
+
+	err := s.dao.DeductActivePlanRemainingClass(planIds)
+	if err != nil {
+		log.Logger.Error("deductActivePlanRemainingClass error:%s", err.Error())
+	}
+}
+
 func (s *Service) GetAllClassOccurrencesByClassId(classId string) (cOs []model.ClassOccurrence, err error) {
 	return s.dao.GetAllClassOccurrencesByClassId(classId)
 }
 
 func (s *Service) DeleteAllClassOccurrencesByClassId(classId string) error {
 	return s.dao.DeleteAllClassOccurrencesByClassId(classId)
+}
+
+func (s *Service) CountClassOccurs(classId string) (count int, err error) {
+	return s.dao.CountClassOccurs(classId)
 }

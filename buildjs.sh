@@ -6,21 +6,17 @@ if [ "$1" == "all" ]; then
 fi
 git pull
 rm -Rf /opt/nginxdocker/muitkid-web-app/*
-cd muitkid-cms && eval ${yarnbash}
+cd muitkid-cms && echo "`pwd`:  ${yarnbash}" && eval ${yarnbash}
 cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-cms/dist /opt/nginxdocker/muitkid-web-app/mkcms
 
 cd ..
-cd muitkid-stu/ && eval ${yarnbash}
+cd muitkid-stu/ && echo "`pwd`:  ${yarnbash}" && eval ${yarnbash}
 cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-stu/dist /opt/nginxdocker/muitkid-web-app/mkstu
 
 cd ..
-cd muitkid-tea/ && eval ${yarnbash}
+cd muitkid-tea/ && echo "`pwd`:  ${yarnbash}"&& eval ${yarnbash}
 cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-tea/dist /opt/nginxdocker/muitkid-web-app/mktea
 
 cd ..
-cd muitkid-portal/ && yarn run build
+cd muitkid-portal/ && echo "`pwd`:  ${yarnbash}"&& yarn run build
 cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-portal/dist /opt/nginxdocker/muitkid-web-app/muitkid-portal
-
-cd ..
-cd muitkid-portal-wh/ && yarn run build
-cp -Rf /opt/nginxdocker/mulkids-cms-pro/muitkid-portal-wh/dist /opt/nginxdocker/muitkid-web-app/muitkid-portal-wh

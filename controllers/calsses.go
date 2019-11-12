@@ -253,11 +253,16 @@ func UpdateClass(c *gin.Context) {
 	classId := c.PostForm("class_id")
 
 	var err error
-	formClass, err := s.GetClassById(classId)
+	existClass, err := s.GetClassById(classId)
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, err.Error())
 		return
 	}
+	if existClass == nil {
+		api.Fail(c, http.StatusBadRequest, "班级不存在或者被删除")
+		return
+	}
+	formClass := *existClass
 	if err = c.ShouldBind(&formClass); err == nil {
 		if err = utils.ValidateParam(formClass); err == nil {
 			endTime, err := formClass.EndTime.Time()
@@ -321,7 +326,18 @@ func UpdateClass(c *gin.Context) {
 				api.Fail(c, http.StatusBadRequest, "班级名已被使用,请更换班级名")
 				return
 			}
-			err = s.UpdateClass(formClass)
+
+			cos, err := s.GetAllClassOccurrencesByClassId(formClass.ClassId)
+			if err != nil {
+				api.Fail(c, http.StatusBadRequest, "更新班级失败")
+				return
+			}
+			if len(formClass.Occurrences) != len(existClass.Occurrences) && existClass.ChildNumber > 0 {
+				api.Fail(c, http.StatusBadRequest, "班级内已经有学生了，不能更改课程时长的总数")
+				return
+			}
+
+			err = s.UpdateClass(&formClass)
 			if err == nil {
 				//if formClass.ChildNumber != 0 {
 				childIds, err := s.ListClassChildIdsByClassId(formClass.ClassId)
@@ -355,11 +371,7 @@ func UpdateClass(c *gin.Context) {
 					}
 					//}
 				}
-				cos, err := s.GetAllClassOccurrencesByClassId(formClass.ClassId)
-				if err != nil {
-					api.Fail(c, http.StatusBadRequest, "更新班级失败")
-					return
-				}
+
 				isChange := false
 				if len(cos) != len(formClass.Occurrences) {
 					isChange = true
@@ -373,7 +385,7 @@ func UpdateClass(c *gin.Context) {
 				}
 				if isChange {
 					s.DeleteAllClassOccurrencesByClassId(classId)
-					s.AddOccurrences(formClass, &bookCodes)
+					s.AddOccurrences(&formClass, &bookCodes)
 				}
 
 				api.Success(c, "更新班级成功")

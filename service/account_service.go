@@ -125,7 +125,7 @@ func (s *Service) GetClassesByChildIds(ids *[]string) (classesMap map[string][]m
 	classes, err := s.dao.GetClassesByChildIds(ids)
 	for _, class := range *classes {
 		if listc, ok := classesMap[class.StudentId]; ok {
-			listc = append(listc, class)
+			classesMap[class.StudentId] = append(classesMap[class.StudentId], class)
 		} else {
 			listc = make([]model.ChildClass, 0)
 			listc = append(listc, class)
@@ -150,12 +150,12 @@ func (s *Service) IsRoleTeacher(role int) bool {
 }
 
 // 是否外教
-func (s *Service) IsRoleForeTeacher (role int) bool {
+func (s *Service) IsRoleForeTeacher(role int) bool {
 	return role == consts.AccountRoleForeignTeacher
 }
 
 // 是否中教
-func (s *Service) IsRoleChineseTeacher (role int) bool {
+func (s *Service) IsRoleChineseTeacher(role int) bool {
 	return role == consts.AccountRoleTeacher || role == consts.AccountRoleCorpWithTeacher
 }
 

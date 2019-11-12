@@ -78,9 +78,11 @@ func (d *Dao) CountAccountByRole(query, includeIds string, role int) (count int,
 
 const ListAccountByPageBaseSql = "SELECT * FROM `mk_account` WHERE (account_role = ?)"
 const whereHasQuery = " AND (account_name like ? or phone_number like ?)"
+
 // 这个特殊处理
 const whereIncludeIdsQuery = " AND (account_id in (%s))"
 const limitQuery = " limit ?,?"
+
 var queryParams []interface{}
 
 //const ListAccountByPageWithQuerySql = "SELECT * FROM `mk_account`  WHERE (account_role = ?) AND (account_name like ? or phone_number like ?) limit ?,?"
@@ -91,9 +93,10 @@ func (d *Dao) PageListAccountByRole(role, offset, pageSize int, query, includeId
 	//includeIds = "26445657','26445658','86824296"
 
 	accounts = new([]model.AccountInfo)
-	var sql  = ListAccountByPageBaseSql
+	var sql = ListAccountByPageBaseSql
 	queryParams = append(queryParams, role)
 	if query != "" {
+		query = "%" + query + "%"
 		sql += whereHasQuery
 		queryParams = append(queryParams, query, query)
 	}
@@ -296,7 +299,7 @@ const countChildInClassWithQuerySql = `SELECT
 
 func (d *Dao) CountChildInClassWithQuery(query string) (count int, err error) {
 	if query == "" {
-		err = d.DB.Raw(countChildInClassSql).Scan(&count).Error
+		err = d.DB.Raw(countChildInClassSql).Count(&count).Error
 		return
 	}
 	query = "%" + query + "%"

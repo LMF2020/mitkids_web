@@ -14,6 +14,7 @@ func Init(conf *conf.Config, service *service.Service) {
 	s = service
 	cron := cron.New()
 	cron.AddFunc(conf.Job.EndClassOccurrClassOccurrencesCron, endClassOccurrClassOccurrencesJob)
+
 	cron.Start()
 	//defer cron.Stop()
 }
@@ -21,6 +22,6 @@ func Init(conf *conf.Config, service *service.Service) {
 func endClassOccurrClassOccurrencesJob() {
 	log.Logger.Info("job run endClassOccurrClassOccurrencesJob")
 	time := time.Now()
-	s.EndClassOccurrClassOccurrencesByDateTimeSql(&time)
+	s.EndClassOccurrClassOccurrencesByDateTime(&time)
 
 }

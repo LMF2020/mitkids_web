@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"encoding/json"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 	"mitkid_web/consts"
@@ -320,7 +319,6 @@ func ChildCalendarQueryHandler(c *gin.Context) {
 type ApplyJoinForm struct {
 	StudentId string `form:"student_id"`
 	ClassId   string `form:"class_id"`
-	Plans     string `form:"plans"`
 }
 
 func ChildApplyJoiningClassHandler(c *gin.Context) {
@@ -342,17 +340,8 @@ func ChildApplyJoiningClassHandler(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, "账号不一致")
 		return
 	}
-	if form.Plans == "" {
-		api.Fail(c, http.StatusBadRequest, "plans为必填")
-		return
-	}
-	plansMap := make(map[int]int)
-	if err := json.Unmarshal([]byte(form.Plans), &plansMap); err == nil {
-		api.Fail(c, http.StatusBadRequest, "plans不符合规范")
-		return
-	}
 
-	if err := s.ApplyJoiningClass(studentId, classId, c, plansMap); err != nil {
+	if err := s.ApplyJoiningClass(studentId, classId, c); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 		return
 	}

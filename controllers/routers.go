@@ -10,9 +10,11 @@ import (
 )
 
 var s *service.Service
+var config *conf.Config
 
 func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	s = service
+	config = c
 	r := gin.Default()
 	// JWT认证中间件
 	jwtFilter := filter.NewJwtAuthMiddleware(service)
@@ -104,8 +106,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// 教师登录
 	teacherGroup.POST("/login", jwtFilter.LoginHandler)
 	// 教师tokenGroup: used for verify token and check if token is logged out
-	teacherTokenGroup := authGroup.Group("/teacher").Use(jwtFilter.MiddlewareFunc(),
-		filter.RoleHandler(), filter.LogoutHandler())
+	teacherTokenGroup := authGroup.Group("/teacher") /*.Use(jwtFilter.MiddlewareFunc(),
+	filter.RoleHandler(), filter.LogoutHandler())*/
 	{
 		// 教师登出
 		teacherTokenGroup.POST("/logout", nil)
@@ -143,6 +145,9 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.POST("/child/performance", TeacherQueryChildPerformanceHandler)
 		// 更新学生评分记录
 		teacherTokenGroup.POST("/child/performance/update", TeacherUpdateChildPerformanceHandler)
+		teacherTokenGroup.POST("/class/file/list", ListClassFile)
+		teacherTokenGroup.GET("/class/file/get", getClassFile)
+		teacherTokenGroup.GET("/class/file/get/*path", getClassFile)
 	}
 
 	/**

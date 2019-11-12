@@ -53,8 +53,12 @@ func (d *Dao) ListScheduledOccurringClass(classId, scheduledTimeOrder string, oc
 }
 
 //
-func (d *Dao) CountClassOccurs(classId string, occurStatus int) (count int, err error) {
+func (d *Dao) CountClassOccursWithStatus(classId string, occurStatus int) (count int, err error) {
 	err = d.DB.Model(&model.ClassOccurrence{}).Where("class_id = ? and occurrence_status = ?", classId, occurStatus).Count(&count).Error
+	return
+}
+func (d *Dao) CountClassOccurs(classId string) (count int, err error) {
+	err = d.DB.Model(&model.ClassOccurrence{}).Where("class_id = ? ", classId).Count(&count).Error
 	return
 }
 
@@ -286,11 +290,29 @@ const EndClassOccurrClassOccurrencesByDateTimeSql = `UPDATE mk_class_occurrence 
 														co.occurrence_time = ? 
 														AND c.end_time < ?)`
 
-func (d *Dao) EndClassOccurrClassOccurrencesByDateTimeSql(datetime *time.Time) error {
+func (d *Dao) EndClassOccurrClassOccurrencesByDateTime(datetime *time.Time) error {
 	date := datetime.Format("2006-01-02 00:00:00")
 	time := datetime.Format("15:04:05")
 	return d.DB.Exec(EndClassOccurrClassOccurrencesByDateTimeSql, date, date, time).Error
 }
+
+const ListNeedEndClassOccurrClassOccurrencesSql = `SELECT distinct(c.class_id) from mk_class_occurrence co,
+													mk_class c 
+													WHERE
+														co.class_id = c.class_id 
+														AND co.occurrence_status = 1 
+														AND co.occurrence_time < ? 
+														OR (
+														co.occurrence_time = ? 
+														AND c.end_time < ?)`
+
+func (d *Dao) ListNeedEndClassOccurrClassOccurrences(datetime *time.Time) (classIds []string, err error) {
+	date := datetime.Format("2006-01-02 00:00:00")
+	time := datetime.Format("15:04:05")
+	err = d.DB.Raw(ListNeedEndClassOccurrClassOccurrencesSql, date, date, time).Find(&classIds).Error
+	return
+}
+
 func (d *Dao) GetAllClassOccurrencesByClassId(classId string) (cOs []model.ClassOccurrence, err error) {
 	err = d.DB.Model(&model.ClassOccurrence{}).Where("class_id = ?", classId).Find(&cOs).Error
 	return

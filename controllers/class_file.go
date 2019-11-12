@@ -24,6 +24,9 @@ func ListClassFile(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, "获取文件列表失败")
 		return
 	}
+	if !strings.HasSuffix(path, "/") {
+		path += "/"
+	}
 	list = list[1:len(list)]
 	for i, _ := range list {
 		list[i] = strings.Replace(list[i], path, "", 1)

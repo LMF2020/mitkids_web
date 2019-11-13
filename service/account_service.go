@@ -14,6 +14,10 @@ func (s *Service) GetAccountByPhoneNumber(number string) (account *model.Account
 	return s.dao.GetAccountByPhoneNumber(number)
 }
 
+func (s *Service) GetAccountByEmail(email string) (account *model.AccountInfo, err error) {
+	return s.dao.GetAccountByEmail(email)
+}
+
 func (s *Service) GetAccountById(id string) (account *model.AccountInfo, err error) {
 	return s.dao.GetAccountById(id)
 }
@@ -30,13 +34,26 @@ func (s *Service) GetChildById(id string) (account *model.AccountInfo, err error
 // 创建账号
 func (s *Service) CreateAccount(b *model.AccountInfo) (err error) {
 
-	// 验证手机号是否存在
-	if _tmpAcc, err := s.GetAccountByPhoneNumber(b.PhoneNumber); err != nil {
-		log.Logger.WithError(err)
-		return errors.New("系统异常")
-	} else if _tmpAcc != nil {
-		return errors.New("手机号已注册")
+	// 手机号不为空，需要校验手机号，中教老师的手机号必须校验，外教可以不校验手机号
+	if b.PhoneNumber != "" {
+		if _tmpAcc, err := s.GetAccountByPhoneNumber(b.PhoneNumber); err != nil {
+			log.Logger.WithError(err)
+			return errors.New("系统异常")
+		} else if _tmpAcc != nil {
+			return errors.New("手机号已注册")
+		}
 	}
+
+	// 验证邮箱是否已被注册
+	if b.Email != "" {
+		if _tmpAcc, err := s.GetAccountByEmail(b.Email); err != nil {
+			log.Logger.WithError(err)
+			return errors.New("系统异常")
+		} else if _tmpAcc != nil {
+			return errors.New("邮箱已被注册")
+		}
+	}
+
 
 	// 生成账号ID
 	var id string
@@ -63,13 +80,32 @@ func (s *Service) LoginWithPass(login model.LoginForm) (account *model.AccountIn
 
 	phoneNumber, password := login.PhoneNumber, login.Password
 
-	// 校验手机号是否存在
-	if account, err = s.GetAccountByPhoneNumber(phoneNumber); err != nil {
-		log.Logger.WithError(err)
-		return nil, errors.New("系统异常")
-	} else if account == nil {
-		return nil, errors.New("手机号未注册")
+	var verified = false
+
+	// 判断是否用户ID登陆, 学生8位、教师6位
+	if phoneNumber != "" &&  len(phoneNumber) == 6 || len(phoneNumber) == 8 {
+		if account, err = s.GetAccountById(phoneNumber); err != nil {
+			log.Logger.WithError(err)
+			return nil, errors.New("账号异常")
+		} else if account == nil {
+			return nil, errors.New("账号ID不正确")
+		}
+
+		// ID 验证通过
+		verified = true
 	}
+
+	// ID 验证通过，跳过手机号的验证
+	if !verified {
+		// 校验手机号是否存在
+		if account, err = s.GetAccountByPhoneNumber(phoneNumber); err != nil {
+			log.Logger.WithError(err)
+			return nil, errors.New("账号异常")
+		} else if account == nil {
+			return nil, errors.New("手机号未注册")
+		}
+	}
+
 
 	// 校验密码
 	if utils.MD5(password) != account.Password {

@@ -89,6 +89,84 @@ func CreateAccount(c *gin.Context, role uint) {
 	}
 }
 
+// 管理员创建账号
+func AdminCreateAccount(c *gin.Context) {
+
+	var account model.AccountInfo
+	if err := c.ShouldBind(&account); err == nil {
+
+		//account.AccountRole = role
+		account.AccountStatus = consts.AccountStatusNormal
+		account.AccountType = consts.AccountTypePaid
+
+		// 参数校验
+		if account.AccountRole == 0 {
+			api.Fail(c, http.StatusBadRequest, "缺少角色参数")
+			return
+		}
+
+		if !s.IsRoleTeacher(int(account.AccountRole)) {
+			api.Fail(c, http.StatusBadRequest, "角色不正确")
+			return
+		}
+
+		if account.AccountName == "" {
+			api.Fail(c, http.StatusBadRequest, "缺少教师姓名")
+			return
+		}
+
+		if account.AccountRole == consts.AccountRoleTeacher && account.PhoneNumber == "" {
+			api.Fail(c, http.StatusBadRequest, "缺少中教手机号")
+			return
+		}
+
+		if account.AccountRole == consts.AccountRoleForeignTeacher && account.Email == "" {
+			api.Fail(c, http.StatusBadRequest, "缺少外教邮箱")
+			return
+		}
+
+		if account.Email != "" && !utils.VerifyEmailFormat(account.Email) {
+			api.Fail(c, http.StatusBadRequest, "请填写正确的邮箱")
+			return
+		}
+
+		if account.Password == "" { // 密码未提供, 默认密码123456
+			account.Password = "123456"
+		}
+
+		if account.Gender == 0 {
+			api.Fail(c, http.StatusBadRequest, "缺少教师年龄")
+			return
+		}
+
+		if account.PhoneNumber != "" { // 如果电话号码不为空，需要校验电话号码
+			if _tmpAcc, err := s.GetAccountByPhoneNumber(account.PhoneNumber); err != nil {
+				api.Fail(c, http.StatusInternalServerError, "系统内部错误")
+				return
+			} else if _tmpAcc != nil {
+				api.Fail(c, errorcode.USER_ALREADY_EXIS, "手机号已注册")
+				return
+			}
+		}
+
+		// 设置默认姓名
+		// account.AccountName = _setDefaultName(account.PhoneNumber, role)
+
+		// 创建账号信息
+		if err := s.CreateAccount(&account); err != nil {
+			api.Fail(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		log.Logger.WithField("account", account).Info("create account successfully")
+
+		api.Success(c, "教师账号创建成功")
+	} else {
+		log.Logger.WithField("account", account).Error("admin create account failed")
+		api.Fail(c, http.StatusBadRequest, err.Error())
+	}
+}
+
 // 学生、教师头像下载
 func UserAvatarDownloadHandler(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)

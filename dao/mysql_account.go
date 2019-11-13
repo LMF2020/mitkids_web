@@ -9,10 +9,20 @@ import (
 	"mitkid_web/utils/log"
 )
 
-//根据phonenumber 查询帐号
+//根据手机号查询帐号
 func (d *Dao) GetAccountByPhoneNumber(number string) (account *model.AccountInfo, err error) {
 	account = &model.AccountInfo{}
 	if err := d.DB.Where("phone_number = ?", number).First(account).Error; err == gorm.ErrRecordNotFound {
+		err = nil
+		account = nil
+	}
+	return
+}
+
+// 根据邮箱查询账号
+func (d *Dao) GetAccountByEmail (email string) (account *model.AccountInfo, err error) {
+	account = &model.AccountInfo{}
+	if err := d.DB.Where("email = ?", email).First(account).Error; err == gorm.ErrRecordNotFound {
 		err = nil
 		account = nil
 	}

@@ -290,3 +290,8 @@ func ListChildWithPlanByPage(c *gin.Context) {
 	api.Fail(c, http.StatusBadRequest, err.Error())
 	return
 }
+
+// 创建外教
+func AdminCreateTeacher(c *gin.Context) {
+	AdminCreateAccount(c)
+}

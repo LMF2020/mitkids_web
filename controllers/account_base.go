@@ -134,7 +134,12 @@ func AdminCreateAccount(c *gin.Context) {
 			account.Password = "123456"
 		}
 
-		if account.Gender == 0 {
+		if account.Gender != consts.AccountGenderMale ||  account.Gender != consts.AccountGenderFemale {
+			api.Fail(c, http.StatusBadRequest, "缺少教师性别")
+			return
+		}
+
+		if account.Age == 0 {
 			api.Fail(c, http.StatusBadRequest, "缺少教师年龄")
 			return
 		}

@@ -17,4 +17,7 @@ const (
 
 	AccountLoginTypePass = 1
 	AccountLoginTypeCode = 2
+
+	AccountGenderMale = 1 // 男
+	AccountGenderFemale = 2  // 女
 )

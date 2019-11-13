@@ -148,6 +148,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 		teacherTokenGroup.POST("/class/file/list", ListClassFile)
 		teacherTokenGroup.GET("/class/file/get", getClassFile)
 		teacherTokenGroup.GET("/class/file/get/*path", getClassFile)
+
 	}
 
 	/**
@@ -174,6 +175,7 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	adminGroup.POST("/room/update", UpdateRoomById)
 	adminGroup.POST("/room/list", ListRoomWithQueryByPage)
 	adminGroup.POST("/teacher/list", ListTeacherByPage)
+	adminGroup.POST("/teacher/create", AdminCreateTeacher)
 	adminGroup.POST("/applyChild/list", PageListApplyClassChild)
 	adminGroup.POST("/child/listwithplan", ListChildWithPlanByPage)
 	adminGroup.POST("/child/plan/list", ListChildPlanById)

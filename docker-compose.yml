@@ -7,6 +7,7 @@ services:
     build: .
     restart: always
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ./:/app/mulkids
       - ./logs:/go-docker/logs
       - ./gocache:/go/pkg/mod/cache
@@ -29,6 +30,7 @@ services:
       - ./mysql_data:/var/lib/mysql
     restart: always
     environment:
+      TZ: Asia/Shanghai
       MYSQL_ROOT_PASSWORD: ZoOMus123
       MYSQL_DATABASE: MulKids
       MYSQL_USER: root

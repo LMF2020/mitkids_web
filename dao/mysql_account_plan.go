@@ -61,7 +61,7 @@ func (d *Dao) BatchUpdatePlanUsedClass(aid string, pid, uc int) error {
 
 // 根据条件查询Plam
 func (d *Dao) ListValidAccountPlansWithAccountIDs(accountIds []string) (plans []model.AccountPlan, err error) {
-	if err = d.DB.Where("account_id in (?) and (plan_expired_at > now() OR plan_expired_at is NULL)", accountIds).Find(&plans).Error; err == gorm.ErrRecordNotFound {
+	if err = d.DB.Where("plan_code != 1 and account_id in (?) and (plan_expired_at > now() OR plan_expired_at is NULL)", accountIds).Find(&plans).Error; err == gorm.ErrRecordNotFound {
 		err = nil
 		plans = nil
 	}
@@ -69,7 +69,7 @@ func (d *Dao) ListValidAccountPlansWithAccountIDs(accountIds []string) (plans []
 }
 
 func (d *Dao) DeActiveExpirePlanByChildIds(accountIds []string) error {
-	return d.DB.Table(consts.TABLE_ACCOUNT_PLAN).Where("account_id in (?) and status = ?", accountIds, consts.PLAN_ACTIVE_STATUS).Update("status ", consts.PLAN_NOACTIVE_STATUS).Error
+	return d.DB.Table(consts.TABLE_ACCOUNT_PLAN).Where("plan_code != 1 and account_id in (?) and status = ?", accountIds, consts.PLAN_ACTIVE_STATUS).Update("status ", consts.PLAN_NOACTIVE_STATUS).Error
 }
 
 const ActiveExpirePlanSql = `UPDATE mk_account_plan 

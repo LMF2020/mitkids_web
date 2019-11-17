@@ -164,6 +164,15 @@ func TeacherCalendarDetailQueryHandler(c *gin.Context) {
 	}
 	classDate := c.PostForm("class_date")
 	if result, err := s.ListCalendarDeatilByTeacher(teacherId, classDate); err != nil {
+
+		// 拼接book link
+		if result != nil {
+			for i , item := range result {
+				result[i].BookLink = consts.GetBookUrl(item.BookCode, item.BookLevel, item.BookPhase)
+				result[i].BookTitle = consts.GetBookTitle(item.BookCode)
+			}
+		}
+
 		api.Fail(c, http.StatusInternalServerError, "查询班级课表失败")
 		return
 	} else {

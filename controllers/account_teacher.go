@@ -227,6 +227,14 @@ func TeacherFinishedOccurrenceQueryHandler(c *gin.Context) {
 
 	// 查询不区分班级
 	if result, err := s.PageFinishedOccurrenceByClassIdArray(1, size, classIdArr); err == nil {
+
+		// 拼接book link
+		if result != nil {
+			for i , item := range result {
+				result[i].BookLink = consts.GetBookUrl(item.BookCode, item.BookLevel, item.BookPhase)
+				result[i].BookTitle = consts.GetBookTitle(item.BookCode)
+			}
+		}
 		api.Success(c, result)
 		return
 	} else {
@@ -270,6 +278,13 @@ func TeacherPageQueryFinishedOccurrenceHandler(c *gin.Context) {
 			pageInfo.PageCount = pageCount
 			pageInfo.TotalCount = totalRecords
 			if result, err2 := s.PageFinishedOccurrenceByClassIdArray(pn, ps, strings.Split(classIdlist, ",")); err2 == nil {
+				// 拼接 book link
+				if result != nil {
+					for i , item := range result {
+						result[i].BookLink = consts.GetBookUrl(item.BookCode, item.BookLevel, item.BookPhase)
+						result[i].BookTitle = consts.GetBookTitle(item.BookCode)
+					}
+				}
 				pageInfo.Results = result
 				api.Success(c, pageInfo)
 				return

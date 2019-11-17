@@ -1,13 +1,12 @@
 package controllers
 
 import (
-	"fmt"
 	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
+	"mitkid_web/consts"
 	"mitkid_web/controllers/api"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 func BookListHandler(c *gin.Context) {
@@ -36,23 +35,14 @@ func BookListHandler(c *gin.Context) {
 	if books, err := s.ListBookByLevel(le); err != nil {
 		api.Fail(c, http.StatusInternalServerError, err.Error())
 	} else {
-		// 包装 book url
+		// 拼接 book link
 		for i , book := range books {
-			// MitKids/Level_01/Phase_01/Unit_01/Lesson_01
-			// lv3_10_01
-			unit, lesson := getUnitAndLessonFromBookCode(book.BookCode)
-			bookUrl := fmt.Sprintf("/MitKids/Level_0%d/Phase_0%d/Unit_%s/Lesson_%s", book.BookLevel, book.BookPhase, unit, lesson)
-			books[i].BookUrl = bookUrl
-			books[i].BookTitle = fmt.Sprintf("Unit %s Lesson %s", unit, lesson)
+			books[i].BookUrl = consts.GetBookUrl(book.BookCode, book.BookLevel, book.BookPhase)
+			books[i].BookTitle = consts.GetBookTitle(book.BookCode)
 		}
 
 		api.Success(c, books)
 	}
 	return
 
-}
-
-func getUnitAndLessonFromBookCode(bookCode string) (unit, lesson string) {
-	s := strings.Split(bookCode, "_")
-	return s[1], s[2]
 }

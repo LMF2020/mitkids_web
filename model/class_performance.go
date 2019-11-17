@@ -36,8 +36,10 @@ type ClassRecordItem struct {
 	ForeTeacherId   string        `json:"fore_teacher_id" form:"fore_teacher_id"`     // 外教编号
 	TeacherName     string        `json:"teacher_name" form:"teacher_name"`           // 中教姓名
 	ForeTeacherName string        `json:"fore_teacher_name" form:"fore_teacher_name"` // 外教姓名
-	BookLevel       uint          `json:"book_level" form:"book_level" `              // 课程级别
+	BookLevel       int           `json:"book_level" form:"book_level" `              // 课程级别
+	BookPhase 		int    		  `json:"book_phase" form:"book_phase"`  			  // 阶段
 	BookCode        string        `json:"book_code" form:"book_code"`                 // 课本的代码
+	BookTitle 		string 		  `json:"book_title" form:"book_title"`  			  // Unit1 Lesson1
 	BookName        string        `json:"book_name" form:"book_name"`                 // 课本的名称
 	RoomName        string        `json:"room_name" form:"room_name"`                 // 上课教室
 	ScheduleTime    utils.RawTime `json:"schedule_time" form:"schedule_time"`         // 计划上课时间

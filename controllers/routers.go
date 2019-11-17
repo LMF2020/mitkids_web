@@ -106,8 +106,8 @@ func SetUpRouters(c *conf.Config, service *service.Service) *gin.Engine {
 	// 教师登录
 	teacherGroup.POST("/login", jwtFilter.LoginHandler)
 	// 教师tokenGroup: used for verify token and check if token is logged out
-	teacherTokenGroup := authGroup.Group("/teacher") /*.Use(jwtFilter.MiddlewareFunc(),
-	filter.RoleHandler(), filter.LogoutHandler())*/
+	teacherTokenGroup := authGroup.Group("/teacher").Use(jwtFilter.MiddlewareFunc(),
+		filter.RoleHandler(), filter.LogoutHandler())
 	{
 		// 教师登出
 		teacherTokenGroup.POST("/logout", nil)

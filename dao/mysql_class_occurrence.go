@@ -173,6 +173,7 @@ func (d *Dao) ListCalendarDeatilByTeacher(teacherId, classDate string) (classOcc
 			  coo.book_code,
 			  bk.book_name,
 			  bk.book_link,
+			  bk.book_phase,
 			  coo.occurrence_status AS STATUS,
 			  c.start_time AS schedule_time,
 			  DATE_FORMAT(coo.occurrence_time, '%Y-%m-%d') AS occurrence_time,

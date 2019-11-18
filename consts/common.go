@@ -25,7 +25,7 @@ const (
 	DEFAULT_PAGE_SIZE = 10
 
 	BOOK_MIN_UNIT         = 1
-	BOOK_MAX_UNIT         = 3
+	BOOK_MAX_UNIT         = 12
 	BOOK_UNIT_CLASS_COUNT = 8
 	BOOK_PLAN_FMT         = "%s%d_%d单元"
 
@@ -65,7 +65,7 @@ func GetUnitAndLessonFromBookCode(bookCode string) (unit, lesson string) {
 // 通过bookCode,level,phase  获取下载链接
 func GetBookUrl(bookCode string, bookLevel, boolPhase int) string {
 	unit, lesson := GetUnitAndLessonFromBookCode(bookCode)
-	return fmt.Sprintf("/MitKids/Level_0%d/Phase_0%d/Unit_%s/Lesson_%s",bookLevel, boolPhase, unit, lesson)
+	return fmt.Sprintf("/Level_0%d/Phase_0%d/Unit_%s/Lesson_%s", bookLevel, boolPhase, unit, lesson)
 }
 
 func GetBookTitle(bookCode string) string {

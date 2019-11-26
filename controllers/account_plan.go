@@ -63,10 +63,7 @@ func AddPlanForChild(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, "")
 		return
 	}
-	if c.PostForm("start_time") == "" {
-		api.Fail(c, http.StatusBadRequest, "套餐的开始时间为必填参数")
-		return
-	}
+
 	if err = s.AddUserPlan(parms.AccountId, &plan); err != nil {
 		api.Fail(c, http.StatusBadRequest, "添加plan失败")
 		return

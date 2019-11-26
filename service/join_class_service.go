@@ -6,6 +6,7 @@ import (
 	"mitkid_web/consts"
 	"mitkid_web/model"
 	"mitkid_web/utils/log"
+	"time"
 )
 
 func (s *Service) AddChildToClass(id string, childId string) (err error) {
@@ -62,6 +63,23 @@ func (s *Service) ApplyJoiningClass(childId, classId string, ctx *gin.Context) e
 	joinCls, err = s.dao.GetJoiningClass(classId, childId, consts.JoinClassSuccess)
 	if joinCls != nil && err == nil {
 		return errors.New("已加入班级，不能重复申请")
+	}
+	//查询 是否还又空余plan
+	plans, err := s.ListAccountPlansWithAccountID(childId)
+	if err != nil {
+		return err
+	}
+	isAllow := false
+	now := time.Now()
+	for _, plan := range plans {
+		if plan.PlanCode != consts.FREE_TRIAL_PLAN {
+			if plan.PlanExpiredAt.Valid == false || (now.Before(plan.PlanExpiredAt.Time) && plan.RemainingClass > 0) {
+				isAllow = true
+			}
+		}
+	}
+	if !isAllow {
+		return errors.New("无有效plan")
 	}
 
 	// 处理失败的case,允许继续申请

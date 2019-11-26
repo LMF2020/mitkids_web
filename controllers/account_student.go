@@ -143,12 +143,12 @@ func ClassesQueryByRoomIdHandler(c *gin.Context) {
 		return
 	}
 
-	class, err := s.GetJoinedClassByStudent(studentId)
+	result, err := s.GetJoinedClassByStudent(studentId)
 	var joinedClassId = ""
 	if err != nil {
 		log.Logger.Debug("查询学生所在班级时出错")
-	} else if class != nil {
-		joinedClassId = class["class_id"].(string)
+	} else if result != nil {
+		joinedClassId = result["class_id"].(string)
 	}
 
 	roomId := c.Param("roomId")
@@ -409,14 +409,14 @@ func ChildMyTeachersQueryHandler(c *gin.Context) {
 		teacherId := result["teacher_id"]
 		foreTeacherId := result["fore_teacher_id"]
 		var res []model.AccountInfo
-		if teacherId != "" {
+		if teacherId != "" && teacherId != nil{
 			info, err := s.GetAccountById(teacherId.(string))
 			if err == nil {
 				res = append(res, *info)
 			}
 		}
 
-		if foreTeacherId != "" {
+		if foreTeacherId != "" && foreTeacherId != nil {
 			info, err := s.GetAccountById(foreTeacherId.(string))
 			if err == nil {
 				res = append(res, *info)

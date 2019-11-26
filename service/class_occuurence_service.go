@@ -47,6 +47,13 @@ func (s *Service) ListClassOccurrenceByTeacher(role int, teacherId string) (clas
 			name := fmt.Sprintf("%s_%d", cls.ClassName, i)
 			classOccurList, err := s.dao.ListScheduledOccurringClass(cls.ClassId, "ASC", consts.ClassOccurStatusNotStart, 5)
 			if err == nil {
+				// 拼接book link
+				if classOccurList != nil {
+					for i , item := range classOccurList {
+						classOccurList[i].BookLink = consts.GetBookUrl(item.BookCode, item.BookLevel, item.BookPhase)
+						classOccurList[i].BookTitle = consts.GetBookTitle(item.BookCode)
+					}
+				}
 				classes[name] = classOccurList
 			}
 		}

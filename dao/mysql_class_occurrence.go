@@ -288,10 +288,10 @@ const EndClassOccurrClassOccurrencesByDateTimeSql = `UPDATE mk_class_occurrence 
 														WHERE
 															co.class_id = c.class_id 
 															and co.occurrence_status=1
-														AND co.occurrence_time < ? 
+														AND (co.occurrence_time < ? 
 														OR (
 														co.occurrence_time = ? 
-														AND c.end_time < ?)`
+														AND c.end_time < ?))`
 
 func (d *Dao) EndClassOccurrClassOccurrencesByDateTime(datetime *time.Time) error {
 	date := datetime.Format("2006-01-02 00:00:00")
@@ -304,10 +304,10 @@ const ListNeedEndClassOccurrClassOccurrencesSql = `SELECT distinct(c.class_id) f
 													WHERE
 														co.class_id = c.class_id 
 														AND co.occurrence_status = 1 
-														AND co.occurrence_time < ? 
+														AND (co.occurrence_time < ? 
 														OR (
 														co.occurrence_time = ? 
-														AND c.end_time < ?)`
+														AND c.end_time < ?))`
 
 func (d *Dao) ListNeedEndClassOccurrClassOccurrences(datetime *time.Time) (classIds []string, err error) {
 	date := datetime.Format("2006-01-02 00:00:00")

@@ -49,7 +49,7 @@ func (s *Service) ListClassOccurrenceByTeacher(role int, teacherId string) (clas
 			if err == nil {
 				// 拼接book link
 				if classOccurList != nil {
-					for i , item := range classOccurList {
+					for i, item := range classOccurList {
 						classOccurList[i].BookLink = consts.GetBookUrl(item.BookCode, item.BookLevel, item.BookPhase)
 						classOccurList[i].BookTitle = consts.GetBookTitle(item.BookCode)
 					}
@@ -206,7 +206,7 @@ func (s *Service) EndClassOccurrClassOccurrencesByDateTime(datetime *time.Time) 
 }
 
 func (s *Service) deductUserPlanAfterClassJob(datetime *time.Time) {
-	log.Logger.Info("job run DeductUserPlanAfterClassJob")
+	log.Logger.Info("job run deductUserPlanAfterClassJob")
 	classIds, err := s.dao.ListNeedEndClassOccurrClassOccurrences(datetime)
 	if err != nil {
 		log.Logger.Error("job run DeductUserPlanAfterClassJob error: %s", err.Error())
@@ -217,6 +217,7 @@ func (s *Service) deductUserPlanAfterClassJob(datetime *time.Time) {
 			log.Logger.Error("job run DeductUserPlanAfterClassJob error classid :%s: %s", id, err.Error())
 			continue
 		}
+		log.Logger.Debug("DeductUserPlanAfterClassJob classid %s childlist:%v", id, childIds)
 		if len(childIds) != 0 {
 			plans, err := s.ListValidAccountPlansWithAccountIDs(childIds)
 			if err != nil {

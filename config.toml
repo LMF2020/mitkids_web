@@ -1,5 +1,5 @@
 WebCacheDir="./webcache"
-ClassFilePrefix="/class_file"
+ClassFilePrefix="/MitKids"
 
 [db]
     host="106.54.31.127"
@@ -17,6 +17,6 @@ ClassFilePrefix="/class_file"
     EndClassOccurrClassOccurrencesCron="0 */1 * * *"
     DeductUserPlanAfterClass="0 */1 * * *"
 [soc]
-    url=""
-    SecretID=""
-    SecretKey=""
+    url="https://mitkids-1300207290.cos.ap-guangzhou.myqcloud.com"
+    SecretID="AKIDiDSQDkR5tDHLbet5QX5NO9eIl01mlXVy"
+    SecretKey="TgdoiNwfAzazA3f18yYs0uX0C8nZ4KJ0"

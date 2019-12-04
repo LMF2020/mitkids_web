@@ -209,19 +209,20 @@ func (s *Service) deductUserPlanAfterClassJob(datetime *time.Time) {
 	log.Logger.Info("job run deductUserPlanAfterClassJob")
 	classIds, err := s.dao.ListNeedEndClassOccurrClassOccurrences(datetime)
 	if err != nil {
-		log.Logger.Error("job run DeductUserPlanAfterClassJob error: %s", err.Error())
+		log.Logger.Errorf("job run DeductUserPlanAfterClassJob error: %s", err.Error())
 	}
+	log.Logger.Debugf("DeductUserPlanAfterClassJob classIds %v", classIds)
 	for _, id := range classIds {
 		childIds, err := s.ListClassChildIdsByClassId(id)
 		if err != nil {
-			log.Logger.Error("job run DeductUserPlanAfterClassJob error classid :%s: %s", id, err.Error())
+			log.Logger.Errorf("job run DeductUserPlanAfterClassJob error classid :%s: %s", id, err.Error())
 			continue
 		}
-		log.Logger.Debug("DeductUserPlanAfterClassJob classid %s childlist:%v", id, childIds)
+		log.Logger.Debugf("DeductUserPlanAfterClassJob classid %s childlist:%v", id, childIds)
 		if len(childIds) != 0 {
 			plans, err := s.ListValidAccountPlansWithAccountIDs(childIds)
 			if err != nil {
-				log.Logger.Error("job run DeductUserPlanAfterClassJob error classid :%s: %s", id, err.Error())
+				log.Logger.Errorf("job run DeductUserPlanAfterClassJob error classid :%s: %s", id, err.Error())
 				continue
 			}
 			needActive := make(map[string]model.AccountPlan)
@@ -253,6 +254,7 @@ func (s *Service) deductUserPlanAfterClassJob(datetime *time.Time) {
 }
 
 func (s *Service) ActivePlanByChildIds(needActive map[string]model.AccountPlan) {
+	log.Logger.Debugf("DeductUserPlanAfterClassJob ActivePlanByChildIds %v", needActive)
 	needActiveCount := len(needActive)
 	needActiveArr := make([]string, needActiveCount, needActiveCount)
 	planIds := make([]int, needActiveCount, needActiveCount)
@@ -272,6 +274,7 @@ func (s *Service) ActivePlanByChildIds(needActive map[string]model.AccountPlan) 
 	}
 }
 func (s *Service) deductActivePlanRemainingClass(activeMap map[string]model.AccountPlan) {
+	log.Logger.Debugf("DeductUserPlanAfterClassJob deductActivePlanRemainingClass %v", activeMap)
 	activeCount := len(activeMap)
 	planIds := make([]int, activeCount, activeCount)
 	i := 0

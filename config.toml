@@ -14,7 +14,7 @@ ClassFilePrefix="/MitKids"
     level="debug"
 
 [job]
-    EndClassOccurrClassOccurrencesCron="0 */1 * * *"
+    EndClassOccurrClassOccurrencesCron="*/1 * * * *"
     DeductUserPlanAfterClass="0 */1 * * *"
 [soc]
     url="https://mitkids-1300207290.cos.ap-guangzhou.myqcloud.com"

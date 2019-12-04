@@ -69,7 +69,7 @@ func (d *Dao) ListValidAccountPlansWithAccountIDs(accountIds []string) (plans []
 }
 
 func (d *Dao) DeActiveExpirePlanByChildIds(accountIds []string) error {
-	return d.DB.Table(consts.TABLE_ACCOUNT_PLAN).Where("plan_code != 1 and account_id in (?) and status = ?", accountIds, consts.PLAN_ACTIVE_STATUS).Update("status ", consts.PLAN_NOACTIVE_STATUS).Error
+	return d.DB.Table(consts.TABLE_ACCOUNT_PLAN).Where("plan_code != 1 and account_id in (?) and status = ?", accountIds, consts.PLAN_ACTIVE_STATUS).Update("status", consts.PLAN_NOACTIVE_STATUS).Error
 }
 
 const ActiveExpirePlanSql = `UPDATE mk_account_plan 
@@ -89,8 +89,8 @@ CASE
 	date_add( NOW(), INTERVAL 15 MONTH ) 
 END where plan_id in (?) and status = ? `
 
-func (d *Dao) ActiveExpirePlanByChildIds(planIds []int) error {
-	return d.DB.Raw(ActiveExpirePlanSql, planIds, consts.PLAN_NOACTIVE_STATUS).Error
+func (d *Dao) ActiveExpirePlanByPlanIds(planIds []int) error {
+	return d.DB.Exec(ActiveExpirePlanSql, planIds, consts.PLAN_NOACTIVE_STATUS).Error
 }
 func (d *Dao) DeductActivePlanRemainingClass(planIds []int) error {
 	return d.DB.Table(consts.TABLE_ACCOUNT_PLAN).Where("plan_id in (?)", planIds).Update("remaining_class", gorm.Expr("remaining_class - 1")).Error

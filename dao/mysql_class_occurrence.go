@@ -299,7 +299,7 @@ func (d *Dao) EndClassOccurrClassOccurrencesByDateTime(datetime *time.Time) erro
 	return d.DB.Exec(EndClassOccurrClassOccurrencesByDateTimeSql, date, date, time).Error
 }
 
-const ListNeedEndClassOccurrClassOccurrencesSql = `SELECT distinct(c.class_id) from mk_class_occurrence co,
+const ListNeedEndClassOccurrClassOccurrencesSql = `SELECT distinct(c.class_id) as class_id from mk_class_occurrence co,
 													mk_class c 
 													WHERE
 														co.class_id = c.class_id 
@@ -309,10 +309,21 @@ const ListNeedEndClassOccurrClassOccurrencesSql = `SELECT distinct(c.class_id) f
 														co.occurrence_time = ? 
 														AND c.end_time < ?))`
 
+type class_id_model struct {
+	Class_id string
+}
+
 func (d *Dao) ListNeedEndClassOccurrClassOccurrences(datetime *time.Time) (classIds []string, err error) {
 	date := datetime.Format("2006-01-02 00:00:00")
 	time := datetime.Format("15:04:05")
-	err = d.DB.Raw(ListNeedEndClassOccurrClassOccurrencesSql, date, date, time).Find(&classIds).Error
+	var classmodels []class_id_model
+	err = d.DB.Raw(ListNeedEndClassOccurrClassOccurrencesSql, date, date, time).Scan(&classmodels).Error
+	if err != nil || len(classmodels) == 0 {
+		return
+	}
+	for _, item := range classmodels {
+		classIds = append(classIds, item.Class_id)
+	}
 	return
 }
 

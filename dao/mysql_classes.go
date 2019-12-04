@@ -203,7 +203,7 @@ func (d *Dao) ListClassByPageAndQuery(offset int, pageSize int, query string, cl
 		query = "%" + query + "%"
 		sql = sql + fmt.Sprintf(" and c.class_id like %s or c.class_name like %s", query, query)
 	}
-	if err = d.DB.Raw(sql).Offset(offset).Limit(pageSize).Find(&classes).Error; err != nil {
+	if err = d.DB.Raw(sql).Offset(offset).Limit(pageSize).Scan(&classes).Error; err != nil {
 		log.Logger.Error("db error(%v)", err)
 		return
 	}

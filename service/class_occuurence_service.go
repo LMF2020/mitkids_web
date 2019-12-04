@@ -237,6 +237,7 @@ func (s *Service) deductUserPlanAfterClassJob(datetime *time.Time) {
 				if plan.Status == consts.PLAN_ACTIVE_STATUS && plan.RemainingClass != 0 {
 					delete(needActive, plan.AccountId)
 					activeMap[plan.AccountId] = plan
+					break
 				} else {
 					if _, ok := needActive[plan.AccountId]; !ok {
 						needActive[plan.AccountId] = plan
@@ -268,9 +269,13 @@ func (s *Service) ActivePlanByChildIds(needActive map[string]model.AccountPlan) 
 	if err != nil {
 		log.Logger.Error("DeActiveExpirePlanByChildIds error:%s", err.Error())
 	}
-	err = s.dao.ActiveExpirePlanByChildIds(planIds)
+	err = s.dao.ActiveExpirePlanByPlanIds(planIds)
 	if err != nil {
 		log.Logger.Error("DeActiveExpirePlanByChildIds error:%s", err.Error())
+	}
+	err = s.dao.DeductActivePlanRemainingClass(planIds)
+	if err != nil {
+		log.Logger.Error("deductActivePlanRemainingClass error:%s", err.Error())
 	}
 }
 func (s *Service) deductActivePlanRemainingClass(activeMap map[string]model.AccountPlan) {
